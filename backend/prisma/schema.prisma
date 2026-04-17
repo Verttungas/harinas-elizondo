@@ -1,5 +1,7 @@
-// Esquema Prisma mínimo para la Fase A.
-// El modelo HealthCheck se eliminará al comenzar la Fase B (modelo de datos real).
+// ============================================================================
+// Prisma Schema — FHESA Sistema de Emisión de Certificados de Calidad
+// PostgreSQL 16 + Prisma 5+
+// ============================================================================
 
 generator client {
   provider = "prisma-client-js"
@@ -10,9 +12,367 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model HealthCheck {
-  id        BigInt   @id @default(autoincrement())
-  createdAt DateTime @default(now())
+// ============================================================================
+// ENUMS
+// ============================================================================
 
-  @@map("health_checks")
+enum RolUsuario {
+  LABORATORIO
+  CONTROL_CALIDAD
+  ASEGURAMIENTO_CALIDAD
+  GERENTE_PLANTA
+  DIRECTOR_OPERACIONES
+
+  @@map("rol_usuario")
+}
+
+enum EstadoEquipo {
+  ACTIVO
+  INACTIVO
+  BAJA
+
+  @@map("estado_equipo")
+}
+
+enum EstadoCliente {
+  ACTIVO
+  INACTIVO
+
+  @@map("estado_cliente")
+}
+
+enum EstadoInspeccion {
+  BORRADOR
+  CERRADA
+
+  @@map("estado_inspeccion")
+}
+
+enum EstadoCertificado {
+  EMITIDO
+  ENVIO_PARCIAL
+  ENVIADO
+
+  @@map("estado_certificado")
+}
+
+enum EstadoEnvio {
+  PENDIENTE
+  ENVIADO
+  FALLIDO
+
+  @@map("estado_envio")
+}
+
+enum DestinatarioTipo {
+  CLIENTE
+  ALMACEN
+
+  @@map("destinatario_tipo")
+}
+
+// ============================================================================
+// USUARIOS
+// ============================================================================
+
+model Usuario {
+  id               BigInt     @id @default(autoincrement())
+  correo           String     @unique @db.VarChar(120)
+  passwordHash     String     @map("password_hash") @db.VarChar(255)
+  nombre           String     @db.VarChar(120)
+  rol              RolUsuario
+  activo           Boolean    @default(true)
+  intentosFallidos Int        @default(0) @map("intentos_fallidos") @db.SmallInt
+  bloqueadoHasta   DateTime?  @map("bloqueado_hasta")
+  creadoEn         DateTime   @default(now()) @map("creado_en")
+  actualizadoEn    DateTime   @default(now()) @updatedAt @map("actualizado_en")
+
+  equiposCreados       EquipoLaboratorio[] @relation("equipoCreadoPor")
+  equiposActualizados  EquipoLaboratorio[] @relation("equipoActualizadoPor")
+  clientesCreados      Cliente[]           @relation("clienteCreadoPor")
+  clientesActualizados Cliente[]           @relation("clienteActualizadoPor")
+  lotesCreados         LoteProduccion[]
+  inspeccionesCreadas  Inspeccion[]
+  certificadosEmitidos Certificado[]
+  bitacoras            Bitacora[]
+
+  @@map("usuarios")
+}
+
+// ============================================================================
+// PRODUCTOS
+// ============================================================================
+
+model Producto {
+  id          BigInt   @id @default(autoincrement())
+  clave       String   @unique @db.VarChar(20)
+  nombre      String   @db.VarChar(120)
+  descripcion String?
+  creadoEn    DateTime @default(now()) @map("creado_en")
+
+  lotes LoteProduccion[]
+
+  @@map("productos")
+}
+
+// ============================================================================
+// EQUIPOS DE LABORATORIO
+// ============================================================================
+
+model EquipoLaboratorio {
+  id               BigInt       @id @default(autoincrement())
+  clave            String       @unique @db.VarChar(20)
+  descripcionCorta String       @map("descripcion_corta") @db.VarChar(80)
+  descripcionLarga String?      @map("descripcion_larga")
+  marca            String?      @db.VarChar(60)
+  modelo           String?      @db.VarChar(60)
+  serie            String?      @db.VarChar(60)
+  proveedor        String?      @db.VarChar(120)
+  fechaAdquisicion DateTime?    @map("fecha_adquisicion") @db.Date
+  vigenciaGarantia DateTime?    @map("vigencia_garantia") @db.Date
+  ubicacion        String?      @db.VarChar(120)
+  responsable      String?      @db.VarChar(120)
+  estado           EstadoEquipo @default(ACTIVO)
+  motivoBaja       String?      @map("motivo_baja")
+  creadoEn         DateTime     @default(now()) @map("creado_en")
+  actualizadoEn    DateTime     @default(now()) @updatedAt @map("actualizado_en")
+  creadoPor        BigInt       @map("creado_por")
+  actualizadoPor   BigInt       @map("actualizado_por")
+
+  usuarioCreador      Usuario     @relation("equipoCreadoPor", fields: [creadoPor], references: [id])
+  usuarioActualizador Usuario     @relation("equipoActualizadoPor", fields: [actualizadoPor], references: [id])
+  parametros          Parametro[]
+
+  @@map("equipos_laboratorio")
+}
+
+// ============================================================================
+// PARÁMETROS
+// ============================================================================
+
+model Parametro {
+  id                  BigInt   @id @default(autoincrement())
+  equipoId            BigInt   @map("equipo_id")
+  clave               String   @db.VarChar(20)
+  nombre              String   @db.VarChar(120)
+  unidadMedida        String   @map("unidad_medida") @db.VarChar(20)
+  desviacionAceptable Decimal? @map("desviacion_aceptable") @db.Decimal(10, 4)
+  limiteInferior      Decimal  @map("limite_inferior") @db.Decimal(12, 4)
+  limiteSuperior      Decimal  @map("limite_superior") @db.Decimal(12, 4)
+  activo              Boolean  @default(true)
+  creadoEn            DateTime @default(now()) @map("creado_en")
+
+  equipo            EquipoLaboratorio        @relation(fields: [equipoId], references: [id])
+  valoresRefCliente ValorReferenciaCliente[]
+  resultados        ResultadoInspeccion[]
+
+  @@unique([equipoId, clave])
+  @@map("parametros")
+}
+
+// ============================================================================
+// CLIENTES
+// ============================================================================
+
+model Cliente {
+  id                  BigInt        @id @default(autoincrement())
+  claveSap            String        @unique @map("clave_sap") @db.VarChar(20)
+  nombre              String        @db.VarChar(200)
+  rfc                 String        @db.VarChar(13)
+  domicilio           String?
+  contactoNombre      String?       @map("contacto_nombre") @db.VarChar(120)
+  contactoCorreo      String?       @map("contacto_correo") @db.VarChar(120)
+  contactoTelefono    String?       @map("contacto_telefono") @db.VarChar(20)
+  requiereCertificado Boolean       @default(true) @map("requiere_certificado")
+  estado              EstadoCliente @default(ACTIVO)
+  motivoInactivacion  String?       @map("motivo_inactivacion")
+  creadoEn            DateTime      @default(now()) @map("creado_en")
+  actualizadoEn       DateTime      @default(now()) @updatedAt @map("actualizado_en")
+  creadoPor           BigInt        @map("creado_por")
+  actualizadoPor      BigInt        @map("actualizado_por")
+
+  usuarioCreador      Usuario                  @relation("clienteCreadoPor", fields: [creadoPor], references: [id])
+  usuarioActualizador Usuario                  @relation("clienteActualizadoPor", fields: [actualizadoPor], references: [id])
+  valoresReferencia   ValorReferenciaCliente[]
+  certificados        Certificado[]
+
+  @@map("clientes")
+}
+
+// ============================================================================
+// VALORES DE REFERENCIA POR CLIENTE
+// ============================================================================
+
+model ValorReferenciaCliente {
+  id             BigInt   @id @default(autoincrement())
+  clienteId      BigInt   @map("cliente_id")
+  parametroId    BigInt   @map("parametro_id")
+  limiteInferior Decimal  @map("limite_inferior") @db.Decimal(12, 4)
+  limiteSuperior Decimal  @map("limite_superior") @db.Decimal(12, 4)
+  creadoEn       DateTime @default(now()) @map("creado_en")
+
+  cliente   Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  parametro Parametro @relation(fields: [parametroId], references: [id])
+
+  @@unique([clienteId, parametroId])
+  @@map("valores_referencia_cliente")
+}
+
+// ============================================================================
+// LOTES DE PRODUCCIÓN
+// ============================================================================
+
+model LoteProduccion {
+  id                BigInt   @id @default(autoincrement())
+  numeroLote        String   @unique @map("numero_lote") @db.VarChar(30)
+  productoId        BigInt   @map("producto_id")
+  fechaProduccion   DateTime @map("fecha_produccion") @db.Date
+  cantidadProducida Decimal? @map("cantidad_producida") @db.Decimal(12, 2)
+  unidadCantidad    String?  @map("unidad_cantidad") @db.VarChar(20)
+  creadoEn          DateTime @default(now()) @map("creado_en")
+  creadoPor         BigInt   @map("creado_por")
+
+  producto       Producto      @relation(fields: [productoId], references: [id])
+  usuarioCreador Usuario       @relation(fields: [creadoPor], references: [id])
+  inspecciones   Inspeccion[]
+  certificados   Certificado[]
+
+  @@map("lotes_produccion")
+}
+
+// ============================================================================
+// INSPECCIONES
+// ============================================================================
+
+model Inspeccion {
+  id                  BigInt           @id @default(autoincrement())
+  loteId              BigInt           @map("lote_id")
+  secuencia           String           @db.Char(1)
+  fechaInspeccion     DateTime         @map("fecha_inspeccion")
+  estado              EstadoInspeccion @default(BORRADOR)
+  esFicticia          Boolean          @default(false) @map("es_ficticia")
+  inspeccionOrigenId  BigInt?          @map("inspeccion_origen_id")
+  justificacionAjuste String?          @map("justificacion_ajuste")
+  observaciones       String?
+  creadoEn            DateTime         @default(now()) @map("creado_en")
+  actualizadoEn       DateTime         @default(now()) @updatedAt @map("actualizado_en")
+  creadoPor           BigInt           @map("creado_por")
+
+  lote                  LoteProduccion          @relation(fields: [loteId], references: [id])
+  usuarioCreador        Usuario                 @relation(fields: [creadoPor], references: [id])
+  inspeccionOrigen      Inspeccion?             @relation("ficticiaDerivada", fields: [inspeccionOrigenId], references: [id])
+  inspeccionesDerivadas Inspeccion[]            @relation("ficticiaDerivada")
+  resultados            ResultadoInspeccion[]
+  certificadoInspeccion CertificadoInspeccion[]
+
+  @@unique([loteId, secuencia])
+  @@index([estado])
+  @@map("inspecciones")
+}
+
+// ============================================================================
+// RESULTADOS DE INSPECCIÓN
+// ============================================================================
+
+model ResultadoInspeccion {
+  id                   BigInt   @id @default(autoincrement())
+  inspeccionId         BigInt   @map("inspeccion_id")
+  parametroId          BigInt   @map("parametro_id")
+  valor                Decimal  @db.Decimal(12, 4)
+  desviacion           Decimal? @db.Decimal(12, 4)
+  dentroEspecificacion Boolean  @map("dentro_especificacion")
+
+  inspeccion Inspeccion @relation(fields: [inspeccionId], references: [id], onDelete: Cascade)
+  parametro  Parametro  @relation(fields: [parametroId], references: [id])
+
+  @@unique([inspeccionId, parametroId])
+  @@map("resultados_inspeccion")
+}
+
+// ============================================================================
+// CERTIFICADOS
+// ============================================================================
+
+model Certificado {
+  id                 BigInt            @id @default(autoincrement())
+  numero             String            @unique @db.VarChar(20)
+  clienteId          BigInt            @map("cliente_id")
+  loteId             BigInt            @map("lote_id")
+  fechaEmision       DateTime          @default(now()) @map("fecha_emision")
+  estado             EstadoCertificado @default(EMITIDO)
+  rutaPdf            String?           @map("ruta_pdf") @db.VarChar(255)
+  numOrdenCompra     String?           @map("num_orden_compra") @db.VarChar(50)
+  cantidadSolicitada Decimal?          @map("cantidad_solicitada") @db.Decimal(12, 2)
+  cantidadEntrega    Decimal?          @map("cantidad_entrega") @db.Decimal(12, 2)
+  numFactura         String?           @map("num_factura") @db.VarChar(50)
+  fechaEnvio         DateTime?         @map("fecha_envio") @db.Date
+  fechaCaducidad     DateTime?         @map("fecha_caducidad") @db.Date
+  creadoEn           DateTime          @default(now()) @map("creado_en")
+  creadoPor          BigInt            @map("creado_por")
+
+  cliente               Cliente                 @relation(fields: [clienteId], references: [id])
+  lote                  LoteProduccion          @relation(fields: [loteId], references: [id])
+  usuarioCreador        Usuario                 @relation(fields: [creadoPor], references: [id])
+  certificadoInspeccion CertificadoInspeccion[]
+  envios                EnvioCertificado[]
+
+  @@index([clienteId, fechaEmision(sort: Desc)])
+  @@index([fechaEmision(sort: Desc)])
+  @@map("certificados")
+}
+
+// ============================================================================
+// CERTIFICADO ↔ INSPECCIÓN (intermedia)
+// ============================================================================
+
+model CertificadoInspeccion {
+  certificadoId BigInt @map("certificado_id")
+  inspeccionId  BigInt @map("inspeccion_id")
+  orden         Int?   @db.SmallInt
+
+  certificado Certificado @relation(fields: [certificadoId], references: [id], onDelete: Cascade)
+  inspeccion  Inspeccion  @relation(fields: [inspeccionId], references: [id])
+
+  @@id([certificadoId, inspeccionId])
+  @@map("certificado_inspeccion")
+}
+
+// ============================================================================
+// ENVÍOS DE CERTIFICADO
+// ============================================================================
+
+model EnvioCertificado {
+  id                 BigInt           @id @default(autoincrement())
+  certificadoId      BigInt           @map("certificado_id")
+  destinatarioTipo   DestinatarioTipo @map("destinatario_tipo")
+  destinatarioCorreo String           @map("destinatario_correo") @db.VarChar(120)
+  estado             EstadoEnvio      @default(PENDIENTE)
+  intentos           Int              @default(0) @db.SmallInt
+  ultimoError        String?          @map("ultimo_error")
+  enviadoEn          DateTime?        @map("enviado_en")
+  creadoEn           DateTime         @default(now()) @map("creado_en")
+
+  certificado Certificado @relation(fields: [certificadoId], references: [id], onDelete: Cascade)
+
+  @@index([estado])
+  @@map("envios_certificado")
+}
+
+// ============================================================================
+// BITÁCORA (auditoría)
+// ============================================================================
+
+model Bitacora {
+  id        BigInt   @id @default(autoincrement())
+  usuarioId BigInt   @map("usuario_id")
+  entidad   String   @db.VarChar(60)
+  entidadId BigInt   @map("entidad_id")
+  accion    String   @db.VarChar(30)
+  detalle   Json?
+  creadoEn  DateTime @default(now()) @map("creado_en")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@index([entidad, entidadId, creadoEn(sort: Desc)])
+  @@map("bitacora")
 }

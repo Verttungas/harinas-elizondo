@@ -1,0 +1,69 @@
+# ========== Claude Code (personal) ==========
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+
+# ========== Variables de entorno ==========
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ========== Node.js ==========
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.npm/
+.yarn/
+package-lock.json.backup
+
+# ========== Builds y artefactos ==========
+dist/
+build/
+out/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# ========== Prisma ==========
+# Mantenemos schema.prisma y migrations/ pero no el cliente generado
+backend/node_modules/.prisma/
+backend/src/generated/
+
+# ========== Testing ==========
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+
+# ========== Editores ==========
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ========== Logs ==========
+logs/
+*.log
+
+# ========== Archivos de respaldo ==========
+*.bak
+*.tmp
+*~
+
+# ========== Docker ==========
+# Volúmenes locales si se usan bind mounts
+.docker-data/
+
+# ========== PDFs generados (salida de certificados, no versionar) ==========
+certificados-pdf/
+
+docs/

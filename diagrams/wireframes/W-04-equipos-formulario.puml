@@ -1,0 +1,39 @@
+@startsalt
+title Wireframe W-04 — Alta de Equipo de Laboratorio (UC-01)
+
+{+
+{* <&home> <b>FHESA | Dashboard | <b>Equipos | Clientes | Inspecciones | Certificados | Reportes | . | <&person> Juan Pérez <&caret-bottom> }
+.
+<size:10><color:#666666><&chevron-left> Equipos / Nuevo equipo
+.
+==Nuevo equipo de laboratorio==
+.
+{^"Datos generales"
+Clave *              | "ALV-003                "        | <size:9><color:#666666>Único; no editable después
+Descripción corta *  | "Alveógrafo Chopin nuevo                              "
+Descripción larga    | "                                                     "
+Marca                | ^Chopin Technologies^   | Modelo     | "AlveoLab      "
+Serie                | "SN-00123456           " | Proveedor  | "Tecnosa, S.A. "
+Fecha adquisición    | "2026-04-15            " | Vigencia garantía | "2028-04-15"
+Ubicación            | "Laboratorio A — Mesa 3                               "
+Responsable          | "Ing. Carlos Martínez                                  "
+}
+.
+{^"Parámetros que analiza el equipo"
+<size:9><color:#666666>Al menos un parámetro es obligatorio. Cada parámetro debe tener límite inferior menor que el superior.
+.
+{#
+<b>Clave | <b>Nombre             | <b>Unidad | <b>Lím. inferior | <b>Lím. superior | <b>Desv. aceptable | <b>Acciones
+W        | Fuerza panadera       | x10⁻⁴ J   | 150              | 400              | 5                  | [Editar] [Eliminar]
+P        | Tenacidad             | mm H₂O    | 40               | 100              | 2                  | [Editar] [Eliminar]
+L        | Extensibilidad        | mm        | 80               | 160              | 3                  | [Editar] [Eliminar]
+P/L      | Relación tenacidad/ext| —         | 0.4              | 1.2              | 0.05               | [Editar] [Eliminar]
+}
+.
+[<&plus> Agregar parámetro]
+}
+.
+.
+[Cancelar]                              | .  | [Guardar y agregar otro] | [<&check> Guardar]
+}
+@endsalt

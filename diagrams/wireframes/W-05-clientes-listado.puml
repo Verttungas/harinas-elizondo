@@ -1,0 +1,24 @@
+@startsalt
+title Wireframe W-05 — Listado de Clientes (UC-08)
+
+{+
+{* <&home> <b>FHESA | Dashboard | Equipos | <b>Clientes | Inspecciones | Certificados | Reportes | . | <&person> Juan Pérez <&caret-bottom> }
+.
+==Clientes==
+.
+{
+<&magnifying-glass> "Buscar por clave SAP, nombre o RFC..." | ^Estado: Activos^ | ^Requiere certificado: Todos^ | . | [<&plus> Nuevo cliente]
+}
+.
+{#
+<b>Clave SAP | <b>Nombre                | <b>RFC             | <b>Contacto          | <b>Requiere Cert. | <b>Estado              | <b>Acciones
+C-00123      | Grupo Bimbo SAB de CV    | BIM601201A12       | compras@bimbo.com    | <color:green>Sí   | <color:green>Activo    | [Ver] [Editar] [Inactivar]
+C-00124      | Panadería Colón SA       | PCO850314XY5       | juan@colon.mx        | <color:green>Sí   | <color:green>Activo    | [Ver] [Editar] [Inactivar]
+C-00125      | La Esperanza SA de CV    | ESP910505ABC       | contacto@esperanza.mx| <color:green>Sí   | <color:green>Activo    | [Ver] [Editar] [Inactivar]
+C-00126      | Autoservicio Hermanos    | AHE780812DEF       | compras@auther.mx    | <color:#666666>No | <color:green>Activo    | [Ver] [Editar] [Inactivar]
+C-00127      | Panadería del Sol        | PDS950120GHI       | hugo@delsol.mx       | <color:green>Sí   | <color:#FF9900>Inactivo | [Ver] [Reactivar]
+}
+.
+<size:10><color:#666666>Mostrando 1-5 de 47 clientes    | . | [< Anterior] [1] [2] [3] ... [10] [Siguiente >]
+}
+@endsalt

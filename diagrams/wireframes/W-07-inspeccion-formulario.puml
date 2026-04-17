@@ -1,0 +1,52 @@
+@startsalt
+title Wireframe W-07 — Registro de Inspección (UC-09 / UC-10)
+
+{+
+{* <&home> <b>FHESA | Dashboard | Equipos | Clientes | <b>Inspecciones | Certificados | Reportes | . | <&person> Juan Pérez <&caret-bottom> }
+.
+<size:10><color:#666666><&chevron-left> Inspecciones / Nueva inspección
+.
+==Registrar inspección==
+.
+{^"Lote de producción"
+Número de lote * | "L-2026-090          " | [<&magnifying-glass> Buscar] | . | ^Producto: Harina trigo 000^
+Fecha producción | "2026-04-16" (autocompletado del lote) | Cantidad producida | "5000 kg"
+}
+.
+{^"Asignación automática"
+<size:11>Inspección asignada: <b><color:#0066CC>Secuencia "A" — análisis inicial
+<size:9><color:#666666>Este lote no tiene inspecciones previas. La secuencia será "A" (UC-09).
+}
+.
+{^"Resultados del análisis — Alveógrafo ALV-001"
+<size:9><color:#666666>Capture los valores obtenidos del análisis físico. El sistema calculará automáticamente la desviación y si está dentro de especificación.
+.
+{#
+<b>Parámetro       | <b>Unidad | <b>Rango internacional | <b>Valor obtenido  | <b>Estado esperado
+W (Fuerza panad.)  | x10⁻⁴ J   | 150 — 400              | "275            "  | <color:green>Dentro (al guardar)
+P (Tenacidad)      | mm H₂O    | 40 — 100               | "68             "  | <color:green>Dentro
+L (Extensibilidad) | mm        | 80 — 160               | "115            "  | <color:green>Dentro
+P/L                | —         | 0.4 — 1.2              | "0.59           "  | <color:green>Dentro
+}
+}
+.
+{^"Resultados del análisis — Farinógrafo FAR-001"
+{#
+<b>Parámetro              | <b>Unidad | <b>Rango internacional | <b>Valor obtenido  | <b>Estado esperado
+Absorción de agua         | %         | 55 — 65                | "62             "  | <color:green>Dentro
+Tiempo de desarrollo      | min       | 2 — 8                  | "6.5            "  | <color:green>Dentro
+Estabilidad               | min       | 5 — 15                 | "12             "  | <color:green>Dentro
+Grado de reblandecimiento | UB        | 30 — 80                | "45             "  | <color:green>Dentro
+FQN                       | —         | 50 — 100               | "78             "  | <color:green>Dentro
+}
+}
+.
+{^"Observaciones"
+"Masa con buena consistencia. Sin anomalías visuales en la prueba física.                                                                                            "
+"                                                                                                                                                                        "
+}
+.
+.
+[Cancelar]            | .  | [Guardar como borrador] | [<&check> Guardar y cerrar inspección]
+}
+@endsalt

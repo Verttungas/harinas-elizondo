@@ -1,0 +1,56 @@
+@startsalt
+title Wireframe W-10 — Reportes Estadísticos (UC-14)
+
+{+
+{* <&home> <b>FHESA | Dashboard | Equipos | Clientes | Inspecciones | Certificados | <b>Reportes | . | <&person> Juan Pérez <&caret-bottom> }
+.
+==Reportes estadísticos==
+.
+{^"Filtros"
+Período     | ^Últimos 30 días^ | Cliente    | ^Todos^       | Producto  | ^Todos^
+Parámetro   | ^W (Fuerza)^      | [] Incluir clientes inactivos | . | [Aplicar filtros]
+}
+.
+{/ Tendencia por parámetro | Certificados por cliente | Desviaciones por lote | Inspecciones ficticias }
+.
+==Evolución del parámetro W (Fuerza panadera) — últimos 30 días==
+.
+{^"Gráfica"
+.
+<size:9><color:#666666>[ Aquí se renderiza la gráfica de líneas con Recharts o Chart.js ]
+.
+<size:9>Eje Y: valor W (150 — 400)                   | Eje X: fecha
+.
+.
+.
+.
+.
+.
+.
+.
+}
+.
+==Resumen estadístico del período==
+.
+{#
+<b>Indicador              | <b>Valor    | <b>vs. período anterior
+Inspecciones analizadas   | 142         | <color:#0066CC>+8%
+Promedio del parámetro W  | 268.4       | <color:green>↑ estable
+Desviación estándar       | 18.6        | <color:green>↓ mejora
+Valores fuera de espec.   | 3 (2.1%)    | <color:green>↓ -1.2 pts
+}
+.
+==Detalle por lote==
+.
+{#
+<b>Lote         | <b>Fecha       | <b>Valor W | <b>Dentro espec. | <b>Ficticia | <b>Acciones
+L-2026-090     | 2026-04-16     | 277.5      | <color:green>Sí  | No          | [Ver certificado]
+L-2026-089     | 2026-04-15     | 282.0      | <color:green>Sí  | No          | [Ver certificado]
+L-2026-088     | 2026-04-15     | 310.0      | <color:green>Sí  | No          | [Ver certificado]
+L-2026-087     | 2026-04-14     | 145.0      | <color:red>No    | <color:#FF9900>Sí | [Ver historial]
+L-2026-086     | 2026-04-14     | 295.0      | <color:green>Sí  | No          | [Ver certificado]
+}
+.
+[<&data-transfer-download> Exportar a CSV] | [<&image> Exportar gráfica PNG] | . | <size:10><color:#666666>Mostrando 5 de 142 resultados
+}
+@endsalt

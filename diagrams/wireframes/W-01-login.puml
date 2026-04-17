@@ -1,0 +1,23 @@
+@startsalt
+title Wireframe W-01 — Pantalla de Inicio de Sesión (UC-00)
+
+{
+{+
+==<b><size:16>FHESA
+<size:10><color:#666666>Sistema de Emisión de Certificados de Calidad
+..
+.
+<&person> Correo institucional | "usuario@fhesa.mx      "
+<&key> Contraseña              | "                      "
+.
+[] Recordarme en este equipo
+.
+[          <&account-login>  Iniciar sesión          ]
+.
+<size:9><color:#0066CC>¿Olvidó su contraseña?
+.
+}
+.
+<size:8><color:#999999>Universidad Anáhuac — Proyecto Académico
+}
+@endsalt

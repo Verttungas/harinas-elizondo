@@ -1,0 +1,278 @@
+@startuml modelo-er
+!theme plain
+title Modelo Entidad-Relación (Físico)\nSistema de Emisión de Certificados de Calidad — FHESA\nPostgreSQL 16
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam shadowing false
+skinparam linetype ortho
+
+hide circle
+
+' ===== ENUMS (tipos nativos PostgreSQL) =====
+enum rol_usuario {
+  LABORATORIO
+  CONTROL_CALIDAD
+  ASEGURAMIENTO_CALIDAD
+  GERENTE_PLANTA
+  DIRECTOR_OPERACIONES
+}
+
+enum estado_equipo {
+  ACTIVO
+  INACTIVO
+  BAJA
+}
+
+enum estado_cliente {
+  ACTIVO
+  INACTIVO
+}
+
+enum estado_inspeccion {
+  BORRADOR
+  CERRADA
+}
+
+enum estado_certificado {
+  EMITIDO
+  ENVIO_PARCIAL
+  ENVIADO
+}
+
+enum estado_envio {
+  PENDIENTE
+  ENVIADO
+  FALLIDO
+}
+
+' ===== TABLA: usuarios =====
+entity usuarios {
+  * id : BIGSERIAL <<PK>>
+  --
+  * correo : VARCHAR(120) <<UQ>>
+  * password_hash : VARCHAR(255)
+  * nombre : VARCHAR(120)
+  * rol : rol_usuario
+  * activo : BOOLEAN
+  intentos_fallidos : SMALLINT
+  bloqueado_hasta : TIMESTAMP
+  * creado_en : TIMESTAMP
+  * actualizado_en : TIMESTAMP
+}
+
+' ===== TABLA: productos =====
+entity productos {
+  * id : BIGSERIAL <<PK>>
+  --
+  * clave : VARCHAR(20) <<UQ>>
+  * nombre : VARCHAR(120)
+  descripcion : TEXT
+  * creado_en : TIMESTAMP
+}
+
+' ===== TABLA: equipos_laboratorio =====
+entity equipos_laboratorio {
+  * id : BIGSERIAL <<PK>>
+  --
+  * clave : VARCHAR(20) <<UQ>>
+  * descripcion_corta : VARCHAR(80)
+  descripcion_larga : TEXT
+  marca : VARCHAR(60)
+  modelo : VARCHAR(60)
+  serie : VARCHAR(60)
+  proveedor : VARCHAR(120)
+  fecha_adquisicion : DATE
+  vigencia_garantia : DATE
+  ubicacion : VARCHAR(120)
+  responsable : VARCHAR(120)
+  * estado : estado_equipo
+  motivo_baja : TEXT
+  * creado_en : TIMESTAMP
+  * actualizado_en : TIMESTAMP
+  creado_por : BIGINT <<FK>>
+  actualizado_por : BIGINT <<FK>>
+}
+
+' ===== TABLA: parametros =====
+entity parametros {
+  * id : BIGSERIAL <<PK>>
+  --
+  * equipo_id : BIGINT <<FK>>
+  * clave : VARCHAR(20)
+  * nombre : VARCHAR(120)
+  * unidad_medida : VARCHAR(20)
+  desviacion_aceptable : DECIMAL(10,4)
+  * limite_inferior : DECIMAL(12,4)
+  * limite_superior : DECIMAL(12,4)
+  * activo : BOOLEAN
+  * creado_en : TIMESTAMP
+  --
+  UQ(equipo_id, clave)
+  CHECK(limite_inferior < limite_superior)
+}
+
+' ===== TABLA: clientes =====
+entity clientes {
+  * id : BIGSERIAL <<PK>>
+  --
+  * clave_sap : VARCHAR(20) <<UQ>>
+  * nombre : VARCHAR(200)
+  * rfc : VARCHAR(13)
+  domicilio : TEXT
+  contacto_nombre : VARCHAR(120)
+  contacto_correo : VARCHAR(120)
+  contacto_telefono : VARCHAR(20)
+  * requiere_certificado : BOOLEAN
+  * estado : estado_cliente
+  motivo_inactivacion : TEXT
+  * creado_en : TIMESTAMP
+  * actualizado_en : TIMESTAMP
+  creado_por : BIGINT <<FK>>
+  actualizado_por : BIGINT <<FK>>
+}
+
+' ===== TABLA: valores_referencia_cliente =====
+entity valores_referencia_cliente {
+  * id : BIGSERIAL <<PK>>
+  --
+  * cliente_id : BIGINT <<FK>>
+  * parametro_id : BIGINT <<FK>>
+  * limite_inferior : DECIMAL(12,4)
+  * limite_superior : DECIMAL(12,4)
+  * creado_en : TIMESTAMP
+  --
+  UQ(cliente_id, parametro_id)
+  CHECK(limite_inferior < limite_superior)
+}
+
+' ===== TABLA: lotes_produccion =====
+entity lotes_produccion {
+  * id : BIGSERIAL <<PK>>
+  --
+  * numero_lote : VARCHAR(30) <<UQ>>
+  * producto_id : BIGINT <<FK>>
+  * fecha_produccion : DATE
+  cantidad_producida : DECIMAL(12,2)
+  unidad_cantidad : VARCHAR(20)
+  * creado_en : TIMESTAMP
+  creado_por : BIGINT <<FK>>
+}
+
+' ===== TABLA: inspecciones =====
+entity inspecciones {
+  * id : BIGSERIAL <<PK>>
+  --
+  * lote_id : BIGINT <<FK>>
+  * secuencia : CHAR(1)
+  * fecha_inspeccion : TIMESTAMP
+  * estado : estado_inspeccion
+  * es_ficticia : BOOLEAN
+  inspeccion_origen_id : BIGINT <<FK>>
+  justificacion_ajuste : TEXT
+  observaciones : TEXT
+  * creado_en : TIMESTAMP
+  * actualizado_en : TIMESTAMP
+  creado_por : BIGINT <<FK>>
+  --
+  UQ(lote_id, secuencia)
+  CHECK(secuencia BETWEEN 'A' AND 'Z')
+}
+
+' ===== TABLA: resultados_inspeccion =====
+entity resultados_inspeccion {
+  * id : BIGSERIAL <<PK>>
+  --
+  * inspeccion_id : BIGINT <<FK>>
+  * parametro_id : BIGINT <<FK>>
+  * valor : DECIMAL(12,4)
+  desviacion : DECIMAL(12,4)
+  * dentro_especificacion : BOOLEAN
+  --
+  UQ(inspeccion_id, parametro_id)
+}
+
+' ===== TABLA: certificados =====
+entity certificados {
+  * id : BIGSERIAL <<PK>>
+  --
+  * numero : VARCHAR(20) <<UQ>>
+  * cliente_id : BIGINT <<FK>>
+  * lote_id : BIGINT <<FK>>
+  * fecha_emision : TIMESTAMP
+  * estado : estado_certificado
+  ruta_pdf : VARCHAR(255)
+  num_orden_compra : VARCHAR(50)
+  cantidad_solicitada : DECIMAL(12,2)
+  cantidad_entrega : DECIMAL(12,2)
+  num_factura : VARCHAR(50)
+  fecha_envio : DATE
+  fecha_caducidad : DATE
+  * creado_en : TIMESTAMP
+  creado_por : BIGINT <<FK>>
+  --
+  CHECK(fecha_caducidad >= fecha_envio)
+}
+
+' ===== TABLA: certificado_inspeccion (intermedia) =====
+entity certificado_inspeccion {
+  * certificado_id : BIGINT <<FK,PK>>
+  * inspeccion_id : BIGINT <<FK,PK>>
+  orden : SMALLINT
+}
+
+' ===== TABLA: envios_certificado =====
+entity envios_certificado {
+  * id : BIGSERIAL <<PK>>
+  --
+  * certificado_id : BIGINT <<FK>>
+  * destinatario_tipo : VARCHAR(10)
+  * destinatario_correo : VARCHAR(120)
+  * estado : estado_envio
+  intentos : SMALLINT
+  ultimo_error : TEXT
+  enviado_en : TIMESTAMP
+  * creado_en : TIMESTAMP
+}
+
+' ===== TABLA: bitacora =====
+entity bitacora {
+  * id : BIGSERIAL <<PK>>
+  --
+  * usuario_id : BIGINT <<FK>>
+  * entidad : VARCHAR(60)
+  * entidad_id : BIGINT
+  * accion : VARCHAR(30)
+  detalle : JSONB
+  * creado_en : TIMESTAMP
+}
+
+' ===== RELACIONES =====
+usuarios ||--o{ equipos_laboratorio : crea/modifica
+usuarios ||--o{ clientes : crea/modifica
+usuarios ||--o{ inspecciones : registra
+usuarios ||--o{ lotes_produccion : registra
+usuarios ||--o{ certificados : emite
+usuarios ||--o{ bitacora : genera
+
+equipos_laboratorio ||--o{ parametros : contiene
+
+clientes ||--o{ valores_referencia_cliente : define
+parametros ||--o{ valores_referencia_cliente : se aplica en
+
+productos ||--o{ lotes_produccion : produce
+lotes_produccion ||--o{ inspecciones : contiene
+inspecciones ||--o{ resultados_inspeccion : registra
+parametros ||--o{ resultados_inspeccion : mide
+
+inspecciones ||--o{ inspecciones : origen_de (ficticias)
+
+clientes ||--o{ certificados : recibe
+lotes_produccion ||--o{ certificados : referencia
+
+certificados ||--o{ certificado_inspeccion : consolida
+inspecciones ||--o{ certificado_inspeccion : forma parte de
+
+certificados ||--o{ envios_certificado : genera
+
+@enduml

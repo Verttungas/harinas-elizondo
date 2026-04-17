@@ -1,0 +1,62 @@
+@startsalt
+title Wireframe W-08 — Wizard de Emisión de Certificado (UC-12)
+
+{+
+{* <&home> <b>FHESA | Dashboard | Equipos | Clientes | Inspecciones | <b>Certificados | Reportes | . | <&person> Juan Pérez <&caret-bottom> }
+.
+<size:10><color:#666666><&chevron-left> Certificados / Emitir nuevo
+.
+==Emisión de certificado de calidad==
+.
+{#
+<b><color:#0066CC>① Cliente ✓ | <b><color:#0066CC>② Lote e inspecciones ✓ | <b><color:#0066CC>③ Datos de embarque ✓ | <b><color:#0066CC>④ Revisión
+}
+.
+{^"Paso 4: Revisión final del certificado"
+<size:9><color:#666666>Verifique los datos antes de emitir. Una vez emitido, el certificado es inmutable (RN-37).
+.
+{^"Cliente"
+Razón social | <b>Grupo Bimbo SAB de CV    | Clave SAP   | C-00123
+RFC          | BIM601201A12                | Contacto    | compras@bimbo.com
+.
+<size:9><color:#0066CC>Este cliente tiene valores de referencia particulares configurados.
+}
+.
+{^"Lote e inspecciones"
+Número de lote   | L-2026-090                  | Producto | Harina trigo 000
+Fecha producción | 2026-04-16                  | Cantidad producida | 5000 kg
+.
+Inspecciones consolidadas:
+  [X] A — 2026-04-16 09:30 — Análisis inicial
+  [X] B — 2026-04-16 14:15 — Análisis subsecuente
+}
+.
+{^"Resultados consolidados vs. referencia del cliente"
+{#
+<b>Parámetro       | <b>Valor A | <b>Valor B | <b>Promedio | <b>Rango cliente | <b>Desviación | <b>Estado
+W (Fuerza panad.)  | 275        | 280        | 277.5       | 180 — 380        | -12.5         | <color:green>Dentro
+P (Tenacidad)      | 68         | 70         | 69.0        | 40 — 100         | -1.0          | <color:green>Dentro
+L (Extensibilidad) | 115        | 118        | 116.5       | 80 — 160         | -3.5          | <color:green>Dentro
+P/L                | 0.59       | 0.59       | 0.59        | 0.5 — 1.0        | -0.16         | <color:green>Dentro
+Absorción de agua  | 62%        | 63%        | 62.5%       | 55 — 65          | +2.5          | <color:green>Dentro
+}
+}
+.
+{^"Datos de embarque"
+Núm. orden compra | PO-BIM-2026-0456        | Núm. factura | F-2026-1234
+Cantidad solicitada | 3000 kg              | Cantidad a entregar | 3000 kg
+Fecha de envío    | 2026-04-17              | Fecha de caducidad | 2026-10-17
+}
+.
+{^"Destinatarios del correo"
+[X] Contacto del cliente: compras@bimbo.com
+[X] Almacén: almacen@fhesa.mx
+.
+<size:9><color:#666666>Al emitir, se generará el PDF y se enviarán los correos automáticamente.
+}
+}
+.
+.
+[< Anterior] | [Cancelar] | . | [<&document> Emitir certificado]
+}
+@endsalt

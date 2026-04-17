@@ -1,0 +1,44 @@
+@startsalt
+title Wireframe W-06 — Alta de Cliente (UC-05)
+
+{+
+{* <&home> <b>FHESA | Dashboard | Equipos | <b>Clientes | Inspecciones | Certificados | Reportes | . | <&person> Juan Pérez <&caret-bottom> }
+.
+<size:10><color:#666666><&chevron-left> Clientes / Nuevo cliente
+.
+==Nuevo cliente==
+.
+{^"Datos generales"
+Clave SAP *        | "C-00128               "  | <size:9><color:#666666>No editable después
+Nombre / Razón social * | "                                                  "
+RFC *              | "                "         | <size:9><color:#666666>12 o 13 caracteres
+Domicilio          | "                                                        "
+Contacto nombre    | "                                                        "
+Contacto correo    | "                                                        "
+Contacto teléfono  | "                            "
+}
+.
+{^"Configuración de certificados"
+[X] Este cliente requiere certificado de calidad en sus entregas
+.
+<size:9><color:#666666>Si el cliente requiere certificado, el correo del contacto es obligatorio.
+}
+.
+{^"Valores de referencia particulares (opcional)"
+<size:9><color:#666666>Si el cliente solicita rangos específicos, captúrelos aquí. Deben estar contenidos dentro del rango internacional del parámetro.
+.
+{#
+<b>Equipo           | <b>Parámetro          | <b>Rango internacional | <b>Lím. inferior cliente | <b>Lím. superior cliente | <b>Acciones
+Alveógrafo (ALV-001)| W (Fuerza panadera)   | 150 — 400              | "180            "          | "380            "          | [Eliminar]
+Alveógrafo (ALV-001)| P/L                   | 0.4 — 1.2              | "0.5            "          | "1.0            "          | [Eliminar]
+}
+.
+[<&plus> Agregar valor de referencia particular]
+.
+<color:#FF9900><size:10>⚠ Los rangos particulares deben estar dentro del rango internacional. Si no se cumple, el sistema no permitirá guardar.
+}
+.
+.
+[Cancelar]                              | .  | [Guardar y agregar otro] | [<&check> Guardar]
+}
+@endsalt

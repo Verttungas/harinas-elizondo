@@ -1,0 +1,58 @@
+@startsalt
+title Wireframe W-09 — Diseño del Certificado de Calidad (PDF)
+
+{+
+{#
+<b><size:14>FÁBRICA DE HARINAS ELIZONDO, S.A. DE C.V. | * | <b><size:10>CERT-2026-000285
+<size:9>Gerencia de Control de Calidad                 | * | <size:9>Página 1 de 1
+}
+.
+==<b>CERTIFICADO DE CALIDAD==
+.
+{^"Datos del cliente"
+Razón social | Grupo Bimbo SAB de CV                   | RFC | BIM601201A12
+Domicilio    | Prol. Paseo de la Reforma 1000, CDMX
+Contacto     | compras@bimbo.com
+}
+.
+{^"Datos del producto y lote"
+Producto     | Harina de trigo 000              | Número de lote | L-2026-090
+Fecha de producción | 2026-04-16                | Cantidad producida | 5000 kg
+Inspecciones consolidadas | A, B                | Fecha de análisis  | 2026-04-16
+}
+.
+{^"Datos de embarque"
+Número de orden de compra | PO-BIM-2026-0456   | Número de factura | F-2026-1234
+Cantidad solicitada       | 3000 kg            | Cantidad entregada | 3000 kg
+Fecha de envío            | 2026-04-17         | Fecha de caducidad | 2026-10-17
+}
+.
+==<b>Resultados del análisis==
+.
+{#
+<b>Parámetro       | <b>Unidad | <b>Valor obtenido | <b>Rango aceptable | <b>Desviación | <b>Resultado
+W (Fuerza panad.)  | x10⁻⁴ J   | 277.5             | 180 — 380          | -12.5         | <color:green>CONFORME
+P (Tenacidad)      | mm H₂O    | 69.0              | 40 — 100           | -1.0          | <color:green>CONFORME
+L (Extensibilidad) | mm        | 116.5             | 80 — 160           | -3.5          | <color:green>CONFORME
+P/L                | —         | 0.59              | 0.5 — 1.0          | -0.16         | <color:green>CONFORME
+Absorción de agua  | %         | 62.5              | 55 — 65            | +2.5          | <color:green>CONFORME
+Tiempo desarrollo  | min       | 6.5               | 2 — 8              | +1.5          | <color:green>CONFORME
+Estabilidad        | min       | 12.0              | 5 — 15             | +2.0          | <color:green>CONFORME
+Grado reblandec.   | UB        | 45.0              | 30 — 80            | -10.0         | <color:green>CONFORME
+FQN                | —         | 78.0              | 50 — 100           | +3.0          | <color:green>CONFORME
+}
+.
+<size:9><color:#666666>Los rangos aceptables corresponden a las especificaciones particulares acordadas con el cliente.
+.
+==<b>Dictamen==
+.
+<size:11><color:green><b>El producto analizado CUMPLE con las especificaciones de calidad acordadas.
+.
+{#
+Emitido por | Juan Pérez — Control de Calidad | Fecha emisión | 2026-04-17 10:45
+Validado por | _______________________________ | Firma         | _______________________________
+}
+.
+<size:8><color:#666666>Documento generado electrónicamente por el Sistema de Emisión de Certificados de Calidad — FHESA. Certificado número CERT-2026-000285 — Trazabilidad: lote L-2026-090, inspecciones A y B.
+}
+@endsalt

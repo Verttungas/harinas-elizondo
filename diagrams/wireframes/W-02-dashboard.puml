@@ -1,0 +1,57 @@
+@startsalt
+title Wireframe W-02 — Dashboard Principal (post-login)
+
+{+
+{* <&home> <b>FHESA | <b>Dashboard | Equipos | Clientes | Inspecciones | Certificados | Reportes | . | <&person> Juan Pérez <&caret-bottom> }
+.
+==Indicadores del mes en curso==
+.
+{
+{^"Certificados emitidos"
+.
+<size:22><b>284
+.
+<size:10><color:#0066CC>+12% vs. mes anterior
+.
+} |
+{^"Lotes en especificación"
+.
+<size:22><b>96.8%
+.
+<size:10><color:green>↑ 2.1 puntos
+.
+} |
+{^"Clientes activos"
+.
+<size:22><b>47
+.
+<size:10><color:#666666>sin cambios
+.
+} |
+{^"Inspecciones ficticias"
+.
+<size:22><b>3
+.
+<size:10><color:#FF9900>requiere revisión
+.
+}
+}
+.
+==Acciones rápidas==
+.
+[ <&plus> Registrar inspección ] | [ <&document> Emitir certificado ] | [ <&people> Nuevo cliente ] | [ <&layers> Registrar lote ]
+.
+==Certificados recientes==
+.
+{#
+<b>Número              | <b>Cliente           | <b>Lote         | <b>Fecha       | <b>Estado            | <b>Acciones
+CERT-2026-000284       | Panadería Colón      | L-2026-089      | 2026-04-15     | <color:green>Enviado  | [Ver] [PDF]
+CERT-2026-000283       | Grupo Bimbo          | L-2026-088      | 2026-04-15     | <color:green>Enviado  | [Ver] [PDF]
+CERT-2026-000282       | La Esperanza SA      | L-2026-087      | 2026-04-14     | <color:#FF9900>Parcial | [Ver] [Reenviar]
+CERT-2026-000281       | Autoservicio H       | L-2026-086      | 2026-04-14     | <color:green>Enviado  | [Ver] [PDF]
+CERT-2026-000280       | La Esperanza SA      | L-2026-085      | 2026-04-13     | <color:green>Enviado  | [Ver] [PDF]
+}
+.
+[Ver todos los certificados →]
+}
+@endsalt

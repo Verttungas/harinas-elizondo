@@ -1,0 +1,24 @@
+@startsalt
+title Wireframe W-03 — Listado de Equipos de Laboratorio (UC-04)
+
+{+
+{* <&home> <b>FHESA | Dashboard | <b>Equipos | Clientes | Inspecciones | Certificados | Reportes | . | <&person> Juan Pérez <&caret-bottom> }
+.
+==Equipos de Laboratorio==
+.
+{
+<&magnifying-glass> "Buscar por clave o descripción..." | ^Estado: Todos^ | ^Marca: Todas^ | . | [<&plus> Nuevo equipo]
+}
+.
+{#
+<b>Clave    | <b>Descripción corta         | <b>Marca              | <b>Modelo         | <b>Ubicación           | <b>Estado              | <b>Acciones
+ALV-001     | Alveógrafo Chopin            | Chopin Technologies   | AlveoLab          | Laboratorio A — Mesa 1 | <color:green>Activo    | [Ver] [Editar] [Inactivar]
+FAR-001     | Farinógrafo Brabender        | Brabender             | Farinograph-TS    | Laboratorio A — Mesa 2 | <color:green>Activo    | [Ver] [Editar] [Inactivar]
+ALV-002     | Alveógrafo Chopin (respaldo) | Chopin Technologies   | AlveoLink         | Laboratorio B          | <color:green>Activo    | [Ver] [Editar] [Inactivar]
+FAR-002     | Farinógrafo Brabender antiguo| Brabender             | Farinograph-E     | Almacén de equipos     | <color:#FF9900>Inactivo | [Ver] [Reactivar]
+FAR-003     | Farinógrafo Brabender dañado | Brabender             | Farinograph-E     | —                      | <color:red>Baja        | [Ver]
+}
+.
+<size:10><color:#666666>Mostrando 1-5 de 5 equipos     | . | [< Anterior] [1] [Siguiente >]
+}
+@endsalt

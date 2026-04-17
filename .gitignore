@@ -66,4 +66,4 @@ logs/
 # ========== PDFs generados (salida de certificados, no versionar) ==========
 certificados-pdf/
 
-docs/
+.gitignore

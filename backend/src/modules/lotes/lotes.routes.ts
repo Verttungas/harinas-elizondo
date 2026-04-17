@@ -4,6 +4,11 @@ import { validate } from "../../middlewares/validate.middleware.js";
 import { crearLote, getLote, listLotes } from "./lotes.controller.js";
 import { crearLoteSchema, listLotesQuerySchema } from "./lotes.schemas.js";
 import { idParamSchema } from "../../lib/schemas.js";
+import { crearInspeccionEnLote } from "../inspecciones/inspecciones.controller.js";
+import {
+  crearInspeccionSchema,
+  loteParamSchema,
+} from "../inspecciones/inspecciones.schemas.js";
 
 const router = Router();
 
@@ -27,6 +32,14 @@ router.post(
   requireRole("LABORATORIO", "CONTROL_CALIDAD"),
   validate({ body: crearLoteSchema }),
   crearLote,
+);
+
+router.post(
+  "/:loteId/inspecciones",
+  requireAuth,
+  requireRole("LABORATORIO", "CONTROL_CALIDAD"),
+  validate({ params: loteParamSchema, body: crearInspeccionSchema }),
+  crearInspeccionEnLote,
 );
 
 export default router;

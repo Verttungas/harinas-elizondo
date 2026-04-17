@@ -22,6 +22,11 @@ const envSchema = z.object({
   LOG_LEVEL: logLevelSchema.default("info"),
   SMTP_HOST: z.string().min(1).default("mailhog"),
   SMTP_PORT: z.coerce.number().int().positive().default(1025),
+  SMTP_FROM: z.string().email().default("certificados@fhesa.mx"),
+  SMTP_FROM_NAME: z.string().min(1).default("Certificados FHESA"),
+  PDF_STORAGE_PATH: z.string().min(1).default("/app/certificados-pdf"),
+  APP_BASE_URL: z.string().url().default("http://localhost:5173"),
+  WAREHOUSE_EMAIL: z.string().email().default("almacen@fhesa.mx"),
 });
 
 const parsed = envSchema.safeParse(process.env);

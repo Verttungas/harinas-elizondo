@@ -1,7 +1,6 @@
-.gitignore
-
-# ========== Claude Code (personal) ==========
-CLAUDE.md
+# ========== Claude Code ==========
+# CLAUDE.md sí se versiona (contexto compartido del proyecto)
+# CLAUDE.local.md es personal de cada integrante
 CLAUDE.local.md
 .claude/
 
@@ -62,8 +61,7 @@ logs/
 *~
 
 # ========== Docker ==========
-# Volúmenes locales si se usan bind mounts
 .docker-data/
 
-# ========== PDFs generados (salida de certificados, no versionar) ==========
+# ========== PDFs generados (salida de certificados) ==========
 certificados-pdf/

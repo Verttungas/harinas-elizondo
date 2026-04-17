@@ -1,0 +1,134 @@
+@startuml vista-desarrollo
+!theme plain
+title Vista de Desarrollo — Organización Modular del Código\nharinas-elizondo
+
+skinparam componentStyle rectangle
+skinparam packageStyle folder
+skinparam shadowing false
+skinparam packageBackgroundColor #FAFAFA
+skinparam packageBorderColor #666666
+skinparam packageFontStyle bold
+
+package "harinas-elizondo (repo)" {
+
+  package "frontend/" as FE {
+
+    package "src/pages" as FE_PAGES {
+      [Login]
+      [Dashboard]
+      [EquiposPage]
+      [ClientesPage]
+      [InspeccionesPage]
+      [CertificadosPage]
+      [ReportesPage]
+    }
+
+    package "src/components" as FE_COMP {
+      [Layout]
+      [Formularios]
+      [Tablas]
+      [Graficas]
+    }
+
+    package "src/services" as FE_SVC {
+      [apiClient (Axios)]
+      [authService]
+      [equiposService]
+      [clientesService]
+      [inspeccionesService]
+      [certificadosService]
+    }
+
+    package "src/hooks" as FE_HOOKS {
+      [useAuth]
+      [useApi]
+    }
+
+    package "src/types" as FE_TYPES {
+      [Tipos compartidos\n(DTOs)]
+    }
+  }
+
+  package "backend/" as BE {
+
+    package "src/routes" as BE_ROUTES {
+      [auth.routes]
+      [equipos.routes]
+      [clientes.routes]
+      [inspecciones.routes]
+      [certificados.routes]
+      [reportes.routes]
+    }
+
+    package "src/controllers" as BE_CTRL {
+      [auth.controller]
+      [equipos.controller]
+      [clientes.controller]
+      [inspecciones.controller]
+      [certificados.controller]
+    }
+
+    package "src/services" as BE_SVC {
+      [equipos.service]
+      [clientes.service]
+      [inspecciones.service]
+      [certificados.service]
+      [pdf.service]
+      [email.service]
+    }
+
+    package "src/repositories" as BE_REPO {
+      [Prisma Client]
+    }
+
+    package "src/middlewares" as BE_MW {
+      [auth.middleware]
+      [validate.middleware]
+      [error.middleware]
+    }
+
+    package "src/domain" as BE_DOM {
+      [Reglas de negocio\npuras]
+    }
+
+    package "prisma/" as BE_DB {
+      [schema.prisma]
+      [migrations/]
+    }
+
+    package "tests/" as BE_TEST {
+      [unit/]
+      [integration/]
+      [e2e/]
+    }
+  }
+
+  package "diagrams/" as DIAG {
+    [archivos .puml]
+  }
+
+  package "raíz" as ROOT {
+    [compose.yaml]
+    [README.md]
+    [.gitignore]
+  }
+}
+
+' ===== Dependencias entre módulos =====
+FE_PAGES --> FE_COMP
+FE_PAGES --> FE_HOOKS
+FE_PAGES --> FE_SVC
+FE_HOOKS --> FE_SVC
+FE_SVC --> FE_TYPES
+
+BE_ROUTES --> BE_CTRL
+BE_ROUTES --> BE_MW
+BE_CTRL --> BE_SVC
+BE_SVC --> BE_DOM
+BE_SVC --> BE_REPO
+BE_REPO --> BE_DB
+
+' ===== Frontend comunica con Backend vía HTTP =====
+FE_SVC ..> BE_ROUTES : HTTPS / JSON
+
+@enduml

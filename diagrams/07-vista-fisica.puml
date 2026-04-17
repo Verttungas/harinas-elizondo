@@ -1,0 +1,79 @@
+@startuml vista-fisica
+!theme plain
+title Vista Física — Diagrama de Despliegue\nEntorno: Docker Compose local
+
+skinparam shadowing false
+skinparam nodeBackgroundColor #FAFAFA
+skinparam nodeBorderColor #444444
+skinparam componentBackgroundColor #FFFFFF
+skinparam componentBorderColor #666666
+skinparam databaseBackgroundColor #EFEFEF
+skinparam linetype ortho
+
+' ===== Máquina del usuario =====
+node "Máquina del Usuario" as HOST {
+  node "Navegador Web" as BROWSER {
+    component "SPA React\n(harinas-elizondo)" as SPA
+  }
+}
+
+' ===== Host Docker (equipo local) =====
+node "Host Docker\n(docker compose up)" as DOCKER {
+
+  cloud "Red interna\n'app-network'" as NET {
+  }
+
+  node "Contenedor: frontend" as C_FE <<container>> {
+    component "Nginx\n(sirve build estático)" as NGINX
+    note right of NGINX
+      Puerto expuesto: 5173 → 80
+      Imagen base: nginx:alpine
+    end note
+  }
+
+  node "Contenedor: backend" as C_BE <<container>> {
+    component "Node.js 20\n+ Express + Prisma" as NODE
+    note right of NODE
+      Puerto expuesto: 3000 → 3000
+      Imagen base: node:20-alpine
+    end note
+  }
+
+  node "Contenedor: database" as C_DB <<container>> {
+    database "PostgreSQL 16" as PG
+    note right of PG
+      Puerto interno: 5432
+      (no expuesto al host en producción,
+       expuesto solo para depuración)
+    end note
+  }
+
+  node "Contenedor: mail-dev" as C_MAIL <<container>> {
+    component "MailHog" as MH
+    note right of MH
+      SMTP: 1025 (interno)
+      UI Web: 8025 → 8025
+      Captura correos sin enviarlos
+    end note
+  }
+
+  ' ===== Volúmenes persistentes =====
+  database "Volumen:\npgdata" as V_PG <<volume>>
+  database "Volumen:\ncertificados-pdf" as V_PDF <<volume>>
+}
+
+' ===== Conexiones =====
+BROWSER -[#0066CC]-> NGINX : HTTP\npuerto 5173
+SPA -[#0066CC]-> NODE : HTTPS / JSON\npuerto 3000
+NODE -[#333333]-> PG : TCP\npuerto 5432\n(interno)
+NODE -[#333333]-> MH : SMTP\npuerto 1025\n(interno)
+NODE -[#666666]..> V_PDF : escribe\narchivos PDF
+PG -[#666666]..> V_PG : persistencia
+
+' ===== Agrupación lógica de red =====
+C_FE -[hidden]- NET
+C_BE -[hidden]- NET
+C_DB -[hidden]- NET
+C_MAIL -[hidden]- NET
+
+@enduml

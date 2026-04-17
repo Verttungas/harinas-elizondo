@@ -1,0 +1,98 @@
+@startuml vista-proceso-secuencia
+!theme plain
+title Vista de Proceso — Diagrama de Secuencia\nEscenario: Emisión exitosa de Certificado de Calidad (UC-12)
+
+skinparam shadowing false
+skinparam sequenceArrowThickness 1
+skinparam sequenceMessageAlign center
+skinparam ParticipantBorderColor #333333
+skinparam ParticipantBackgroundColor #FAFAFA
+
+actor "Personal de\nControl de Calidad" as CC
+
+box "Frontend (Navegador)" #F0F4FA
+  participant "Componente\nUI Certificado" as UI
+  participant "Cliente HTTP\n(Axios)" as HTTP
+end box
+
+box "Backend (Node.js)" #FAF4F0
+  participant "Rutas /\nControlador" as CTRL
+  participant "Servicio de\nCertificados" as SVC
+  participant "Generador\nPDF" as PDF
+  participant "Servicio de\nCorreo" as MAIL
+  participant "Repositorio\n(Prisma)" as REPO
+end box
+
+database "PostgreSQL" as DB
+queue "Servidor SMTP" as SMTP
+collections "Volumen\nPDFs" as FS
+
+' ===== 1. El usuario inicia el flujo =====
+CC -> UI : Completa formulario\n(cliente, lote, inspección,\ndatos embarque)
+activate UI
+UI -> HTTP : POST /api/certificados
+activate HTTP
+HTTP -> CTRL : Petición HTTP\n+ token JWT
+activate CTRL
+
+' ===== 2. Validación en capa de aplicación =====
+CTRL -> CTRL : Valida token y rol
+CTRL -> CTRL : Valida DTO\n(esquema Zod)
+
+' ===== 3. El controlador invoca al servicio de dominio =====
+CTRL -> SVC : emitirCertificado(datos)
+activate SVC
+
+' ===== 4. Reglas de negocio =====
+SVC -> REPO : obtener Cliente, Lote,\nInspecciones, Parámetros
+activate REPO
+REPO -> DB : SELECT
+DB --> REPO : registros
+REPO --> SVC : entidades
+deactivate REPO
+
+SVC -> SVC : Valida límites\n(cliente ⊆ internacional)
+SVC -> SVC : Calcula desviaciones\npor parámetro
+
+' ===== 5. Generación y persistencia en paralelo =====
+par Generar PDF
+  SVC -> PDF : generar(certificado)
+  activate PDF
+  PDF -> FS : escribe archivo.pdf
+  PDF --> SVC : rutaPDF
+  deactivate PDF
+else Persistir certificado
+  SVC -> REPO : crear(Certificado)
+  activate REPO
+  REPO -> DB : INSERT
+  DB --> REPO : id
+  REPO --> SVC : Certificado guardado
+  deactivate REPO
+end
+
+' ===== 6. Envío de correos (asíncrono) =====
+SVC -->> MAIL : notificarCliente(certificado)
+SVC -->> MAIL : notificarAlmacen(certificado)
+activate MAIL
+MAIL ->> SMTP : enviar correo\ncon PDF adjunto
+deactivate MAIL
+
+' ===== 7. Respuesta al usuario =====
+SVC --> CTRL : { id, numero, rutaPDF }
+deactivate SVC
+CTRL --> HTTP : 201 Created\n+ JSON
+deactivate CTRL
+HTTP --> UI : respuesta
+deactivate HTTP
+UI --> CC : Confirmación en pantalla\n+ enlace de descarga
+deactivate UI
+
+note over SVC, MAIL
+  Los correos se envían con patrón fire-and-forget
+  (flechas punteadas abiertas "-->>").
+  El éxito del envío no bloquea la respuesta HTTP.
+  Los errores de correo se registran en log
+  y se reintentan por un proceso secundario.
+end note
+
+@enduml

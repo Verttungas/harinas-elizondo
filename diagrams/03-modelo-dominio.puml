@@ -1,0 +1,141 @@
+@startuml modelo-dominio
+!theme plain
+title Vista Lógica — Modelo de Dominio\nSistema de Emisión de Certificados de Calidad — FHESA
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam shadowing false
+skinparam linetype ortho
+
+' ========== USUARIOS Y ROLES ==========
+class Usuario {
+  nombre
+  correo
+  activo
+}
+
+enum Rol {
+  LABORATORIO
+  CONTROL_CALIDAD
+  ASEGURAMIENTO_CALIDAD
+  GERENTE_PLANTA
+  DIRECTOR_OPERACIONES
+}
+
+Usuario "*" -- "1" Rol : tiene >
+
+' ========== PRODUCTOS ==========
+class Producto {
+  clave
+  nombre
+  descripcion
+}
+
+' ========== EQUIPOS Y PARÁMETROS ==========
+class EquipoLaboratorio {
+  clave
+  descripcionCorta
+  descripcionLarga
+  marca
+  modelo
+  serie
+  fechaAdquisicion
+  ubicacion
+  estado
+}
+
+class Parametro {
+  clave
+  nombre
+  unidadMedida
+  desviacionAceptable
+}
+
+class ValorReferencia {
+  limiteInferior
+  limiteSuperior
+}
+
+EquipoLaboratorio "1" *-- "1..*" Parametro : analiza >
+Parametro "1" -- "1" ValorReferencia : referencia\ninternacional >
+
+' ========== CLIENTES ==========
+class Cliente {
+  claveSAP
+  nombre
+  rfc
+  domicilio
+  contactoNombre
+  contactoCorreo
+  requiereCertificado
+  activo
+}
+
+class ValorReferenciaCliente {
+  limiteInferior
+  limiteSuperior
+}
+
+Cliente "1" -- "0..*" ValorReferenciaCliente : define >
+ValorReferenciaCliente "*" -- "1" Parametro : aplica sobre >
+
+note right of ValorReferenciaCliente
+  Regla de negocio:
+  El rango definido por el cliente
+  debe estar contenido dentro del
+  ValorReferencia internacional
+  del parámetro correspondiente.
+  
+    limiteInferior >= Parametro.ValorReferencia.limiteInferior
+    limiteSuperior <= Parametro.ValorReferencia.limiteSuperior
+end note
+
+' ========== LOTES E INSPECCIONES ==========
+class LoteProduccion {
+  numeroLote
+  fechaProduccion
+  cantidadProducida
+}
+
+class Inspeccion {
+  secuencia  (A..Z)
+  fechaInspeccion
+  esFicticia
+}
+
+class ResultadoInspeccion {
+  valor
+  dentroEspec
+  desviacion
+}
+
+LoteProduccion "*" -- "1" Producto : produce >
+LoteProduccion "1" *-- "1..26" Inspeccion : contiene >
+Inspeccion "1" *-- "1..*" ResultadoInspeccion : registra >
+ResultadoInspeccion "*" -- "1" Parametro : mide >
+Inspeccion "*" -- "1" Usuario : registrada por >
+
+' ========== CERTIFICADOS ==========
+class Certificado {
+  numero
+  fechaEmision
+  rutaPDF
+  estadoEnvio
+}
+
+class DatosEmbarque {
+  numeroOrdenCompra
+  cantidadSolicitada
+  cantidadEntrega
+  numeroFactura
+  fechaEnvio
+  fechaCaducidad
+}
+
+Certificado "*" -- "1" Cliente : se emite para >
+Certificado "*" -- "1" LoteProduccion : referencia >
+Certificado "*" -- "1..*" Inspeccion : consolida >
+Certificado "1" *-- "1" DatosEmbarque : incluye >
+Certificado "*" -- "1" Usuario : emitido por >
+
+@enduml

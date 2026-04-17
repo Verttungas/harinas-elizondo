@@ -1,0 +1,97 @@
+@startuml casos-de-uso
+!theme plain
+title Diagrama de Casos de Uso\nSistema de Emisión de Certificados de Calidad — FHESA v1.0
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+' ===== Jerarquía de actores primarios =====
+actor "Usuario Transaccional" as UT
+actor "Personal de\nLaboratorio" as LAB
+actor "Personal de\nControl de Calidad" as CC
+LAB --|> UT
+CC --|> UT
+
+actor "Usuario de Consulta" as UCON
+actor "Aseguramiento\nde Calidad" as AC
+actor "Gerente de Planta" as GP
+actor "Director de\nOperaciones" as DO
+AC --|> UCON
+GP --|> UCON
+DO --|> UCON
+
+' ===== Actores secundarios =====
+actor "Almacenista" as ALM
+actor "Cliente" as CLI
+
+' ===== Sistema =====
+rectangle "Sistema de Emisión de Certificados de Calidad" as SYS {
+
+  package "Autenticación" {
+    usecase "UC-00\nIniciar sesión" as UC00
+  }
+
+  package "Gestión de Equipos de Laboratorio" {
+    usecase "UC-01 Alta de Equipo" as UC01
+    usecase "UC-02 Cambio de datos de Equipo" as UC02
+    usecase "UC-03 Baja de Equipo" as UC03
+    usecase "UC-04 Consulta de Equipos" as UC04
+  }
+
+  package "Gestión de Clientes" {
+    usecase "UC-05 Alta de Cliente" as UC05
+    usecase "UC-06 Cambio de datos de Cliente" as UC06
+    usecase "UC-07 Baja de Cliente" as UC07
+    usecase "UC-08 Consulta de Clientes" as UC08
+  }
+
+  package "Registro de Inspecciones" {
+    usecase "UC-09 Registrar análisis inicial" as UC09
+    usecase "UC-10 Registrar análisis subsecuente" as UC10
+  }
+
+  package "Certificados de Calidad" {
+    usecase "UC-11 Editar Certificado" as UC11
+    usecase "UC-12 Emitir Certificado" as UC12
+    usecase "UC-13 Enviar Certificado por correo" as UC13
+  }
+
+  package "Reportes Estadísticos" {
+    usecase "UC-14 Consultar Reportes" as UC14
+  }
+}
+
+' ===== Relaciones actor–caso =====
+UT --> UC01
+UT --> UC02
+UT --> UC03
+UT --> UC04
+UT --> UC05
+UT --> UC06
+UT --> UC07
+UT --> UC08
+UT --> UC09
+UT --> UC10
+UT --> UC11
+UT --> UC12
+
+UCON --> UC04
+UCON --> UC08
+UCON --> UC14
+
+UC13 --> ALM
+UC13 --> CLI
+
+' ===== Relaciones entre casos =====
+UC12 ..> UC13 : <<include>>
+UC11 ..> UC12 : <<extend>>
+
+note right of UC00
+  Todos los casos de uso requieren
+  autenticación previa. Las relaciones
+  <<include>> con UC-00 se omiten
+  para claridad visual.
+end note
+
+@enduml

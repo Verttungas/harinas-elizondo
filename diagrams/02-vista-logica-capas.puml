@@ -1,0 +1,72 @@
+@startuml vista-logica-capas
+!theme plain
+title Vista Lógica — Arquitectura en Capas\nSistema de Emisión de Certificados de Calidad — FHESA
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam packageBackgroundColor #FAFAFA
+skinparam packageBorderColor #666666
+skinparam packageFontStyle bold
+
+package "Capa de Presentación" as L1 {
+  [Vistas / Pages]
+  [Componentes UI]
+  [Clientes HTTP]
+  [Gestión de Estado]
+}
+note right of L1
+  Tecnología: React 18 + TypeScript + Vite
+  Ejecución: navegador del usuario
+  Responsabilidad: renderizado e interacción
+end note
+
+package "Capa de Aplicación" as L2 {
+  [Rutas HTTP]
+  [Controladores]
+  [Middlewares de\nAutenticación y Validación]
+  [DTOs]
+}
+note right of L2
+  Tecnología: Node.js + Express + TypeScript
+  Responsabilidad: traducir peticiones HTTP
+  al lenguaje del dominio
+end note
+
+package "Capa de Dominio" as L3 {
+  [Servicios de Negocio]
+  [Entidades de Dominio]
+  [Reglas de Validación\n(límites, desviaciones)]
+}
+note right of L3
+  Independiente de frameworks
+  Contiene las reglas de negocio de FHESA
+  (secuencia A–Z, cálculo de desviaciones,
+   comparación vs. valores de referencia)
+end note
+
+package "Capa de Infraestructura" as L4 {
+  [Repositorios\n(Prisma ORM)]
+  [Servicio de Correo\n(Nodemailer)]
+  [Generador de PDF\n(PDFKit)]
+  [Autenticación JWT\n(bcrypt + jsonwebtoken)]
+}
+note right of L4
+  Adaptadores hacia servicios externos
+  y hacia la persistencia
+end note
+
+package "Capa de Datos" as L5 {
+  database "PostgreSQL 16" as DB
+  folder "Volumen Docker\n(PDFs emitidos)" as FS
+}
+note right of L5
+  Persistencia de datos transaccionales
+  y archivos generados
+end note
+
+L1 -[#333333]-> L2 : HTTPS / JSON
+L2 -[#333333]-> L3
+L3 -[#333333]-> L4 : vía interfaces
+L4 -[#333333]-> L5 : SQL / FS
+
+@enduml

@@ -1,0 +1,69 @@
+@startuml vista-proceso-actividad
+!theme plain
+title Vista de Proceso — Diagrama de Actividad\nProceso de Emisión de Certificado de Calidad
+
+skinparam shadowing false
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+skinparam partitionBorderColor #666666
+skinparam partitionFontStyle bold
+
+|#E8F0FA|Personal de Laboratorio|
+start
+:Recibir notificación de lote\nde producción disponible;
+:Realizar análisis físico\nen Alveógrafo y Farinógrafo;
+:Iniciar sesión en el sistema;
+
+if (¿Es la primera inspección del lote?) then (sí)
+  :Registrar análisis inicial\n(secuencia "A");
+else (no)
+  :Registrar análisis subsecuente\n(secuencia B..Z);
+endif
+
+:Capturar resultados de\nparámetros por equipo;
+:Guardar inspección;
+
+|#F0F0F0|Sistema|
+:Comparar cada resultado\ncontra valores de referencia\n(internacional o del cliente);
+:Calcular desviación\npor parámetro;
+
+|#E8F0FA|Personal de Laboratorio|
+if (¿Todos los parámetros\ndentro de especificación?) then (sí)
+  :Seleccionar inspección\npara certificado;
+else (no)
+  :Generar inspección\nficticia ajustada;
+  note right
+    Flujo documentado en
+    proceso-certificados-de-lab.pdf
+    (actividades 9–12)
+  end note
+  :Registrar como conforme ficticia;
+endif
+
+|#FAF0E8|Personal de Control de Calidad|
+:Iniciar emisión de certificado;
+:Seleccionar cliente;
+:Seleccionar lote e inspección(es);
+:Capturar datos de embarque\n(OC, factura, fechas);
+:Revisar y confirmar;
+
+|#F0F0F0|Sistema|
+fork
+  :Generar PDF del certificado;
+  :Archivar PDF en volumen;
+fork again
+  :Enviar correo al contacto\ndel cliente;
+fork again
+  :Enviar correo al Almacén;
+end fork
+
+:Marcar certificado como emitido;
+
+|#EAF5EA|Almacén|
+:Recibir correo;
+:Imprimir certificado;
+:Anexar a factura\npara entrega física;
+
+stop
+
+@enduml

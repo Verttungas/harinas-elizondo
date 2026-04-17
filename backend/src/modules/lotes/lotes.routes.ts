@@ -1,0 +1,32 @@
+import { Router } from "express";
+import { requireAuth, requireRole } from "../../middlewares/auth.middleware.js";
+import { validate } from "../../middlewares/validate.middleware.js";
+import { crearLote, getLote, listLotes } from "./lotes.controller.js";
+import { crearLoteSchema, listLotesQuerySchema } from "./lotes.schemas.js";
+import { idParamSchema } from "../../lib/schemas.js";
+
+const router = Router();
+
+router.get(
+  "/",
+  requireAuth,
+  validate({ query: listLotesQuerySchema }),
+  listLotes,
+);
+
+router.get(
+  "/:id",
+  requireAuth,
+  validate({ params: idParamSchema }),
+  getLote,
+);
+
+router.post(
+  "/",
+  requireAuth,
+  requireRole("LABORATORIO", "CONTROL_CALIDAD"),
+  validate({ body: crearLoteSchema }),
+  crearLote,
+);
+
+export default router;

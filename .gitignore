@@ -1,3 +1,5 @@
+.gitignore
+
 # ========== Claude Code (personal) ==========
 CLAUDE.md
 CLAUDE.local.md
@@ -65,5 +67,3 @@ logs/
 
 # ========== PDFs generados (salida de certificados, no versionar) ==========
 certificados-pdf/
-
-.gitignore

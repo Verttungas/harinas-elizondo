@@ -459,6 +459,7 @@ export function EquipoForm() {
             <Button
               type="button"
               variant="outline"
+              disabled={form.formState.isSubmitting}
               onClick={() => navigate("/equipos")}
             >
               Cancelar

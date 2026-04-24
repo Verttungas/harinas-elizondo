@@ -430,6 +430,7 @@ export function ClienteForm() {
             <Button
               type="button"
               variant="outline"
+              disabled={form.formState.isSubmitting}
               onClick={() => navigate("/clientes")}
             >
               Cancelar

@@ -408,6 +408,7 @@ export function InspeccionForm() {
             <Button
               type="button"
               variant="outline"
+              disabled={saving}
               onClick={() => navigate("/inspecciones")}
             >
               Cancelar

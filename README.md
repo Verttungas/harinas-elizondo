@@ -48,7 +48,7 @@ FHESA es una aplicación web diseñada para **Fábrica de Harinas Elizondo** que
 
 ## ✨ Características
 
-| | |
+| Característica | Descripción |
 |---|---|
 | 🧪 **Gestión de lotes e inspecciones** | Secuencia A-Z por lote, hasta 26 inspecciones con trazabilidad completa |
 | 📑 **Certificados inmutables** | Numeración `CERT-AAAA-NNNNNN` con reinicio anual y generación PDF |
@@ -191,7 +191,7 @@ docker compose up -d                                         # En segundo plano
 docker compose logs -f backend                               # Ver logs del backend
 docker compose exec backend sh                               # Shell en el contenedor
 docker compose exec backend npx prisma migrate dev           # Nueva migración
-docker compose exec backend npx prisma studio --port 5555    # Explorador de BD
+docker compose exec backend npx prisma studio --port 5555 --hostname 0.0.0.0  # Explorador de BD (exponer puerto 5555 en compose.yaml o ejecutar fuera de Docker)
 docker compose down                                          # Detener
 ./run-tests.sh                                               # Suite completa de pruebas
 ```
@@ -245,7 +245,6 @@ Las guías detalladas de cada nivel de prueba viven en [`docs/guias-de-prueba/`]
 - [`CLAUDE.md`](CLAUDE.md) — Contexto, convenciones y reglas absolutas del proyecto
 - [`diagrams/`](diagrams/) — Diagramas UML (casos de uso, ER, vistas 4+1)
 - [`docs/guias-de-prueba/`](docs/guias-de-prueba/) — Guías de pruebas y matriz de casos
-- [`docs/prompts/`](docs/prompts/) — Prompts por fase de construcción
 
 ---
 
@@ -253,7 +252,7 @@ Las guías detalladas de cada nivel de prueba viven en [`docs/guias-de-prueba/`]
 
 > Ingeniería en Sistemas y TI · Universidad Anáhuac México Norte · Facultad de Ingeniería
 
-| | |
+| Ícono | Nombre |
 |---|---|
 | 👨‍💻 | **Carlos Alberto Ortiz Pérez Vertti** |
 | 👨‍💻 | **Fernando Alexander Martínez Villavicencio** |

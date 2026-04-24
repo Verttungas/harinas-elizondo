@@ -16,6 +16,7 @@ import { auditLog } from "../../lib/audit.js";
 import { env } from "../../config/env.js";
 import { logger } from "../../lib/logger.js";
 import { enviarCorreo } from "../../lib/mailer.js";
+import { escapeHtml } from "../../lib/html.js";
 import { generarNumeroCertificado } from "./certificados.numbering.js";
 import { certificadoPdfService } from "./pdf.service.js";
 import type {
@@ -328,14 +329,18 @@ export class CertificadosService {
       return;
     }
 
+    const numero = escapeHtml(ctx.numero);
+    const clienteNombre = escapeHtml(ctx.clienteNombre);
+    const numeroLote = escapeHtml(ctx.numeroLote);
+    const appBaseUrl = escapeHtml(env.APP_BASE_URL);
     const subject = `Certificado de calidad ${ctx.numero} — Lote ${ctx.numeroLote}`;
     const html = `
-      <p>Estimado(a) ${ctx.clienteNombre},</p>
-      <p>Adjunto encontrará el certificado de calidad <strong>${ctx.numero}</strong>
-      correspondiente al lote <strong>${ctx.numeroLote}</strong>.</p>
+      <p>Estimado(a) ${clienteNombre},</p>
+      <p>Adjunto encontrará el certificado de calidad <strong>${numero}</strong>
+      correspondiente al lote <strong>${numeroLote}</strong>.</p>
       <p>Este correo fue enviado desde el sistema de certificados FHESA.
       Si tiene dudas, por favor responda a este mensaje o visite
-      <a href="${env.APP_BASE_URL}">${env.APP_BASE_URL}</a>.</p>
+      <a href="${appBaseUrl}">${appBaseUrl}</a>.</p>
       <p>Atentamente,<br/>Fábrica de Harinas Elizondo, S.A. de C.V.</p>
     `;
 

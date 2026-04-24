@@ -5,15 +5,15 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: fhesa
-      POSTGRES_PASSWORD: fhesa
-      POSTGRES_DB: fhesa
+      POSTGRES_USER: ${DB_USER:-fhesa}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD es requerido en .env}
+      POSTGRES_DB: ${DB_NAME:-fhesa}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U fhesa -d fhesa"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-fhesa} -d ${DB_NAME:-fhesa}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -21,7 +21,7 @@ services:
       - app-network
 
   mailhog:
-    image: mailhog/mailhog:latest
+    image: mailhog/mailhog:v1.0.1
     restart: unless-stopped
     ports:
       - "1025:1025"
@@ -58,7 +58,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     env_file:
       - .env
     ports:

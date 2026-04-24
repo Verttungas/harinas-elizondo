@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireAuth } from "../../middlewares/auth.middleware.js";
+import { requireAuth, requireRole } from "../../middlewares/auth.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import {
   exportReporte,
@@ -19,11 +19,19 @@ import {
 
 const router = Router();
 
-router.get("/resumen", requireAuth, getResumen);
+const rolesReportes = requireRole(
+  "CONTROL_CALIDAD",
+  "ASEGURAMIENTO_CALIDAD",
+  "GERENTE_PLANTA",
+  "DIRECTOR_OPERACIONES",
+);
+
+router.get("/resumen", requireAuth, rolesReportes, getResumen);
 
 router.get(
   "/parametros",
   requireAuth,
+  rolesReportes,
   validate({ query: parametrosQuerySchema }),
   getParametros,
 );
@@ -31,6 +39,7 @@ router.get(
 router.get(
   "/certificados-por-cliente",
   requireAuth,
+  rolesReportes,
   validate({ query: certificadosPorClienteQuerySchema }),
   getCertificadosPorCliente,
 );
@@ -38,6 +47,7 @@ router.get(
 router.get(
   "/desviaciones",
   requireAuth,
+  rolesReportes,
   validate({ query: desviacionesQuerySchema }),
   getDesviaciones,
 );
@@ -45,6 +55,7 @@ router.get(
 router.get(
   "/ficticias",
   requireAuth,
+  rolesReportes,
   validate({ query: ficticiasQuerySchema }),
   getFicticias,
 );
@@ -52,6 +63,7 @@ router.get(
 router.get(
   "/export",
   requireAuth,
+  rolesReportes,
   validate({ query: exportQuerySchema }),
   exportReporte,
 );

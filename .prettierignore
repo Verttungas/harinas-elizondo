@@ -1,0 +1,8 @@
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+backend/prisma/migrations/
+frontend/src/components/ui/
+certificados-pdf/

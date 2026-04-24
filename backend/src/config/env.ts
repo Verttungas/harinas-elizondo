@@ -27,6 +27,8 @@ const envSchema = z.object({
   PDF_STORAGE_PATH: z.string().min(1).default("/app/certificados-pdf"),
   APP_BASE_URL: z.string().url().default("http://localhost:5173"),
   WAREHOUSE_EMAIL: z.string().email().default("almacen@fhesa.mx"),
+  RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
+  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(120),
 });
 
 const parsed = envSchema.safeParse(process.env);

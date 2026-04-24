@@ -8,6 +8,7 @@ import { logger } from "./lib/logger.js";
 import { apiRouter } from "./routes/index.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import { notFoundMiddleware } from "./middlewares/notfound.middleware.js";
+import { apiRateLimiter } from "./middlewares/rateLimit.middleware.js";
 
 export function createApp(): Express {
   const app = express();
@@ -21,6 +22,9 @@ export function createApp(): Express {
   }
   app.use(express.json({ limit: "1mb" }));
 
+  if (env.NODE_ENV !== "test") {
+    app.use("/api/v1", apiRateLimiter);
+  }
   app.use("/api/v1", apiRouter);
 
   app.use(notFoundMiddleware);

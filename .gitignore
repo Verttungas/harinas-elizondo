@@ -27,6 +27,8 @@ out/
 .next/
 .turbo/
 *.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
 
 # ========== Prisma ==========
 # Mantenemos schema.prisma y migrations/ pero no el cliente generado

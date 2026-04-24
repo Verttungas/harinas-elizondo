@@ -71,9 +71,12 @@ export function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary/30 px-4">
       <div className="w-full max-w-[400px] space-y-6">
-        <div className="flex flex-col items-center space-y-2">
-          <div className="inline-block h-10 w-10 rounded bg-brand" />
-          <h1 className="text-xl font-semibold tracking-tight">FHESA</h1>
+        <div className="flex flex-col items-center space-y-3">
+          <img
+            src="/logo.webp"
+            alt="Harinas Elizondo"
+            className="h-20 w-auto"
+          />
           <p className="text-sm text-muted-foreground">
             Certificados de calidad
           </p>

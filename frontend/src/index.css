@@ -4,33 +4,36 @@
 
 @layer base {
   :root {
-    --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+    --font-sans: "Nunito Sans", system-ui, -apple-system, sans-serif;
+    --font-display: "Oswald", "Nunito Sans", sans-serif;
 
-    /* shadcn/ui Neutral palette */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    /* shadcn tokens alineados con marca Harinas Elizondo */
+    --background: 0 0% 100%;          /* #ffffff */
+    --foreground: 222 100% 13%;       /* #001441 — texto principal en navy */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 222 100% 13%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --popover-foreground: 222 100% 13%;
+    --primary: 222 100% 13%;          /* #001441 navy */
+    --primary-foreground: 0 0% 100%;  /* #ffffff */
+    --secondary: 220 30% 96%;         /* gris azulado muy claro */
+    --secondary-foreground: 222 100% 13%;
+    --muted: 220 30% 96%;
+    --muted-foreground: 222 30% 40%;
+    --accent: 223 93% 43%;            /* #0846d3 azul vibrante */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --border: 220 20% 88%;
+    --input: 220 20% 88%;
+    --ring: 223 93% 43%;              /* focus ring en azul vibrante */
     --radius: 0.5rem;
 
-    /* FHESA brand */
-    --brand-primary: 215 90% 35%;
+    /* Marca FHESA */
+    --brand-primary: 222 100% 13%;    /* #001441 */
     --brand-primary-foreground: 0 0% 100%;
+    --brand-accent: 223 93% 43%;      /* #0846d3 */
+    --brand-accent-foreground: 0 0% 100%;
 
     /* Estados semánticos */
     --state-success: 145 63% 42%;
@@ -39,30 +42,8 @@
     --state-warning-foreground: 0 0% 100%;
     --state-danger: 0 72% 51%;
     --state-danger-foreground: 0 0% 100%;
-    --state-info: 210 100% 50%;
+    --state-info: 223 93% 43%;        /* alineado con accent */
     --state-info-foreground: 0 0% 100%;
-  }
-
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
   }
 }
 
@@ -72,12 +53,18 @@
   }
   body {
     font-family: var(--font-sans);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     @apply bg-background text-foreground;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
   }
 }
 
 @layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
   .text-success {
     color: hsl(var(--state-success));
   }

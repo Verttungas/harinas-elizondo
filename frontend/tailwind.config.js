@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     container: {
@@ -12,7 +11,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["Nunito Sans", "system-ui", "-apple-system", "sans-serif"],
+        display: ["Oswald", "Nunito Sans", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -56,6 +56,8 @@ export default {
         brand: {
           DEFAULT: "hsl(var(--brand-primary))",
           foreground: "hsl(var(--brand-primary-foreground))",
+          accent: "hsl(var(--brand-accent))",
+          "accent-foreground": "hsl(var(--brand-accent-foreground))",
         },
         state: {
           success: "hsl(var(--state-success))",

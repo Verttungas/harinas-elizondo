@@ -224,12 +224,16 @@ export class CertificadoPdfService {
           align: "right",
         });
 
-      doc.moveDown(3);
+      doc.x = doc.page.margins.left;
+      doc.y = 120;
       doc
         .fillColor("#000000")
         .font("Helvetica-Bold")
         .fontSize(14)
-        .text("CERTIFICADO DE CALIDAD", { align: "center" });
+        .text("CERTIFICADO DE CALIDAD", {
+          align: "center",
+          width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+        });
       doc.moveDown(0.5);
 
       // Bloques: Cliente / Producto-Lote / Embarque

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
@@ -40,7 +40,9 @@ interface EquipoConParametros {
 
 export function InspeccionForm() {
   const navigate = useNavigate();
+  const { id: editId } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
+  const isEdit = !!editId;
   const initialLoteId = searchParams.get("loteId") ?? "";
 
   const [loteNumero, setLoteNumero] = useState("");
@@ -56,12 +58,37 @@ export function InspeccionForm() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (initialLoteId) {
+    if (isEdit && editId) {
+      void cargarInspeccionExistente(editId);
+    } else if (initialLoteId) {
       void buscarLotePorId(initialLoteId);
     }
     void cargarEquipos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const cargarInspeccionExistente = async (inspeccionId: string) => {
+    setBuscandoLote(true);
+    setLoteError(null);
+    try {
+      const r = await api.get<Inspeccion>(`/inspecciones/${inspeccionId}`);
+      const insp = r.data;
+      if (insp.loteId) {
+        await buscarLotePorId(String(insp.loteId));
+      }
+      setFecha(insp.fechaInspeccion.slice(0, 10));
+      setObservaciones(insp.observaciones ?? "");
+      const prefill: Record<string, string> = {};
+      for (const res of insp.resultados ?? []) {
+        prefill[String(res.parametroId)] = String(Number(res.valor));
+      }
+      setResultados(prefill);
+    } catch (err) {
+      setLoteError(handleApiError(err));
+    } finally {
+      setBuscandoLote(false);
+    }
+  };
 
   const buscarLotePorId = async (id: string) => {
     setBuscandoLote(true);
@@ -112,17 +139,22 @@ export function InspeccionForm() {
   };
 
   const cargarEquipos = async () => {
-    const r = await api.get<PaginatedResponse<Equipo>>("/equipos", {
-      params: { estado: "ACTIVO", limit: 100 },
-    });
-    const detalles = await Promise.all(
-      r.data.data.map((e) =>
-        api.get<Equipo>(`/equipos/${e.id}`).then((res) => res.data),
-      ),
-    );
-    setEquipos(
-      detalles.map((e) => ({ equipo: e, parametros: e.parametros ?? [] })),
-    );
+    try {
+      const r = await api.get<PaginatedResponse<Equipo>>("/equipos", {
+        params: { estado: "ACTIVO", limit: 100 },
+      });
+      const detalles = await Promise.all(
+        r.data.data.map((e) =>
+          api.get<Equipo>(`/equipos/${e.id}`).then((res) => res.data),
+        ),
+      );
+      setEquipos(
+        detalles.map((e) => ({ equipo: e, parametros: e.parametros ?? [] })),
+      );
+    } catch (err) {
+      setEquipos([]);
+      toast.error(handleApiError(err));
+    }
   };
 
   const ultimaSecuencia = useMemo(() => {
@@ -155,17 +187,29 @@ export function InspeccionForm() {
 
     setSaving(true);
     try {
-      await api.post(`/lotes/${lote.id}/inspecciones`, {
-        fechaInspeccion: fecha,
-        observaciones: observaciones || undefined,
-        resultados: resultadosArr,
-        guardarComoBorrador,
-      });
-      toast.success(
-        guardarComoBorrador
-          ? "Inspección guardada como borrador"
-          : "Inspección cerrada",
-      );
+      if (isEdit && editId) {
+        await api.put(`/inspecciones/${editId}`, {
+          fechaInspeccion: fecha,
+          observaciones: observaciones || undefined,
+          resultados: resultadosArr,
+          guardarComoBorrador,
+        });
+        toast.success(
+          guardarComoBorrador ? "Inspección actualizada" : "Inspección cerrada",
+        );
+      } else {
+        await api.post(`/lotes/${lote.id}/inspecciones`, {
+          fechaInspeccion: fecha,
+          observaciones: observaciones || undefined,
+          resultados: resultadosArr,
+          guardarComoBorrador,
+        });
+        toast.success(
+          guardarComoBorrador
+            ? "Inspección guardada como borrador"
+            : "Inspección cerrada",
+        );
+      }
       navigate("/inspecciones");
     } catch (err) {
       toast.error(handleApiError(err));
@@ -179,10 +223,10 @@ export function InspeccionForm() {
       <Breadcrumb
         items={[
           { label: "Inspecciones", to: "/inspecciones" },
-          { label: "Nueva" },
+          { label: isEdit ? "Editar" : "Nueva" },
         ]}
       />
-      <PageHeader title="Registrar inspección" />
+      <PageHeader title={isEdit ? "Editar inspección" : "Registrar inspección"} />
 
       <section className="space-y-3">
         <h2 className="text-sm font-medium text-muted-foreground">

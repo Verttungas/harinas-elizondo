@@ -9,8 +9,10 @@ import { ClientesListado } from "@/pages/clientes/ClientesListado";
 import { ClienteForm } from "@/pages/clientes/ClienteForm";
 import { LotesListado } from "@/pages/lotes/LotesListado";
 import { LoteForm } from "@/pages/lotes/LoteForm";
+import { LoteDetalle } from "@/pages/lotes/LoteDetalle";
 import { InspeccionesListado } from "@/pages/inspecciones/InspeccionesListado";
 import { InspeccionForm } from "@/pages/inspecciones/InspeccionForm";
+import { InspeccionDetalle } from "@/pages/inspecciones/InspeccionDetalle";
 import { CertificadosListado } from "@/pages/certificados/CertificadosListado";
 import { CertificadoDetalle } from "@/pages/certificados/CertificadoDetalle";
 import { WizardCertificado } from "@/pages/certificados/wizard/WizardCertificado";
@@ -43,9 +45,12 @@ export function AppRoutes() {
 
         <Route path="/lotes" element={<LotesListado />} />
         <Route path="/lotes/nuevo" element={<LoteForm />} />
+        <Route path="/lotes/:id" element={<LoteDetalle />} />
 
         <Route path="/inspecciones" element={<InspeccionesListado />} />
         <Route path="/inspecciones/nueva" element={<InspeccionForm />} />
+        <Route path="/inspecciones/:id" element={<InspeccionDetalle />} />
+        <Route path="/inspecciones/:id/editar" element={<InspeccionForm />} />
 
         <Route path="/certificados" element={<CertificadosListado />} />
         <Route path="/certificados/nuevo" element={<WizardCertificado />} />

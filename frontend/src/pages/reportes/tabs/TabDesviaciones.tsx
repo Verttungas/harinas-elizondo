@@ -91,6 +91,7 @@ export function TabDesviaciones({ filtros, setFiltros }: Props) {
             <SelectValue placeholder="Todos los productos" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="">Todos los productos</SelectItem>
             {productos.map((p) => (
               <SelectItem key={String(p.id)} value={String(p.id)}>
                 {p.clave} — {p.nombre}

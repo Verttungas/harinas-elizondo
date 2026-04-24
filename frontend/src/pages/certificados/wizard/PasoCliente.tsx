@@ -32,6 +32,7 @@ export function PasoCliente({ cliente, onSelect, onNext, onCancel }: Props) {
         params: { q: debouncedQ, estado: "ACTIVO", limit: 10 },
       })
       .then((r) => setResultados(r.data.data))
+      .catch(() => setResultados([]))
       .finally(() => setLoading(false));
   }, [debouncedQ]);
 

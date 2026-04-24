@@ -35,7 +35,7 @@ export function InspeccionesListado() {
   const [esFicticia, setEsFicticia] = useState<"TODOS" | "SI" | "NO">("TODOS");
   const [page, setPage] = useState(1);
 
-  const { data, loading } = useQuery(
+  const { data: rawData, loading } = useQuery(
     () =>
       api
         .get<PaginatedResponse<Inspeccion>>("/inspecciones", {
@@ -48,21 +48,21 @@ export function InspeccionesListado() {
               : {}),
           },
         })
-        .then((r) => {
-          const filtered = loteSearch
-            ? {
-                ...r.data,
-                data: r.data.data.filter((i) =>
-                  i.lote?.numeroLote
-                    ?.toLowerCase()
-                    .includes(loteSearch.toLowerCase()),
-                ),
-              }
-            : r.data;
-          return filtered;
-        }),
-    [estado, esFicticia, page, loteSearch],
+        .then((r) => r.data),
+    [estado, esFicticia, page],
   );
+
+  const data =
+    loteSearch && rawData
+      ? {
+          ...rawData,
+          data: rawData.data.filter((i) =>
+            i.lote?.numeroLote
+              ?.toLowerCase()
+              .includes(loteSearch.toLowerCase()),
+          ),
+        }
+      : rawData;
 
   const columns: DataTableColumn<Inspeccion>[] = [
     {

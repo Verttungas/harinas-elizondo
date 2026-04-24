@@ -197,11 +197,15 @@ export class CertificadoPdfService {
       doc.on("error", reject);
       doc.pipe(stream);
 
+      const HEADER_TOP = 50;
+      const HEADER_HEIGHT = 48;
+      const HEADER_CONTENT_GAP = 22;
+
       doc.font("Helvetica");
 
       // Header
       doc
-        .rect(60, 50, doc.page.width - 120, 48)
+        .rect(60, HEADER_TOP, doc.page.width - 120, HEADER_HEIGHT)
         .fill(COLOR_HEADER_BG);
       doc
         .fillColor(COLOR_HEADER_TEXT)
@@ -225,7 +229,7 @@ export class CertificadoPdfService {
         });
 
       doc.x = doc.page.margins.left;
-      doc.y = 120;
+      doc.y = HEADER_TOP + HEADER_HEIGHT + HEADER_CONTENT_GAP;
       doc
         .fillColor("#000000")
         .font("Helvetica-Bold")

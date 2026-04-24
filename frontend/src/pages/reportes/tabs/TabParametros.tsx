@@ -84,7 +84,8 @@ export function TabParametros({ filtros, setFiltros }: Props) {
           for (const p of e.parametros ?? []) all.push(p);
         }
         setParametros(all);
-      });
+      })
+      .catch(() => setParametros([]));
   }, []);
 
   useEffect(() => {

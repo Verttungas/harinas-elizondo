@@ -44,6 +44,9 @@ export function PasoLoteInspecciones({
         params: { loteId: l.id, estado: "CERRADA", limit: 100 },
       });
       setDisponibles(r.data.data);
+    } catch (err) {
+      setDisponibles([]);
+      toast.error(handleApiError(err));
     } finally {
       setLoading(false);
     }
@@ -92,7 +95,7 @@ export function PasoLoteInspecciones({
     onNext();
   };
 
-  const alguna_ficticia = disponibles
+  const algunaFicticia = disponibles
     .filter((i) => seleccionadas.has(String(i.id)))
     .some((i) => i.esFicticia);
 
@@ -155,7 +158,7 @@ export function PasoLoteInspecciones({
               ))}
             </ul>
           )}
-          {alguna_ficticia && (
+          {algunaFicticia && (
             <div className="text-xs text-state-warning p-2 rounded bg-state-warning/5 border border-state-warning/30">
               Está incluyendo al menos una inspección ficticia en el
               certificado.

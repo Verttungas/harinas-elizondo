@@ -47,7 +47,16 @@ export function MotivoDialog({
       setError("El motivo es obligatorio");
       return;
     }
-    await onConfirm(motivo.trim());
+    setError(null);
+    try {
+      await onConfirm(motivo.trim());
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Ocurrió un error al confirmar. Inténtelo nuevamente.",
+      );
+    }
   };
 
   return (

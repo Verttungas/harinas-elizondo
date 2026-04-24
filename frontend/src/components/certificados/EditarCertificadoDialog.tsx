@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -42,6 +42,18 @@ export function EditarCertificadoDialog({
   const [justificacion, setJustificacion] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      const init: Record<string, string> = {};
+      for (const r of inspeccionOrigen.resultados ?? []) {
+        init[String(r.parametroId)] = String(toNumber(r.valor));
+      }
+      setValores(init);
+      setJustificacion("");
+      setError(null);
+    }
+  }, [open, inspeccionOrigen]);
 
   const handleConfirm = async () => {
     setError(null);

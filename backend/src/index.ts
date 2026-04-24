@@ -1,28 +1,7 @@
-import "./lib/json.js";
 import { env } from "./config/env.js";
-import express from "express";
-import helmet from "helmet";
-import cors from "cors";
-import { pinoHttp } from "pino-http";
+import { app } from "./app.js";
 import { logger } from "./lib/logger.js";
 import { prisma } from "./lib/prisma.js";
-import { apiRouter } from "./routes/index.js";
-import { errorMiddleware } from "./middlewares/error.middleware.js";
-import { notFoundMiddleware } from "./middlewares/notfound.middleware.js";
-
-const app = express();
-
-app.set("trust proxy", true);
-
-app.use(helmet());
-app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
-app.use(pinoHttp({ logger }));
-app.use(express.json({ limit: "1mb" }));
-
-app.use("/api/v1", apiRouter);
-
-app.use(notFoundMiddleware);
-app.use(errorMiddleware);
 
 const server = app.listen(env.PORT, () => {
   logger.info({ port: env.PORT, nodeEnv: env.NODE_ENV }, "server started");

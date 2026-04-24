@@ -3,11 +3,20 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { AppShell } from "@/components/layout/AppShell";
 import { Login } from "@/pages/Login";
 import { Dashboard } from "@/pages/Dashboard";
-import { Equipos } from "@/pages/Equipos";
-import { Clientes } from "@/pages/Clientes";
-import { Inspecciones } from "@/pages/Inspecciones";
-import { Certificados } from "@/pages/Certificados";
-import { Reportes } from "@/pages/Reportes";
+import { EquiposListado } from "@/pages/equipos/EquiposListado";
+import { EquipoForm } from "@/pages/equipos/EquipoForm";
+import { ClientesListado } from "@/pages/clientes/ClientesListado";
+import { ClienteForm } from "@/pages/clientes/ClienteForm";
+import { LotesListado } from "@/pages/lotes/LotesListado";
+import { LoteForm } from "@/pages/lotes/LoteForm";
+import { LoteDetalle } from "@/pages/lotes/LoteDetalle";
+import { InspeccionesListado } from "@/pages/inspecciones/InspeccionesListado";
+import { InspeccionForm } from "@/pages/inspecciones/InspeccionForm";
+import { InspeccionDetalle } from "@/pages/inspecciones/InspeccionDetalle";
+import { CertificadosListado } from "@/pages/certificados/CertificadosListado";
+import { CertificadoDetalle } from "@/pages/certificados/CertificadoDetalle";
+import { WizardCertificado } from "@/pages/certificados/wizard/WizardCertificado";
+import { Reportes } from "@/pages/reportes/Reportes";
 import { NotFound } from "@/pages/NotFound";
 
 export function AppRoutes() {
@@ -23,10 +32,30 @@ export function AppRoutes() {
       >
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/equipos" element={<Equipos />} />
-        <Route path="/clientes" element={<Clientes />} />
-        <Route path="/inspecciones" element={<Inspecciones />} />
-        <Route path="/certificados" element={<Certificados />} />
+
+        <Route path="/equipos" element={<EquiposListado />} />
+        <Route path="/equipos/nuevo" element={<EquipoForm />} />
+        <Route path="/equipos/:id" element={<EquipoForm />} />
+        <Route path="/equipos/:id/editar" element={<EquipoForm />} />
+
+        <Route path="/clientes" element={<ClientesListado />} />
+        <Route path="/clientes/nuevo" element={<ClienteForm />} />
+        <Route path="/clientes/:id" element={<ClienteForm />} />
+        <Route path="/clientes/:id/editar" element={<ClienteForm />} />
+
+        <Route path="/lotes" element={<LotesListado />} />
+        <Route path="/lotes/nuevo" element={<LoteForm />} />
+        <Route path="/lotes/:id" element={<LoteDetalle />} />
+
+        <Route path="/inspecciones" element={<InspeccionesListado />} />
+        <Route path="/inspecciones/nueva" element={<InspeccionForm />} />
+        <Route path="/inspecciones/:id" element={<InspeccionDetalle />} />
+        <Route path="/inspecciones/:id/editar" element={<InspeccionForm />} />
+
+        <Route path="/certificados" element={<CertificadosListado />} />
+        <Route path="/certificados/nuevo" element={<WizardCertificado />} />
+        <Route path="/certificados/:id" element={<CertificadoDetalle />} />
+
         <Route path="/reportes" element={<Reportes />} />
       </Route>
       <Route path="*" element={<NotFound />} />

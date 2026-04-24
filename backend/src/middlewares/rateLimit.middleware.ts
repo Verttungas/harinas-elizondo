@@ -7,9 +7,7 @@ export const apiRateLimiter = rateLimit({
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: {
-    error: {
-      code: "RATE_LIMIT_EXCEEDED",
-      message: "Demasiadas peticiones. Intente de nuevo en unos momentos.",
-    },
+    codigo: "RATE_LIMIT_EXCEEDED",
+    mensaje: "Demasiadas peticiones. Intente de nuevo en unos momentos.",
   },
 });

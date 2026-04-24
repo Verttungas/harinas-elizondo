@@ -333,7 +333,11 @@ export class CertificadosService {
     const clienteNombre = escapeHtml(ctx.clienteNombre);
     const numeroLote = escapeHtml(ctx.numeroLote);
     const appBaseUrl = escapeHtml(env.APP_BASE_URL);
-    const subject = `Certificado de calidad ${ctx.numero} — Lote ${ctx.numeroLote}`;
+    const normalizeEmailHeaderValue = (value: string): string =>
+      value.replace(/[\r\n]+/g, " ").trim();
+    const numeroSubject = normalizeEmailHeaderValue(ctx.numero);
+    const numeroLoteSubject = normalizeEmailHeaderValue(ctx.numeroLote);
+    const subject = `Certificado de calidad ${numeroSubject} — Lote ${numeroLoteSubject}`;
     const html = `
       <p>Estimado(a) ${clienteNombre},</p>
       <p>Adjunto encontrará el certificado de calidad <strong>${numero}</strong>

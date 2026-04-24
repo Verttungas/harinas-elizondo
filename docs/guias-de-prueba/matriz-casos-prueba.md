@@ -61,5 +61,5 @@ Documento maestro que mapea los 14 casos de uso de la Entrega 2 contra los cuatr
 |---|---|---|---|
 | Unitaria | 10 archivos | 71 tests | ✓ 100 % pasan |
 | Integración | 5 archivos | 51 tests | ✓ 100 % pasan |
-| E2E | 3 archivos (Playwright) | 7 tests | Pendiente de ejecutar en host (Chromium no soporta Alpine) |
+| E2E | 3 archivos (Playwright) | 8 tests | Pendiente de ejecutar en host (Chromium no soporta Alpine) |
 | UAT | 14 scripts manuales | — | Pendiente de ejecución con profesor |

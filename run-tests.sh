@@ -37,16 +37,8 @@ printf '%sservicios OK%s\n' "${GREEN}" "${RESET}"
 banner "Preparando esquema 'testing' en PostgreSQL"
 docker compose exec -T backend npm run --silent test:setup-db
 
-banner "Backend: pruebas unitarias"
-docker compose exec -T backend npm run --silent test:unit
-
-banner "Backend: pruebas de integración"
-docker compose exec -T backend npm run --silent test:integration
-
-banner "Backend: reporte de cobertura (FQ-05 ≥ 70 % dominio, FQ-06 ≥ 40 % global)"
-docker compose exec -T backend npm run --silent test:coverage || {
-  printf '%sAviso:%s los umbrales de cobertura no se cumplieron. Revisa el reporte.\n' "${YELLOW}" "${RESET}"
-}
+banner "Backend: pruebas unitarias + integración + cobertura (FQ-05 ≥ 70 % dominio, FQ-06 ≥ 40 % global)"
+docker compose exec -T backend npm run --silent test:coverage
 
 if [[ "${1:-}" == "--with-e2e" ]]; then
   banner "Frontend: pruebas E2E (Playwright desde el host)"

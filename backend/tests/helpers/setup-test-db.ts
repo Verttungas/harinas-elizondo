@@ -27,7 +27,16 @@ function urlWithSchema(url: string, schema: string): string {
   return parsed.toString();
 }
 
+function validateSchemaName(schema: string): void {
+  if (!/^[a-zA-Z0-9_]+$/.test(schema)) {
+    throw new Error(
+      `Nombre de esquema inválido: "${schema}". Solo se permiten letras, números y guiones bajos.`,
+    );
+  }
+}
+
 async function resetSchema(schema: string): Promise<void> {
+  validateSchemaName(schema);
   const adminUrl = urlWithSchema(process.env.DATABASE_URL!, "public");
   const client = new PrismaClient({ datasources: { db: { url: adminUrl } } });
   try {

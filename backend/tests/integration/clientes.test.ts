@@ -16,10 +16,6 @@ describe("Clientes (CRUD + valores de referencia)", () => {
     tokenControl = await loginAs(app, "control@test.mx");
   });
 
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
-
   describe("POST /api/v1/clientes", () => {
     it("201 crea un cliente con RFC válido", async () => {
       const res = await request(app)

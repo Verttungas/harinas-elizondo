@@ -37,10 +37,6 @@ describe("POST /api/v1/certificados (emisión)", () => {
     inspeccionId = BigInt(inspRes.body.id);
   }, 30000);
 
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
-
   it("201 emite un certificado y genera PDF", async () => {
     const res = await request(app)
       .post("/api/v1/certificados")

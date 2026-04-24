@@ -1,6 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { loginAs } from "./helpers/auth";
 
+const MAILHOG_BASE_URL =
+  process.env.MAILHOG_BASE_URL ?? "http://localhost:8025";
+
 test.describe("Emisión de certificado end-to-end (UC-12)", () => {
   test("lista de certificados es accesible", async ({ page }) => {
     await loginAs(page);
@@ -14,7 +17,7 @@ test.describe("Emisión de certificado end-to-end (UC-12)", () => {
       await loginAs(page);
 
       // Limpiar bandeja de MailHog antes del test.
-      await request.delete("http://localhost:8025/api/v1/messages").catch(() => {
+      await request.delete(`${MAILHOG_BASE_URL}/api/v1/messages`).catch(() => {
         // ignorar si la bandeja ya estaba vacía
       });
 
@@ -66,7 +69,7 @@ test.describe("Emisión de certificado end-to-end (UC-12)", () => {
       // Verificar que MailHog recibió al menos un correo con "Certificado".
       // Damos tiempo al envío async.
       await page.waitForTimeout(3_000);
-      const res = await request.get("http://localhost:8025/api/v2/messages");
+      const res = await request.get(`${MAILHOG_BASE_URL}/api/v2/messages`);
       const data: { items: Array<{ Content: { Headers: { Subject: string[] } } }> } =
         await res.json();
       const asuntos = data.items.map((m) => m.Content.Headers.Subject[0]);

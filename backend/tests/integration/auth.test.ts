@@ -10,10 +10,6 @@ describe("POST /api/v1/auth/login", () => {
     await seedMinimalUsers();
   });
 
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
-
   it("200 con credenciales válidas retorna token y usuario", async () => {
     const res = await request(app)
       .post("/api/v1/auth/login")

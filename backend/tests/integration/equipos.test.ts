@@ -16,10 +16,6 @@ describe("Equipos de laboratorio (CRUD)", () => {
     tokenLab = await loginAs(app, "lab@test.mx");
   });
 
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
-
   describe("POST /api/v1/equipos", () => {
     it("201 crea un equipo con parámetros (CONTROL_CALIDAD)", async () => {
       const res = await request(app)

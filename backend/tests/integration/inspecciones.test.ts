@@ -22,10 +22,6 @@ describe("Inspecciones (secuencia A-Z y ficticias)", () => {
     tokenCalidad = await loginAs(app, "calidad@test.mx");
   });
 
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
-
   describe("POST /api/v1/lotes/:loteId/inspecciones", () => {
     it("201 crea la inspección A automáticamente en el primer lote", async () => {
       const res = await request(app)
@@ -215,10 +211,6 @@ describe("Secuencia A-Z: límite en Z (RN-22)", () => {
       });
     }
     loteZId = seed.loteId;
-  });
-
-  afterAll(async () => {
-    await prisma.$disconnect();
   });
 
   it("rechaza con 409 al intentar crear la inspección 27 en el mismo lote", async () => {

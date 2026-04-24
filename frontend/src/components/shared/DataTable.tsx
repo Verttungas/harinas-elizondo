@@ -110,9 +110,10 @@ function PaginationFooter({
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
   return (
-    <div className="flex items-center justify-between border-t border-border px-4 py-2.5">
-      <p className="text-xs text-muted-foreground">
-        Mostrando {from}-{to} de {total}
+    <div className="flex items-center justify-between border-t border-border px-4 py-3">
+      <p className="text-sm text-muted-foreground">
+        Mostrando <span className="font-medium text-foreground">{from}-{to}</span> de{" "}
+        <span className="font-medium text-foreground">{total}</span>
       </p>
       <div className="flex items-center gap-1">
         <Button
@@ -124,8 +125,8 @@ function PaginationFooter({
           <ChevronLeft className="h-4 w-4" />
           <span className="sr-only">Anterior</span>
         </Button>
-        <span className="text-xs text-muted-foreground px-2">
-          Página {page} de {totalPages}
+        <span className="text-sm text-muted-foreground px-2">
+          Página <span className="font-medium text-foreground">{page}</span> de {totalPages}
         </span>
         <Button
           variant="outline"

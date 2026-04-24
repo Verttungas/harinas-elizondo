@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -229,8 +230,8 @@ export function InspeccionForm() {
       <PageHeader title={isEdit ? "Editar inspección" : "Registrar inspección"} />
 
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          == Lote de producción ==
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Lote de producción
         </h2>
         <div className="flex gap-2 items-end">
           <div className="flex-1 max-w-md">
@@ -275,8 +276,8 @@ export function InspeccionForm() {
       {lote && (
         <>
           <section className="space-y-2">
-            <h2 className="text-sm font-medium text-muted-foreground">
-              == Asignación automática ==
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Asignación automática
             </h2>
             <div className="p-3 rounded border border-border bg-card text-sm">
               {ultimaSecuencia ? (
@@ -300,8 +301,8 @@ export function InspeccionForm() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-sm font-medium text-muted-foreground">
-              == Datos de la inspección ==
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Datos de la inspección
             </h2>
             <div className="max-w-xs">
               <Label className="text-xs">Fecha de inspección</Label>
@@ -314,8 +315,8 @@ export function InspeccionForm() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-sm font-medium text-muted-foreground">
-              == Resultados ==
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Resultados
             </h2>
             {equipos.map(({ equipo, parametros }) => (
               <div
@@ -392,8 +393,8 @@ export function InspeccionForm() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-sm font-medium text-muted-foreground">
-              == Observaciones ==
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Observaciones
             </h2>
             <Textarea
               rows={3}
@@ -407,6 +408,7 @@ export function InspeccionForm() {
             <Button
               type="button"
               variant="outline"
+              disabled={saving}
               onClick={() => navigate("/inspecciones")}
             >
               Cancelar
@@ -417,6 +419,7 @@ export function InspeccionForm() {
               disabled={saving}
               onClick={() => void handleSubmit(true)}
             >
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Guardar como borrador
             </Button>
             <Button
@@ -424,6 +427,7 @@ export function InspeccionForm() {
               disabled={saving}
               onClick={() => void handleSubmit(false)}
             >
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Guardar y cerrar
             </Button>
           </div>

@@ -9,7 +9,7 @@ export function AppShell() {
       <main className="flex-1 p-6 max-w-screen-2xl w-full mx-auto">
         <Outlet />
       </main>
-      <Toaster position="top-right" richColors closeButton />
+      <Toaster position="bottom-right" richColors closeButton />
     </div>
   );
 }

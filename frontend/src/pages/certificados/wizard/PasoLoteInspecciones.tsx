@@ -101,8 +101,8 @@ export function PasoLoteInspecciones({
 
   return (
     <section className="space-y-4">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        == Paso 2: Lote e inspecciones ==
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        Paso 2 · Lote e inspecciones
       </h2>
 
       <div className="flex gap-2 items-end">

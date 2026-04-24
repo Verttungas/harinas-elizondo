@@ -9,7 +9,7 @@ export interface BreadcrumbItem {
 
 export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
   return (
-    <nav className="flex items-center text-xs text-muted-foreground">
+    <nav aria-label="Breadcrumb" className="flex items-center text-xs text-muted-foreground">
       {items.map((item, i) => (
         <Fragment key={i}>
           {i > 0 && <ChevronRight className="h-3 w-3 mx-1" />}
@@ -18,7 +18,9 @@ export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
               {item.label}
             </Link>
           ) : (
-            <span className="text-foreground">{item.label}</span>
+            <span aria-current="page" className="font-medium text-foreground">
+              {item.label}
+            </span>
           )}
         </Fragment>
       ))}

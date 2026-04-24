@@ -74,8 +74,8 @@ export function PasoEmbarque({ embarque, onConfirm, onNext, onPrev }: Props) {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        == Paso 3: Datos de embarque ==
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        Paso 3 · Datos de embarque
       </h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

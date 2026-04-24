@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -174,11 +175,15 @@ export function LoteForm() {
             <Button
               type="button"
               variant="outline"
+              disabled={form.formState.isSubmitting}
               onClick={() => navigate("/lotes")}
             >
               Cancelar
             </Button>
             <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Crear
             </Button>
           </div>

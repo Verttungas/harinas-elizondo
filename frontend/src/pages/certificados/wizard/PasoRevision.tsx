@@ -16,8 +16,8 @@ export function PasoRevision({ state, onPrev, onConfirm }: Props) {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        == Paso 4: Revisión ==
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        Paso 4 · Revisión
       </h2>
 
       <Card>

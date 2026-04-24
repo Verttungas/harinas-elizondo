@@ -42,8 +42,8 @@ export function Dashboard() {
       />
 
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          == Indicadores del mes ==
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Indicadores del mes
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <KpiCard
@@ -78,8 +78,8 @@ export function Dashboard() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          == Acciones rápidas ==
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Acciones rápidas
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Button
@@ -118,8 +118,8 @@ export function Dashboard() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          == Últimos certificados ==
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Últimos certificados
         </h2>
         <Card>
           <CardContent className="p-0">

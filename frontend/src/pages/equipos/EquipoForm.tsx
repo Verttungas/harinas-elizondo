@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -221,8 +221,8 @@ export function EquipoForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <section className="space-y-3">
-            <h2 className="text-sm font-medium text-muted-foreground">
-              == Datos generales ==
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Datos generales
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -373,8 +373,8 @@ export function EquipoForm() {
 
           <section className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium text-muted-foreground">
-                == Parámetros ==
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Parámetros
               </h2>
               <Button
                 type="button"
@@ -464,6 +464,9 @@ export function EquipoForm() {
               Cancelar
             </Button>
             <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               {isEdit ? "Guardar cambios" : "Crear"}
             </Button>
           </div>

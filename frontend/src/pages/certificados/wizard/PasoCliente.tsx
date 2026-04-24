@@ -38,8 +38,8 @@ export function PasoCliente({ cliente, onSelect, onNext, onCancel }: Props) {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        == Paso 1: Cliente ==
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        Paso 1 · Cliente
       </h2>
       <div>
         <Label className="text-xs">Buscar cliente</Label>

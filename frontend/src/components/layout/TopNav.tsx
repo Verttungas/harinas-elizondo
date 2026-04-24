@@ -32,7 +32,7 @@ export function TopNav() {
                 cn(
                   "px-3 py-1.5 text-sm rounded-md transition-colors",
                   isActive
-                    ? "bg-secondary text-foreground font-medium"
+                    ? "bg-brand-accent text-brand-accent-foreground font-medium"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary/50",
                 )
               }

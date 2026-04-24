@@ -107,10 +107,4 @@
   .bg-brand {
     background-color: hsl(var(--brand-primary));
   }
-  .text-brand-accent {
-    color: hsl(var(--brand-accent));
-  }
-  .bg-brand-accent {
-    background-color: hsl(var(--brand-accent));
-  }
 }

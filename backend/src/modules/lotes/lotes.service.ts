@@ -56,6 +56,43 @@ export class LotesService {
     return lote;
   }
 
+  async getSaldo(id: bigint): Promise<{
+    loteId: string;
+    producida: string | null;
+    entregada: string;
+    disponible: string | null;
+    unidadCantidad: string | null;
+  }> {
+    const lote = await this.db.loteProduccion.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        cantidadProducida: true,
+        unidadCantidad: true,
+      },
+    });
+    if (!lote) {
+      throw new NotFoundError("Lote no encontrado");
+    }
+
+    const agg = await this.db.certificado.aggregate({
+      where: { loteId: id },
+      _sum: { cantidadEntrega: true },
+    });
+    const entregada = agg._sum.cantidadEntrega ?? new Prisma.Decimal(0);
+    const producida = lote.cantidadProducida;
+    const disponible =
+      producida !== null ? producida.minus(entregada) : null;
+
+    return {
+      loteId: lote.id.toString(),
+      producida: producida !== null ? producida.toString() : null,
+      entregada: entregada.toString(),
+      disponible: disponible !== null ? disponible.toString() : null,
+      unidadCantidad: lote.unidadCantidad,
+    };
+  }
+
   async crear(input: CrearLoteInput, usuarioId: bigint): Promise<LoteProduccion> {
     return this.db.$transaction(async (tx) => {
       const producto = await tx.producto.findUnique({

@@ -32,6 +32,20 @@ export async function getLote(
   }
 }
 
+export async function getLoteSaldo(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { id } = req.params as unknown as IdParam;
+    const saldo = await lotesService.getSaldo(id);
+    res.status(200).json(saldo);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function crearLote(
   req: Request,
   res: Response,

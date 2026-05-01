@@ -1,6 +1,8 @@
 import { NavLink } from "react-router-dom";
 import { UserMenu } from "./UserMenu";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { rolPuedeVerRuta } from "@/lib/rbac";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
@@ -13,6 +15,11 @@ const navItems = [
 ];
 
 export function TopNav() {
+  const { usuario } = useAuth();
+  const visibleItems = navItems.filter((item) =>
+    rolPuedeVerRuta(usuario?.rol, item.to),
+  );
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background">
       <div className="flex h-14 items-center gap-6 px-6 max-w-screen-2xl mx-auto">
@@ -24,7 +31,7 @@ export function TopNav() {
           />
         </div>
         <nav className="flex-1 flex items-center gap-1">
-          {navItems.map((item) => (
+          {visibleItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

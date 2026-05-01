@@ -159,6 +159,14 @@ export interface DatosEmbarque {
   fechaCaducidad: string;
 }
 
+export interface SaldoLote {
+  loteId: string;
+  producida: string | null;
+  entregada: string;
+  disponible: string | null;
+  unidadCantidad: string | null;
+}
+
 export interface ResumenReporte {
   certificadosEmitidos: { valor: number; variacionMesAnterior: number };
   lotesEnEspecificacion: { valor: number; variacionPuntos: number };

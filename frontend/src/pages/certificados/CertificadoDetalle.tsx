@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Download, Send, Pencil } from "lucide-react";
+import { Download, Send, GitFork } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -156,6 +156,10 @@ export function CertificadoDetalle() {
           <CardTitle className="text-sm">Inspecciones incluidas</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
+          <p className="text-xs text-muted-foreground">
+            Si una inspección queda fuera de especificación, puedes derivar una
+            ficticia ajustada — la original se preserva intacta.
+          </p>
           {(data.certificadoInspeccion ?? []).map((ci) => (
             <div
               key={String(ci.inspeccion.id)}
@@ -171,12 +175,12 @@ export function CertificadoDetalle() {
               )}
               {puedeEditar && !ci.inspeccion.esFicticia && (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  title="Generar ficticia"
                   onClick={() => setInspeccionParaFicticia(ci.inspeccion)}
                 >
-                  <Pencil className="h-4 w-4" />
+                  <GitFork className="h-4 w-4 mr-1" />
+                  Generar ficticia
                 </Button>
               )}
             </div>
@@ -206,6 +210,11 @@ export function CertificadoDetalle() {
           ))}
           {(data.envios ?? []).length === 0 && (
             <p className="text-sm text-muted-foreground">Sin envíos</p>
+          )}
+          {(data.envios ?? []).length > 0 && !tienePendientes && (
+            <p className="text-xs text-muted-foreground">
+              Todos los envíos fueron exitosos — no hay nada que reintentar.
+            </p>
           )}
         </CardContent>
       </Card>

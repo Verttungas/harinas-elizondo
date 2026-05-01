@@ -176,3 +176,121 @@ describe("POST /api/v1/certificados (emisión)", () => {
     expect(res.headers["content-type"]).toContain("application/pdf");
   });
 });
+
+describe("Control de inventario por lote (saldo)", () => {
+  let tokenControl: string;
+  let clienteId: bigint;
+  let productoId: bigint;
+  let parametroWId: bigint;
+  let parametroPId: bigint;
+  let usuarioControlId: bigint;
+  let loteChicoId: bigint;
+  let inspeccionId: bigint;
+
+  beforeAll(async () => {
+    await resetTestDb();
+    const seed = await seedDatosInspecciones();
+    clienteId = seed.clienteBimboId;
+    productoId = seed.productoId;
+    parametroWId = seed.parametroW.id;
+    parametroPId = seed.parametroP.id;
+    tokenControl = await loginAs(app, "control@test.mx");
+
+    const usuarioControl = await prisma.usuario.findFirstOrThrow({
+      where: { correo: "control@test.mx" },
+    });
+    usuarioControlId = usuarioControl.id;
+
+    const loteChico = await prisma.loteProduccion.create({
+      data: {
+        numeroLote: "L-SALDO-1000",
+        productoId,
+        fechaProduccion: new Date("2026-04-20"),
+        cantidadProducida: 1000,
+        unidadCantidad: "kg",
+        creadoPor: usuarioControlId,
+      },
+    });
+    loteChicoId = loteChico.id;
+
+    const inspRes = await request(app)
+      .post(`/api/v1/lotes/${loteChicoId.toString()}/inspecciones`)
+      .set("Authorization", `Bearer ${tokenControl}`)
+      .send({
+        fechaInspeccion: "2026-04-21T10:00:00Z",
+        resultados: [
+          { parametroId: parametroWId.toString(), valor: 275 },
+          { parametroId: parametroPId.toString(), valor: 65 },
+        ],
+      });
+    expect(inspRes.status).toBe(201);
+    inspeccionId = BigInt(inspRes.body.id);
+  }, 30000);
+
+  it("GET /api/v1/lotes/:id/saldo devuelve producida=1000 entregada=0 disponible=1000", async () => {
+    const res = await request(app)
+      .get(`/api/v1/lotes/${loteChicoId.toString()}/saldo`)
+      .set("Authorization", `Bearer ${tokenControl}`);
+
+    expect(res.status).toBe(200);
+    expect(Number(res.body.producida)).toBe(1000);
+    expect(Number(res.body.entregada)).toBe(0);
+    expect(Number(res.body.disponible)).toBe(1000);
+    expect(res.body.unidadCantidad).toBe("kg");
+  });
+
+  it("emite primer certificado de 500 kg sobre lote de 1000 kg (OK)", async () => {
+    const res = await request(app)
+      .post("/api/v1/certificados")
+      .set("Authorization", `Bearer ${tokenControl}`)
+      .send({
+        clienteId: clienteId.toString(),
+        loteId: loteChicoId.toString(),
+        inspeccionIds: [inspeccionId.toString()],
+        datosEmbarque: {
+          numOrdenCompra: "PO-SALDO-1",
+          cantidadSolicitada: 500,
+          cantidadEntrega: 500,
+          numFactura: "F-SALDO-1",
+          fechaEnvio: "2026-04-22",
+          fechaCaducidad: "2026-10-22",
+        },
+      });
+
+    expect(res.status).toBe(201);
+  }, 30000);
+
+  it("rechaza segundo certificado de 600 kg con 422 LOTE_SALDO_INSUFICIENTE", async () => {
+    const res = await request(app)
+      .post("/api/v1/certificados")
+      .set("Authorization", `Bearer ${tokenControl}`)
+      .send({
+        clienteId: clienteId.toString(),
+        loteId: loteChicoId.toString(),
+        inspeccionIds: [inspeccionId.toString()],
+        datosEmbarque: {
+          numOrdenCompra: "PO-SALDO-2",
+          cantidadSolicitada: 600,
+          cantidadEntrega: 600,
+          numFactura: "F-SALDO-2",
+          fechaEnvio: "2026-04-22",
+          fechaCaducidad: "2026-10-22",
+        },
+      });
+
+    expect(res.status).toBe(422);
+    expect(res.body.error.detalles.codigo).toBe("LOTE_SALDO_INSUFICIENTE");
+    expect(Number(res.body.error.detalles.disponible)).toBe(500);
+    expect(Number(res.body.error.detalles.solicitada)).toBe(600);
+  });
+
+  it("GET /api/v1/lotes/:id/saldo refleja la entrega de 500 kg (disponible=500)", async () => {
+    const res = await request(app)
+      .get(`/api/v1/lotes/${loteChicoId.toString()}/saldo`)
+      .set("Authorization", `Bearer ${tokenControl}`);
+
+    expect(res.status).toBe(200);
+    expect(Number(res.body.entregada)).toBe(500);
+    expect(Number(res.body.disponible)).toBe(500);
+  });
+});

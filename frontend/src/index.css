@@ -26,13 +26,13 @@
     --destructive-foreground: 0 0% 98%;
     --border: 220 20% 88%;
     --input: 220 20% 88%;
-    --ring: 223 93% 43%;              /* focus ring en azul vibrante */
+    --ring: 222 100% 13%;             /* focus ring en azul de marca */
     --radius: 0.5rem;
 
     /* Marca FHESA */
     --brand-primary: 222 100% 13%;    /* #001441 */
     --brand-primary-foreground: 0 0% 100%;
-    --brand-accent: 223 93% 43%;      /* #0846d3 */
+    --brand-accent: 222 100% 13%;     /* #001443 — color de marca */
     --brand-accent-foreground: 0 0% 100%;
 
     /* Estados semánticos */
@@ -42,7 +42,7 @@
     --state-warning-foreground: 0 0% 100%;
     --state-danger: 0 72% 51%;
     --state-danger-foreground: 0 0% 100%;
-    --state-info: 223 93% 43%;        /* alineado con accent */
+    --state-info: 222 100% 13%;       /* alineado con accent */
     --state-info-foreground: 0 0% 100%;
   }
 }

@@ -7,10 +7,102 @@ import { prisma as defaultPrisma } from "../../lib/prisma.js";
 import { env } from "../../config/env.js";
 import { NotFoundError } from "../../domain/errors.js";
 
-interface ParametroRango {
+export interface ParametroRango {
   limiteInferior: string;
   limiteSuperior: string;
   origen: "cliente" | "internacional";
+}
+
+export interface ResultadoConsolidado {
+  parametroId: bigint;
+  claveParametro: string;
+  nombreParametro: string;
+  unidadMedida: string;
+  valor: string;
+  desviacion: string;
+  dentroEspecificacion: boolean;
+  rango: ParametroRango;
+}
+
+interface InspeccionConsolidableResultado {
+  parametroId: bigint;
+  valor: { toString(): string };
+  parametro: {
+    clave: string;
+    nombre: string;
+    unidadMedida: string;
+    limiteInferior: { toString(): string };
+    limiteSuperior: { toString(): string };
+  };
+}
+
+interface InspeccionConsolidable {
+  secuencia: string;
+  esFicticia: boolean;
+  resultados: InspeccionConsolidableResultado[];
+}
+
+interface ValorReferenciaParticular {
+  parametroId: bigint;
+  limiteInferior: { toString(): string };
+  limiteSuperior: { toString(): string };
+}
+
+export function consolidarResultados(
+  inspecciones: InspeccionConsolidable[],
+  valoresReferenciaCliente: ValorReferenciaParticular[],
+): ResultadoConsolidado[] {
+  const rangoCliente = new Map(
+    valoresReferenciaCliente.map((vr) => [vr.parametroId.toString(), vr]),
+  );
+
+  const inspeccionesOrdenadas = [...inspecciones].sort((a, b) => {
+    if (a.esFicticia !== b.esFicticia) return a.esFicticia ? 1 : -1;
+    return a.secuencia.localeCompare(b.secuencia);
+  });
+
+  const consolidados = new Map<string, ResultadoConsolidado>();
+  for (const inspeccion of inspeccionesOrdenadas) {
+    for (const r of inspeccion.resultados) {
+      const pid = r.parametroId.toString();
+      const vrCliente = rangoCliente.get(pid);
+      const rango: ParametroRango = vrCliente
+        ? {
+            limiteInferior: vrCliente.limiteInferior.toString(),
+            limiteSuperior: vrCliente.limiteSuperior.toString(),
+            origen: "cliente",
+          }
+        : {
+            limiteInferior: r.parametro.limiteInferior.toString(),
+            limiteSuperior: r.parametro.limiteSuperior.toString(),
+            origen: "internacional",
+          };
+
+      const valorNum = Number(r.valor.toString());
+      const lo = Number(rango.limiteInferior);
+      const hi = Number(rango.limiteSuperior);
+      const dentro = valorNum >= lo && valorNum <= hi;
+      const midpoint = (lo + hi) / 2;
+      const desviacionRango = valorNum - midpoint;
+
+      consolidados.set(pid, {
+        parametroId: r.parametroId,
+        claveParametro: r.parametro.clave,
+        nombreParametro: r.parametro.nombre,
+        unidadMedida: r.parametro.unidadMedida,
+        valor: formatDecimal(r.valor, 4),
+        desviacion: Number.isFinite(desviacionRango)
+          ? formatDecimal(desviacionRango, 4)
+          : "—",
+        dentroEspecificacion: dentro,
+        rango,
+      });
+    }
+  }
+
+  return Array.from(consolidados.values()).sort((a, b) =>
+    a.claveParametro.localeCompare(b.claveParametro),
+  );
 }
 
 const COLOR_OK = "#1f7a1f";
@@ -37,6 +129,49 @@ function formatDecimal(
   const num = Number(value.toString());
   if (!Number.isFinite(num)) return "—";
   return num.toFixed(digits);
+}
+
+const SUPERSCRIPT_DIGIT_MAP: Record<string, string> = {
+  "⁰": "0",
+  "¹": "1",
+  "²": "2",
+  "³": "3",
+  "⁴": "4",
+  "⁵": "5",
+  "⁶": "6",
+  "⁷": "7",
+  "⁸": "8",
+  "⁹": "9",
+};
+
+function convertirSecuenciaSuperindice(sequence: string): string {
+  let sign = "";
+  let digits = sequence;
+
+  if (sequence.startsWith("⁻")) {
+    sign = "-";
+    digits = sequence.slice(1);
+  } else if (sequence.startsWith("⁺")) {
+    sign = "+";
+    digits = sequence.slice(1);
+  }
+
+  const asciiDigits = digits.replace(
+    /[⁰¹²³⁴⁵⁶⁷⁸⁹]/g,
+    (ch) => SUPERSCRIPT_DIGIT_MAP[ch] ?? ch,
+  );
+
+  return `^${sign}${asciiDigits}`;
+}
+
+function sanitizarParaHelvetica(text: string): string {
+  return text
+    .replace(/[⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, (sequence) =>
+      convertirSecuenciaSuperindice(sequence),
+    )
+    // Handle standalone superscript signs not followed by digits (first pass
+    // only matches signs that precede at least one superscript digit).
+    .replace(/[⁻⁺]/g, (ch) => (ch === "⁻" ? "-" : "+"));
 }
 
 export class CertificadoPdfService {
@@ -76,72 +211,15 @@ export class CertificadoPdfService {
     await fs.mkdir(dir, { recursive: true });
     const outputPath = path.join(dir, `${cert.numero}.pdf`);
 
-    // Índice de rangos por parametroId: cliente tiene prioridad, fallback internacional
-    const rangoPorParametro = new Map<string, ParametroRango>();
-    const rangoCliente = new Map(
-      cert.cliente.valoresReferencia.map((vr) => [vr.parametroId.toString(), vr]),
+    const inspecciones = cert.certificadoInspeccion.map((ci) => ci.inspeccion);
+    const filas = consolidarResultados(
+      inspecciones,
+      cert.cliente.valoresReferencia,
     );
-
-    // Consolidar resultados: última inspección gana si hay duplicados; ficticia sobre original
-    const inspeccionesOrdenadas = cert.certificadoInspeccion
-      .map((ci) => ci.inspeccion)
-      .sort((a, b) => {
-        if (a.esFicticia !== b.esFicticia) return a.esFicticia ? 1 : -1;
-        return a.secuencia.localeCompare(b.secuencia);
-      });
-
-    type ResultadoConsolidado = {
-      parametroId: bigint;
-      claveParametro: string;
-      nombreParametro: string;
-      unidadMedida: string;
-      valor: string;
-      desviacion: string;
-      dentroEspecificacion: boolean;
-      rango: ParametroRango;
-    };
-
-    const consolidados = new Map<string, ResultadoConsolidado>();
-    for (const inspeccion of inspeccionesOrdenadas) {
-      for (const r of inspeccion.resultados) {
-        const pid = r.parametroId.toString();
-        const vrCliente = rangoCliente.get(pid);
-        const rango: ParametroRango = vrCliente
-          ? {
-              limiteInferior: vrCliente.limiteInferior.toString(),
-              limiteSuperior: vrCliente.limiteSuperior.toString(),
-              origen: "cliente",
-            }
-          : {
-              limiteInferior: r.parametro.limiteInferior.toString(),
-              limiteSuperior: r.parametro.limiteSuperior.toString(),
-              origen: "internacional",
-            };
-        rangoPorParametro.set(pid, rango);
-
-        // Para el certificado, evaluar dentro del rango aplicable (cliente vs. internacional)
-        const valorNum = Number(r.valor.toString());
-        const lo = Number(rango.limiteInferior);
-        const hi = Number(rango.limiteSuperior);
-        const dentro = valorNum >= lo && valorNum <= hi;
-
-        consolidados.set(pid, {
-          parametroId: r.parametroId,
-          claveParametro: r.parametro.clave,
-          nombreParametro: r.parametro.nombre,
-          unidadMedida: r.parametro.unidadMedida,
-          valor: formatDecimal(r.valor, 4),
-          desviacion:
-            r.desviacion !== null ? formatDecimal(r.desviacion, 4) : "—",
-          dentroEspecificacion: dentro,
-          rango,
-        });
-      }
-    }
-
-    const filas = Array.from(consolidados.values()).sort((a, b) =>
-      a.claveParametro.localeCompare(b.claveParametro),
-    );
+    const inspeccionesOrdenadas = [...inspecciones].sort((a, b) => {
+      if (a.esFicticia !== b.esFicticia) return a.esFicticia ? 1 : -1;
+      return a.secuencia.localeCompare(b.secuencia);
+    });
 
     const cumpleTodo = filas.every((f) => f.dentroEspecificacion);
 
@@ -352,17 +430,21 @@ export class CertificadoPdfService {
       "Desviación",
       "Resultado",
     ];
-    const widths = [100, 55, 60, 110, 60, 75];
+    const widths = [65, 115, 55, 110, 60, 85];
+    const totalWidth = widths.reduce((a, b) => a + b, 0);
     const startX = doc.x;
     let y = doc.y + 4;
 
     // Header row
     doc.font("Helvetica-Bold").fontSize(9).fillColor("#ffffff");
-    doc.rect(startX, y, widths.reduce((a, b) => a + b, 0), 18).fill(COLOR_HEADER_BG);
+    doc.rect(startX, y, totalWidth, 18).fill(COLOR_HEADER_BG);
     let x = startX + 4;
     headers.forEach((h, i) => {
       const w = widths[i] ?? 60;
-      doc.fillColor("#ffffff").text(h, x, y + 5, { width: w - 6 });
+      doc.fillColor("#ffffff").text(h, x, y + 5, {
+        width: w - 6,
+        lineBreak: false,
+      });
       x += w;
     });
     y += 18;
@@ -376,8 +458,8 @@ export class CertificadoPdfService {
       }
       const color = f.dentroEspecificacion ? "#000000" : COLOR_FAIL;
       const cells = [
-        f.claveParametro,
-        f.unidadMedida,
+        sanitizarParaHelvetica(f.claveParametro),
+        sanitizarParaHelvetica(f.unidadMedida),
         f.valor,
         `${f.rango.limiteInferior} – ${f.rango.limiteSuperior}${
           f.rango.origen === "cliente" ? " (C)" : ""
@@ -389,7 +471,11 @@ export class CertificadoPdfService {
       doc.fillColor(color);
       cells.forEach((c, i) => {
         const w = widths[i] ?? 60;
-        doc.text(c, x, y + 3, { width: w - 6 });
+        doc.text(c, x, y + 3, {
+          width: w - 6,
+          lineBreak: false,
+          ellipsis: true,
+        });
         x += w;
       });
       y += 16;
@@ -397,7 +483,7 @@ export class CertificadoPdfService {
         .strokeColor("#cccccc")
         .lineWidth(0.5)
         .moveTo(startX, y)
-        .lineTo(startX + widths.reduce((a, b) => a + b, 0), y)
+        .lineTo(startX + totalWidth, y)
         .stroke();
     }
 

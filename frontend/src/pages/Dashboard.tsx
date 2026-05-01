@@ -9,6 +9,12 @@ import { useQuery } from "@/hooks/useApi";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import { formatFecha, formatNumero } from "@/lib/format";
+import {
+  rolesEscrituraCertificados,
+  rolesEscrituraClientes,
+  rolesEscrituraInspecciones,
+  rolesEscrituraLotes,
+} from "@/lib/rbac";
 import type {
   Certificado,
   ResumenReporte,
@@ -18,6 +24,18 @@ import type { PaginatedResponse } from "@/types/api.types";
 export function Dashboard() {
   const { usuario } = useAuth();
   const navigate = useNavigate();
+  const rol = usuario?.rol;
+  const puedeRegistrarInspeccion =
+    !!rol && rolesEscrituraInspecciones.includes(rol);
+  const puedeEmitirCertificado =
+    !!rol && rolesEscrituraCertificados.includes(rol);
+  const puedeNuevoCliente = !!rol && rolesEscrituraClientes.includes(rol);
+  const puedeRegistrarLote = !!rol && rolesEscrituraLotes.includes(rol);
+  const muestraAccionesRapidas =
+    puedeRegistrarInspeccion ||
+    puedeEmitirCertificado ||
+    puedeNuevoCliente ||
+    puedeRegistrarLote;
 
   const resumen = useQuery(
     () => api.get<ResumenReporte>("/reportes/resumen").then((r) => r.data),
@@ -77,45 +95,55 @@ export function Dashboard() {
         </div>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Acciones rápidas
-        </h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Button
-            variant="outline"
-            className="h-auto justify-start gap-2 p-4"
-            onClick={() => navigate("/inspecciones/nueva")}
-          >
-            <PlusCircle className="h-4 w-4" />
-            Registrar inspección
-          </Button>
-          <Button
-            variant="outline"
-            className="h-auto justify-start gap-2 p-4"
-            onClick={() => navigate("/certificados/nuevo")}
-          >
-            <FileCheck className="h-4 w-4" />
-            Emitir certificado
-          </Button>
-          <Button
-            variant="outline"
-            className="h-auto justify-start gap-2 p-4"
-            onClick={() => navigate("/clientes/nuevo")}
-          >
-            <UserPlus className="h-4 w-4" />
-            Nuevo cliente
-          </Button>
-          <Button
-            variant="outline"
-            className="h-auto justify-start gap-2 p-4"
-            onClick={() => navigate("/lotes/nuevo")}
-          >
-            <Package className="h-4 w-4" />
-            Registrar lote
-          </Button>
-        </div>
-      </section>
+      {muestraAccionesRapidas && (
+        <section className="space-y-3">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Acciones rápidas
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {puedeRegistrarInspeccion && (
+              <Button
+                variant="outline"
+                className="h-auto justify-start gap-2 p-4"
+                onClick={() => navigate("/inspecciones/nueva")}
+              >
+                <PlusCircle className="h-4 w-4" />
+                Registrar inspección
+              </Button>
+            )}
+            {puedeEmitirCertificado && (
+              <Button
+                variant="outline"
+                className="h-auto justify-start gap-2 p-4"
+                onClick={() => navigate("/certificados/nuevo")}
+              >
+                <FileCheck className="h-4 w-4" />
+                Emitir certificado
+              </Button>
+            )}
+            {puedeNuevoCliente && (
+              <Button
+                variant="outline"
+                className="h-auto justify-start gap-2 p-4"
+                onClick={() => navigate("/clientes/nuevo")}
+              >
+                <UserPlus className="h-4 w-4" />
+                Nuevo cliente
+              </Button>
+            )}
+            {puedeRegistrarLote && (
+              <Button
+                variant="outline"
+                className="h-auto justify-start gap-2 p-4"
+                onClick={() => navigate("/lotes/nuevo")}
+              >
+                <Package className="h-4 w-4" />
+                Registrar lote
+              </Button>
+            )}
+          </div>
+        </section>
+      )}
 
       <section className="space-y-3">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">

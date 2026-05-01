@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,7 +12,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import type { DatosEmbarque } from "@/types/domain.types";
+import { api } from "@/lib/api";
+import { formatNumero } from "@/lib/format";
+import type { DatosEmbarque, SaldoLote } from "@/types/domain.types";
 
 const embarqueSchema = z
   .object({
@@ -40,12 +43,19 @@ type EmbarqueInput = z.input<typeof embarqueSchema>;
 
 interface Props {
   embarque?: DatosEmbarque;
+  loteId?: string | number;
   onConfirm: (e: DatosEmbarque) => void;
   onNext: () => void;
   onPrev: () => void;
 }
 
-export function PasoEmbarque({ embarque, onConfirm, onNext, onPrev }: Props) {
+export function PasoEmbarque({
+  embarque,
+  loteId,
+  onConfirm,
+  onNext,
+  onPrev,
+}: Props) {
   const form = useForm<EmbarqueInput, unknown, EmbarqueValues>({
     resolver: zodResolver(embarqueSchema),
     defaultValues: {
@@ -60,7 +70,50 @@ export function PasoEmbarque({ embarque, onConfirm, onNext, onPrev }: Props) {
     },
   });
 
+  const [saldo, setSaldo] = useState<SaldoLote | null>(null);
+  const [saldoError, setSaldoError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (loteId === undefined) return;
+    let cancelado = false;
+    setSaldo(null);
+    setSaldoError(null);
+    api
+      .get<SaldoLote>(`/lotes/${loteId}/saldo`)
+      .then((r) => {
+        if (!cancelado) setSaldo(r.data);
+      })
+      .catch(() => {
+        if (!cancelado) {
+          setSaldo(null);
+          setSaldoError("No se pudo consultar el saldo del lote");
+        }
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [loteId]);
+
+  const cantidadEntregaActual = Number(form.watch("cantidadEntrega") ?? 0);
+  const disponibleNum =
+    saldo?.disponible !== null && saldo?.disponible !== undefined
+      ? Number(saldo.disponible)
+      : null;
+  const excedeSaldo =
+    disponibleNum !== null && cantidadEntregaActual > disponibleNum;
+  const unidad = saldo?.unidadCantidad ?? "";
+
   const onSubmit = (values: EmbarqueValues) => {
+    if (
+      disponibleNum !== null &&
+      values.cantidadEntrega > disponibleNum
+    ) {
+      form.setError("cantidadEntrega", {
+        type: "manual",
+        message: `Excede el saldo disponible del lote (${formatNumero(disponibleNum, 2)} ${unidad}).`,
+      });
+      return;
+    }
     onConfirm({
       numOrdenCompra: values.numOrdenCompra,
       cantidadSolicitada: values.cantidadSolicitada,
@@ -77,6 +130,52 @@ export function PasoEmbarque({ embarque, onConfirm, onNext, onPrev }: Props) {
       <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         Paso 3 · Datos de embarque
       </h2>
+
+      {saldo && (
+        <div
+          className={
+            excedeSaldo
+              ? "rounded-md border border-state-danger/30 bg-state-danger/10 p-3 text-sm"
+              : "rounded-md border border-border bg-secondary/30 p-3 text-sm"
+          }
+        >
+          <p className="font-medium">Saldo del lote</p>
+          <dl className="mt-1 grid grid-cols-3 gap-3 text-xs">
+            <div>
+              <dt className="text-muted-foreground">Producida</dt>
+              <dd>
+                {saldo.producida !== null
+                  ? `${formatNumero(Number(saldo.producida), 2)} ${unidad}`
+                  : "No registrada"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Entregada</dt>
+              <dd>
+                {formatNumero(Number(saldo.entregada), 2)} {unidad}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Disponible</dt>
+              <dd className="font-semibold">
+                {saldo.disponible !== null
+                  ? `${formatNumero(Number(saldo.disponible), 2)} ${unidad}`
+                  : "—"}
+              </dd>
+            </div>
+          </dl>
+          {saldo.producida === null && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Este lote no tiene cantidad producida registrada; la validación
+              de saldo no se aplicará.
+            </p>
+          )}
+        </div>
+      )}
+      {saldoError && (
+        <p className="text-xs text-state-warning">{saldoError}</p>
+      )}
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -180,7 +279,17 @@ export function PasoEmbarque({ embarque, onConfirm, onNext, onPrev }: Props) {
             <Button type="button" variant="outline" onClick={onPrev}>
               Anterior
             </Button>
-            <Button type="submit">Siguiente</Button>
+            <Button
+              type="submit"
+              disabled={excedeSaldo}
+              title={
+                excedeSaldo
+                  ? `La cantidad a entregar excede el saldo disponible (${formatNumero(disponibleNum ?? 0, 2)} ${unidad})`
+                  : undefined
+              }
+            >
+              Siguiente
+            </Button>
           </div>
         </form>
       </Form>

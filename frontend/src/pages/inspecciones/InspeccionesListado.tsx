@@ -19,6 +19,7 @@ import { useQuery } from "@/hooks/useApi";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import { formatFecha } from "@/lib/format";
+import { rolesEscrituraInspecciones } from "@/lib/rbac";
 import type { Inspeccion } from "@/types/domain.types";
 import type { PaginatedResponse } from "@/types/api.types";
 
@@ -26,7 +27,7 @@ export function InspeccionesListado() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
   const puedeCrear =
-    usuario?.rol === "LABORATORIO" || usuario?.rol === "CONTROL_CALIDAD";
+    !!usuario?.rol && rolesEscrituraInspecciones.includes(usuario.rol);
 
   const [loteSearch, setLoteSearch] = useState("");
   const [estado, setEstado] = useState<"TODOS" | "BORRADOR" | "CERRADA">(

@@ -50,7 +50,14 @@ export function AppRoutes() {
             </RoleRoute>
           }
         />
-        <Route path="/equipos/:id" element={<EquipoForm />} />
+        <Route
+          path="/equipos/:id"
+          element={
+            <RoleRoute roles={rolesEscrituraEquipos}>
+              <EquipoForm />
+            </RoleRoute>
+          }
+        />
         <Route
           path="/equipos/:id/editar"
           element={
@@ -69,7 +76,14 @@ export function AppRoutes() {
             </RoleRoute>
           }
         />
-        <Route path="/clientes/:id" element={<ClienteForm />} />
+        <Route
+          path="/clientes/:id"
+          element={
+            <RoleRoute roles={rolesEscrituraClientes}>
+              <ClienteForm />
+            </RoleRoute>
+          }
+        />
         <Route
           path="/clientes/:id/editar"
           element={

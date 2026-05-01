@@ -76,6 +76,7 @@ export function PasoEmbarque({
   useEffect(() => {
     if (loteId === undefined) return;
     let cancelado = false;
+    setSaldo(null);
     setSaldoError(null);
     api
       .get<SaldoLote>(`/lotes/${loteId}/saldo`)
@@ -83,7 +84,10 @@ export function PasoEmbarque({
         if (!cancelado) setSaldo(r.data);
       })
       .catch(() => {
-        if (!cancelado) setSaldoError("No se pudo consultar el saldo del lote");
+        if (!cancelado) {
+          setSaldo(null);
+          setSaldoError("No se pudo consultar el saldo del lote");
+        }
       });
     return () => {
       cancelado = true;

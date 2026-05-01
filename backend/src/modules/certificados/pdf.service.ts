@@ -131,26 +131,47 @@ function formatDecimal(
   return num.toFixed(digits);
 }
 
-const SUPERSCRIPT_MAP: Record<string, string> = {
-  "⁰": "^0",
-  "¹": "^1",
-  "²": "^2",
-  "³": "^3",
-  "⁴": "^4",
-  "⁵": "^5",
-  "⁶": "^6",
-  "⁷": "^7",
-  "⁸": "^8",
-  "⁹": "^9",
-  "⁻": "-",
-  "⁺": "+",
+const SUPERSCRIPT_DIGIT_MAP: Record<string, string> = {
+  "⁰": "0",
+  "¹": "1",
+  "²": "2",
+  "³": "3",
+  "⁴": "4",
+  "⁵": "5",
+  "⁶": "6",
+  "⁷": "7",
+  "⁸": "8",
+  "⁹": "9",
 };
 
-function sanitizarParaHelvetica(text: string): string {
-  return text.replace(
-    /[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]/g,
-    (ch) => SUPERSCRIPT_MAP[ch] ?? ch,
+function convertirSecuenciaSuperindice(sequence: string): string {
+  let sign = "";
+  let digits = sequence;
+
+  if (sequence.startsWith("⁻")) {
+    sign = "-";
+    digits = sequence.slice(1);
+  } else if (sequence.startsWith("⁺")) {
+    sign = "+";
+    digits = sequence.slice(1);
+  }
+
+  const asciiDigits = digits.replace(
+    /[⁰¹²³⁴⁵⁶⁷⁸⁹]/g,
+    (ch) => SUPERSCRIPT_DIGIT_MAP[ch] ?? ch,
   );
+
+  return `^${sign}${asciiDigits}`;
+}
+
+function sanitizarParaHelvetica(text: string): string {
+  return text
+    .replace(/[⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, (sequence) =>
+      convertirSecuenciaSuperindice(sequence),
+    )
+    // Handle standalone superscript signs not followed by digits (first pass
+    // only matches signs that precede at least one superscript digit).
+    .replace(/[⁻⁺]/g, (ch) => (ch === "⁻" ? "-" : "+"));
 }
 
 export class CertificadoPdfService {

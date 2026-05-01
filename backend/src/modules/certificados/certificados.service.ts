@@ -176,6 +176,13 @@ export class CertificadosService {
     try {
       certificadoId = await this.db.$transaction(async (tx) => {
         if (lote.cantidadProducida !== null) {
+          // Lock the lote row with SELECT FOR UPDATE to prevent write-skew
+          // under PostgreSQL READ COMMITTED. Prisma does not expose FOR UPDATE
+          // via its typed query API, so $queryRaw with a tagged template is
+          // required. The tagged template parameterises input.loteId safely
+          // — there is no string interpolation.
+          await tx.$queryRaw`SELECT id FROM lotes_produccion WHERE id = ${input.loteId} FOR UPDATE`;
+
           const agg = await tx.certificado.aggregate({
             where: { loteId: input.loteId },
             _sum: { cantidadEntrega: true },

@@ -75,7 +75,7 @@ export function Login() {
           <img
             src="/logo.webp"
             alt="Harinas Elizondo"
-            className="h-20 w-auto"
+            className="w-72 h-auto"
           />
           <p className="text-sm text-muted-foreground">
             Certificados de calidad

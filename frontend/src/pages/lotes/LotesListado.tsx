@@ -12,14 +12,20 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import { formatFecha } from "@/lib/format";
+import {
+  rolesEscrituraInspecciones,
+  rolesEscrituraLotes,
+} from "@/lib/rbac";
 import type { Lote } from "@/types/domain.types";
 import type { PaginatedResponse } from "@/types/api.types";
 
 export function LotesListado() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
-  const puedeCrear =
-    usuario?.rol === "CONTROL_CALIDAD" || usuario?.rol === "LABORATORIO";
+  const rol = usuario?.rol;
+  const puedeCrear = !!rol && rolesEscrituraLotes.includes(rol);
+  const puedeRegistrarInspeccion =
+    !!rol && rolesEscrituraInspecciones.includes(rol);
 
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
@@ -73,7 +79,7 @@ export function LotesListado() {
           >
             <Eye className="h-4 w-4" />
           </Button>
-          {puedeCrear && (
+          {puedeRegistrarInspeccion && (
             <Button
               variant="ghost"
               size="sm"

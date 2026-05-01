@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Info, ChevronDown, ChevronRight } from "lucide-react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { CrearLoteDialog } from "@/components/lotes/CrearLoteDialog";
 import {
   Table,
   TableBody,
@@ -57,6 +59,35 @@ export function InspeccionForm() {
   const [observaciones, setObservaciones] = useState("");
   const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
   const [saving, setSaving] = useState(false);
+  const [crearLoteOpen, setCrearLoteOpen] = useState(false);
+  const [sugerencias, setSugerencias] = useState<Lote[]>([]);
+  const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+  const loteNumeroDebounced = useDebounce(loteNumero, 250);
+  const [equiposExpandidos, setEquiposExpandidos] = useState<Set<string>>(
+    new Set(),
+  );
+
+  const equiposConResultados = useMemo(() => {
+    const set = new Set<string>();
+    for (const { equipo, parametros } of equipos) {
+      if (parametros.some((p) => (resultados[String(p.id)] ?? "") !== "")) {
+        set.add(String(equipo.id));
+      }
+    }
+    return set;
+  }, [equipos, resultados]);
+
+  const isEquipoExpandido = (equipoId: string) =>
+    equiposExpandidos.has(equipoId) || equiposConResultados.has(equipoId);
+
+  const toggleEquipo = (equipoId: string) => {
+    setEquiposExpandidos((prev) => {
+      const next = new Set(prev);
+      if (next.has(equipoId)) next.delete(equipoId);
+      else next.add(equipoId);
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (isEdit && editId) {
@@ -107,6 +138,48 @@ export function InspeccionForm() {
       setLoteError(handleApiError(err));
     } finally {
       setBuscandoLote(false);
+    }
+  };
+
+  useEffect(() => {
+    if (
+      !loteNumeroDebounced ||
+      loteNumeroDebounced === lote?.numeroLote ||
+      loteNumeroDebounced.length < 1
+    ) {
+      setSugerencias([]);
+      return;
+    }
+    let cancelado = false;
+    api
+      .get<PaginatedResponse<Lote>>("/lotes", {
+        params: { q: loteNumeroDebounced, limit: 8 },
+      })
+      .then((r) => {
+        if (!cancelado) setSugerencias(r.data.data);
+      })
+      .catch(() => {
+        if (!cancelado) setSugerencias([]);
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [loteNumeroDebounced, lote?.numeroLote]);
+
+  const seleccionarLoteSugerido = async (l: Lote) => {
+    setLote(l);
+    setLoteNumero(l.numeroLote);
+    setLoteError(null);
+    setMostrarSugerencias(false);
+    setSugerencias([]);
+    try {
+      const insp = await api.get<PaginatedResponse<Inspeccion>>(
+        "/inspecciones",
+        { params: { loteId: l.id, limit: 100 } },
+      );
+      setInspeccionesPrev(insp.data.data);
+    } catch (err) {
+      setLoteError(handleApiError(err));
     }
   };
 
@@ -234,13 +307,46 @@ export function InspeccionForm() {
           Lote de producción
         </h2>
         <div className="flex gap-2 items-end">
-          <div className="flex-1 max-w-md">
+          <div className="flex-1 max-w-md relative">
             <Label className="text-xs">Número de lote</Label>
             <Input
               value={loteNumero}
-              onChange={(e) => setLoteNumero(e.target.value)}
+              onChange={(e) => {
+                setLoteNumero(e.target.value);
+                setMostrarSugerencias(true);
+                if (lote && e.target.value !== lote.numeroLote) {
+                  setLote(null);
+                  setInspeccionesPrev([]);
+                }
+              }}
+              onFocus={() => setMostrarSugerencias(true)}
+              onBlur={() =>
+                setTimeout(() => setMostrarSugerencias(false), 150)
+              }
               placeholder="Ej. L-2026-0412"
+              autoComplete="off"
             />
+            {mostrarSugerencias && sugerencias.length > 0 && (
+              <ul className="absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md border border-border bg-popover shadow-md">
+                {sugerencias.map((l) => (
+                  <li
+                    key={String(l.id)}
+                    className="px-3 py-2 text-sm cursor-pointer hover:bg-secondary/50"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      void seleccionarLoteSugerido(l);
+                    }}
+                  >
+                    <span className="font-mono">{l.numeroLote}</span>
+                    {l.producto && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        {l.producto.clave} — {l.producto.nombre}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           <Button
             onClick={() => void buscarLote()}
@@ -251,7 +357,7 @@ export function InspeccionForm() {
           <Button
             variant="outline"
             type="button"
-            onClick={() => navigate("/lotes/nuevo")}
+            onClick={() => setCrearLoteOpen(true)}
           >
             Crear lote
           </Button>
@@ -318,14 +424,36 @@ export function InspeccionForm() {
             <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Resultados
             </h2>
-            {equipos.map(({ equipo, parametros }) => (
+            {equipos.map(({ equipo, parametros }) => {
+              const equipoId = String(equipo.id);
+              const expandido = isEquipoExpandido(equipoId);
+              const llenos = parametros.filter(
+                (p) => (resultados[String(p.id)] ?? "") !== "",
+              ).length;
+              return (
               <div
-                key={String(equipo.id)}
+                key={equipoId}
                 className="rounded-md border border-border bg-card overflow-hidden"
               >
-                <div className="px-4 py-2 bg-secondary/30 text-sm font-medium">
-                  {equipo.clave} — {equipo.descripcionCorta}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => toggleEquipo(equipoId)}
+                  className="w-full px-4 py-2 bg-secondary/30 text-sm font-medium flex items-center gap-2 hover:bg-secondary/50 transition-colors"
+                  aria-expanded={expandido}
+                >
+                  {expandido ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                  <span>
+                    {equipo.clave} — {equipo.descripcionCorta}
+                  </span>
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    {llenos}/{parametros.length} parámetros capturados
+                  </span>
+                </button>
+                {expandido && (
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -333,7 +461,20 @@ export function InspeccionForm() {
                       <TableHead>Unidad</TableHead>
                       <TableHead>Rango internacional</TableHead>
                       <TableHead>Valor</TableHead>
-                      <TableHead>Estado</TableHead>
+                      <TableHead>
+                        <span className="inline-flex items-center gap-1">
+                          Estado (rango internacional)
+                          <span
+                            title="La evaluación contra los rangos personalizados del cliente se realiza al emitir el certificado, no en esta etapa."
+                            className="inline-flex"
+                          >
+                            <Info
+                              className="h-3.5 w-3.5 text-muted-foreground cursor-help"
+                              aria-label="Información"
+                            />
+                          </span>
+                        </span>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -388,8 +529,10 @@ export function InspeccionForm() {
                     })}
                   </TableBody>
                 </Table>
+                )}
               </div>
-            ))}
+              );
+            })}
           </section>
 
           <section className="space-y-2">
@@ -433,6 +576,18 @@ export function InspeccionForm() {
           </div>
         </>
       )}
+
+      <CrearLoteDialog
+        open={crearLoteOpen}
+        onOpenChange={setCrearLoteOpen}
+        numeroLoteInicial={loteNumero}
+        onCreated={(nuevo) => {
+          setLote(nuevo);
+          setLoteNumero(nuevo.numeroLote);
+          setLoteError(null);
+          setInspeccionesPrev([]);
+        }}
+      />
     </div>
   );
 }

@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { requireAuth, requireRole } from "../../middlewares/auth.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
-import { crearLote, getLote, listLotes } from "./lotes.controller.js";
+import {
+  crearLote,
+  getLote,
+  getLoteSaldo,
+  listLotes,
+} from "./lotes.controller.js";
 import { crearLoteSchema, listLotesQuerySchema } from "./lotes.schemas.js";
 import { idParamSchema } from "../../lib/schemas.js";
 import { crearInspeccionEnLote } from "../inspecciones/inspecciones.controller.js";
@@ -24,6 +29,13 @@ router.get(
   requireAuth,
   validate({ params: idParamSchema }),
   getLote,
+);
+
+router.get(
+  "/:id/saldo",
+  requireAuth,
+  validate({ params: idParamSchema }),
+  getLoteSaldo,
 );
 
 router.post(

@@ -21,6 +21,7 @@ import { useQuery } from "@/hooks/useApi";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useAuth } from "@/hooks/useAuth";
 import { api, handleApiError } from "@/lib/api";
+import { rolesEscrituraEquipos } from "@/lib/rbac";
 import type { Equipo, EstadoActivo } from "@/types/domain.types";
 import type { PaginatedResponse } from "@/types/api.types";
 
@@ -29,7 +30,8 @@ type EstadoFiltro = EstadoActivo | "TODOS";
 export function EquiposListado() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
-  const puedeEditar = usuario?.rol === "CONTROL_CALIDAD";
+  const puedeEditar =
+    !!usuario?.rol && rolesEscrituraEquipos.includes(usuario.rol);
 
   const [q, setQ] = useState("");
   const [estado, setEstado] = useState<EstadoFiltro>("ACTIVO");

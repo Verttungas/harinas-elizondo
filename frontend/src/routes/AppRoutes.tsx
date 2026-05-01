@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { RoleRoute } from "./RoleRoute";
 import { AppShell } from "@/components/layout/AppShell";
 import { Login } from "@/pages/Login";
 import { Dashboard } from "@/pages/Dashboard";
@@ -18,6 +19,13 @@ import { CertificadoDetalle } from "@/pages/certificados/CertificadoDetalle";
 import { WizardCertificado } from "@/pages/certificados/wizard/WizardCertificado";
 import { Reportes } from "@/pages/reportes/Reportes";
 import { NotFound } from "@/pages/NotFound";
+import {
+  rolesEscrituraCertificados,
+  rolesEscrituraClientes,
+  rolesEscrituraEquipos,
+  rolesEscrituraInspecciones,
+  rolesEscrituraLotes,
+} from "@/lib/rbac";
 
 export function AppRoutes() {
   return (
@@ -34,26 +42,82 @@ export function AppRoutes() {
         <Route path="/dashboard" element={<Dashboard />} />
 
         <Route path="/equipos" element={<EquiposListado />} />
-        <Route path="/equipos/nuevo" element={<EquipoForm />} />
+        <Route
+          path="/equipos/nuevo"
+          element={
+            <RoleRoute roles={rolesEscrituraEquipos}>
+              <EquipoForm />
+            </RoleRoute>
+          }
+        />
         <Route path="/equipos/:id" element={<EquipoForm />} />
-        <Route path="/equipos/:id/editar" element={<EquipoForm />} />
+        <Route
+          path="/equipos/:id/editar"
+          element={
+            <RoleRoute roles={rolesEscrituraEquipos}>
+              <EquipoForm />
+            </RoleRoute>
+          }
+        />
 
         <Route path="/clientes" element={<ClientesListado />} />
-        <Route path="/clientes/nuevo" element={<ClienteForm />} />
+        <Route
+          path="/clientes/nuevo"
+          element={
+            <RoleRoute roles={rolesEscrituraClientes}>
+              <ClienteForm />
+            </RoleRoute>
+          }
+        />
         <Route path="/clientes/:id" element={<ClienteForm />} />
-        <Route path="/clientes/:id/editar" element={<ClienteForm />} />
+        <Route
+          path="/clientes/:id/editar"
+          element={
+            <RoleRoute roles={rolesEscrituraClientes}>
+              <ClienteForm />
+            </RoleRoute>
+          }
+        />
 
         <Route path="/lotes" element={<LotesListado />} />
-        <Route path="/lotes/nuevo" element={<LoteForm />} />
+        <Route
+          path="/lotes/nuevo"
+          element={
+            <RoleRoute roles={rolesEscrituraLotes}>
+              <LoteForm />
+            </RoleRoute>
+          }
+        />
         <Route path="/lotes/:id" element={<LoteDetalle />} />
 
         <Route path="/inspecciones" element={<InspeccionesListado />} />
-        <Route path="/inspecciones/nueva" element={<InspeccionForm />} />
+        <Route
+          path="/inspecciones/nueva"
+          element={
+            <RoleRoute roles={rolesEscrituraInspecciones}>
+              <InspeccionForm />
+            </RoleRoute>
+          }
+        />
         <Route path="/inspecciones/:id" element={<InspeccionDetalle />} />
-        <Route path="/inspecciones/:id/editar" element={<InspeccionForm />} />
+        <Route
+          path="/inspecciones/:id/editar"
+          element={
+            <RoleRoute roles={rolesEscrituraInspecciones}>
+              <InspeccionForm />
+            </RoleRoute>
+          }
+        />
 
         <Route path="/certificados" element={<CertificadosListado />} />
-        <Route path="/certificados/nuevo" element={<WizardCertificado />} />
+        <Route
+          path="/certificados/nuevo"
+          element={
+            <RoleRoute roles={rolesEscrituraCertificados}>
+              <WizardCertificado />
+            </RoleRoute>
+          }
+        />
         <Route path="/certificados/:id" element={<CertificadoDetalle />} />
 
         <Route path="/reportes" element={<Reportes />} />

@@ -124,9 +124,15 @@ export class CertificadosService {
 
     const lote = await this.db.loteProduccion.findUnique({
       where: { id: input.loteId },
-      select: { id: true, numeroLote: true },
+      select: {
+        id: true,
+        numeroLote: true,
+        cantidadProducida: true,
+        unidadCantidad: true,
+      },
     });
     if (!lote) throw new NotFoundError("Lote no encontrado");
+
 
     const inspecciones = await this.db.inspeccion.findMany({
       where: { id: { in: input.inspeccionIds } },
@@ -169,6 +175,31 @@ export class CertificadosService {
 
     try {
       certificadoId = await this.db.$transaction(async (tx) => {
+        if (lote.cantidadProducida !== null) {
+          const agg = await tx.certificado.aggregate({
+            where: { loteId: input.loteId },
+            _sum: { cantidadEntrega: true },
+          });
+          const entregada = agg._sum.cantidadEntrega ?? new Prisma.Decimal(0);
+          const disponible = lote.cantidadProducida.minus(entregada);
+          const cantidadEntrega = new Prisma.Decimal(
+            embarque.cantidadEntrega,
+          );
+          if (cantidadEntrega.greaterThan(disponible)) {
+            throw new UnprocessableEntityError(
+              `La cantidad a entregar (${cantidadEntrega.toString()}) excede el saldo disponible del lote (${disponible.toString()} ${lote.unidadCantidad ?? ""}).`.trim(),
+              {
+                codigo: "LOTE_SALDO_INSUFICIENTE",
+                producida: lote.cantidadProducida.toString(),
+                entregada: entregada.toString(),
+                disponible: disponible.toString(),
+                solicitada: cantidadEntrega.toString(),
+                unidadCantidad: lote.unidadCantidad,
+              },
+            );
+          }
+        }
+
         const cert = await tx.certificado.create({
           data: {
             numero,

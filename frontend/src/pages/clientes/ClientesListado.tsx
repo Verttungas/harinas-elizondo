@@ -22,6 +22,7 @@ import { useQuery } from "@/hooks/useApi";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useAuth } from "@/hooks/useAuth";
 import { api, handleApiError } from "@/lib/api";
+import { rolesEscrituraClientes } from "@/lib/rbac";
 import type { Cliente } from "@/types/domain.types";
 import type { PaginatedResponse } from "@/types/api.types";
 
@@ -31,7 +32,8 @@ type ReqCertFiltro = "TODOS" | "SI" | "NO";
 export function ClientesListado() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
-  const puedeEditar = usuario?.rol === "CONTROL_CALIDAD";
+  const puedeEditar =
+    !!usuario?.rol && rolesEscrituraClientes.includes(usuario.rol);
 
   const [q, setQ] = useState("");
   const [estado, setEstado] = useState<EstadoFiltro>("ACTIVO");

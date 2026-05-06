@@ -6,6 +6,7 @@ import { rolPuedeVerRuta } from "@/lib/rbac";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
+  { to: "/usuarios", label: "Usuarios" },
   { to: "/equipos", label: "Equipos" },
   { to: "/clientes", label: "Clientes" },
   { to: "/lotes", label: "Lotes" },

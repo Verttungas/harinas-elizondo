@@ -18,8 +18,10 @@ import { CertificadosListado } from "@/pages/certificados/CertificadosListado";
 import { CertificadoDetalle } from "@/pages/certificados/CertificadoDetalle";
 import { WizardCertificado } from "@/pages/certificados/wizard/WizardCertificado";
 import { Reportes } from "@/pages/reportes/Reportes";
+import { UsuariosListado } from "@/pages/usuarios/UsuariosListado";
 import { NotFound } from "@/pages/NotFound";
 import {
+  rolesAdministracionUsuarios,
   rolesEscrituraCertificados,
   rolesEscrituraClientes,
   rolesEscrituraEquipos,
@@ -40,6 +42,15 @@ export function AppRoutes() {
       >
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
+
+        <Route
+          path="/usuarios"
+          element={
+            <RoleRoute roles={rolesAdministracionUsuarios}>
+              <UsuariosListado />
+            </RoleRoute>
+          }
+        />
 
         <Route path="/equipos" element={<EquiposListado />} />
         <Route

@@ -11,11 +11,13 @@ import {
 import { logger } from "../../lib/logger.js";
 import type { LoginInput } from "./auth.schemas.js";
 
+type AppRole = RolUsuario | "ADMINISTRADOR";
+
 export interface UsuarioPublico {
   id: bigint;
   correo: string;
   nombre: string;
-  rol: RolUsuario;
+  rol: AppRole;
 }
 
 export interface LoginContext {

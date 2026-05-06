@@ -8,8 +8,17 @@ async function main() {
 
   await prisma.$transaction(async (tx) => {
     // ------------------------------------------------------------------------
-    // 1. Usuarios (5, uno por rol)
+    // 1. Usuarios (6, uno por rol)
     // ------------------------------------------------------------------------
+    await tx.usuario.create({
+      data: {
+        correo: 'admin@fhesa.mx',
+        passwordHash,
+        nombre: 'Administradora FHESA',
+        rol: 'ADMINISTRADOR' as RolUsuario,
+      },
+    });
+
     const usuarioLab = await tx.usuario.create({
       data: {
         correo: 'lab@fhesa.mx',

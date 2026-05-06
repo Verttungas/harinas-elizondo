@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 import { stringify as csvStringify } from "csv-stringify/sync";
 import { prisma as defaultPrisma } from "../../lib/prisma.js";
 import {
@@ -58,21 +58,35 @@ export class ReportesService {
   }
 
   async crearGuardado(input: CrearReporteGuardadoInput, usuarioId: bigint) {
+    const data: Prisma.ReporteGuardadoUncheckedCreateInput = {
+      nombre: input.nombre,
+      descripcion: input.descripcion,
+      tipo: input.tipo,
+      filtros: input.filtros as Prisma.InputJsonValue,
+      creadoPor: usuarioId,
+    };
+
     return this.db.reporteGuardado.create({
-      data: {
-        nombre: input.nombre,
-        descripcion: input.descripcion,
-        tipo: input.tipo,
-        filtros: input.filtros,
-        creadoPor: usuarioId,
-      },
+      data,
     });
   }
 
   async actualizarGuardado(id: bigint, input: ActualizarReporteGuardadoInput) {
+    const data: Prisma.ReporteGuardadoUpdateInput = {
+      ...(input.nombre !== undefined ? { nombre: input.nombre } : {}),
+      ...(input.descripcion !== undefined
+        ? { descripcion: input.descripcion }
+        : {}),
+      ...(input.tipo !== undefined ? { tipo: input.tipo } : {}),
+      ...(input.filtros !== undefined
+        ? { filtros: input.filtros as Prisma.InputJsonValue }
+        : {}),
+      ...(input.activo !== undefined ? { activo: input.activo } : {}),
+    };
+
     return this.db.reporteGuardado.update({
       where: { id },
-      data: input,
+      data,
     });
   }
 

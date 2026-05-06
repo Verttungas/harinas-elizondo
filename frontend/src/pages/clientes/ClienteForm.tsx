@@ -44,9 +44,7 @@ const clienteSchema = z.object({
   rfc: z.string().regex(rfcRegex, "RFC inválido"),
   domicilio: z.string().optional(),
   contactoNombre: z.string().max(120).optional(),
-  contactoCorreo: z
-    .union([z.string().email("Correo inválido"), z.literal("")])
-    .optional(),
+  contactoCorreo: z.string().min(1, "Requerido").email("Correo inválido"),
   contactoTelefono: z.string().max(20).optional(),
 });
 
@@ -290,7 +288,7 @@ export function ClienteForm() {
                 name="contactoCorreo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Correo</FormLabel>
+                    <FormLabel>Correo *</FormLabel>
                     <FormControl>
                       <Input type="email" {...field} />
                     </FormControl>

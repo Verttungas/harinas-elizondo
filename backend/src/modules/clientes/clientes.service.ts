@@ -124,13 +124,6 @@ export class ClientesService {
   }
 
   async crear(input: CrearClienteInput, usuarioId: bigint): Promise<Cliente> {
-    if (!input.contactoCorreo) {
-      throw new UnprocessableEntityError(
-        "El correo de contacto es obligatorio para emitir certificados",
-        { codigo: "CONTACTO_CORREO_REQUERIDO" },
-      );
-    }
-
     return this.db.$transaction(async (tx) => {
       const duplicado = await tx.cliente.findUnique({
         where: { claveSap: input.claveSap },
@@ -192,7 +185,7 @@ export class ClientesService {
 
       if (!correoResultante) {
         throw new UnprocessableEntityError(
-          "El correo de contacto es obligatorio para emitir certificados",
+          "El correo de contacto es obligatorio",
           { codigo: "CONTACTO_CORREO_REQUERIDO" },
         );
       }

@@ -29,7 +29,7 @@ export const crearClienteSchema = z.object({
   rfc: z.string().regex(rfcRegex, "RFC con formato inválido"),
   domicilio: z.string().optional(),
   contactoNombre: z.string().max(120).optional(),
-  contactoCorreo: z.string().email("Correo inválido").optional(),
+  contactoCorreo: z.string().email("Correo inválido"),
   contactoTelefono: z.string().max(20).optional(),
   valoresReferencia: z.array(agregarValorReferenciaSchema).optional(),
 });

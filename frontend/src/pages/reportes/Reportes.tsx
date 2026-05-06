@@ -16,7 +16,6 @@ import { api, handleApiError } from "@/lib/api";
 import { TabParametros } from "./tabs/TabParametros";
 import { TabCertificadosPorCliente } from "./tabs/TabCertificadosPorCliente";
 import { TabDesviaciones } from "./tabs/TabDesviaciones";
-import { TabFicticias } from "./tabs/TabFicticias";
 
 export type ReportesFiltros = {
   desde: string;
@@ -39,8 +38,7 @@ function defaultFiltros(): ReportesFiltros {
 type TipoExport =
   | "parametros"
   | "certificados-por-cliente"
-  | "desviaciones"
-  | "ficticias";
+  | "desviaciones";
 
 export function Reportes() {
   const [filtros, setFiltros] = useState<ReportesFiltros>(defaultFiltros());
@@ -114,7 +112,6 @@ export function Reportes() {
             Certificados por cliente
           </TabsTrigger>
           <TabsTrigger value="desviaciones">Desviaciones por lote</TabsTrigger>
-          <TabsTrigger value="ficticias">Inspecciones ficticias</TabsTrigger>
         </TabsList>
         <TabsContent value="parametros" className="pt-4">
           <TabParametros filtros={filtros} setFiltros={setFiltros} />
@@ -124,9 +121,6 @@ export function Reportes() {
         </TabsContent>
         <TabsContent value="desviaciones" className="pt-4">
           <TabDesviaciones filtros={filtros} setFiltros={setFiltros} />
-        </TabsContent>
-        <TabsContent value="ficticias" className="pt-4">
-          <TabFicticias filtros={filtros} />
         </TabsContent>
       </Tabs>
     </div>

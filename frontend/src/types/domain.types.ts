@@ -62,7 +62,6 @@ export interface Cliente {
   contactoNombre?: string | null;
   contactoCorreo?: string | null;
   contactoTelefono?: string | null;
-  requiereCertificado: boolean;
   estado: "ACTIVO" | "INACTIVO";
   valoresReferencia?: ValorReferenciaParticular[];
 }
@@ -102,11 +101,7 @@ export interface Inspeccion {
   secuencia: string;
   fechaInspeccion: string;
   estado: EstadoInspeccion;
-  esFicticia: boolean;
   observaciones?: string | null;
-  justificacionAjuste?: string | null;
-  inspeccionOrigenId?: string | number | null;
-  inspeccionOrigen?: { id: string | number; secuencia: string; esFicticia?: boolean } | null;
   lote?: Lote;
   resultados?: ResultadoInspeccion[];
   _count?: { resultados: number };
@@ -137,6 +132,7 @@ export interface Certificado {
   cantidadSolicitada: string | number;
   cantidadEntrega: string | number;
   numFactura: string;
+  direccionEnvio?: string | null;
   fechaEnvio: string;
   fechaCaducidad: string;
   rutaPdf?: string | null;
@@ -155,6 +151,7 @@ export interface DatosEmbarque {
   cantidadSolicitada: number;
   cantidadEntrega: number;
   numFactura: string;
+  direccionEnvio: string;
   fechaEnvio: string;
   fechaCaducidad: string;
 }
@@ -171,5 +168,4 @@ export interface ResumenReporte {
   certificadosEmitidos: { valor: number; variacionMesAnterior: number };
   lotesEnEspecificacion: { valor: number; variacionPuntos: number };
   clientesActivos: { valor: number };
-  inspeccionesFicticias: { valor: number };
 }

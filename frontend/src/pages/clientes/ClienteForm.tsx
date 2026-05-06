@@ -48,7 +48,6 @@ const clienteSchema = z.object({
     .union([z.string().email("Correo inválido"), z.literal("")])
     .optional(),
   contactoTelefono: z.string().max(20).optional(),
-  requiereCertificado: z.boolean(),
 });
 
 type ClienteFormValues = z.infer<typeof clienteSchema>;
@@ -77,11 +76,8 @@ export function ClienteForm() {
       contactoNombre: "",
       contactoCorreo: "",
       contactoTelefono: "",
-      requiereCertificado: true,
     },
   });
-
-  const requiereCert = form.watch("requiereCertificado");
 
   useEffect(() => {
     if (!isEdit) return;
@@ -98,7 +94,6 @@ export function ClienteForm() {
           contactoNombre: c.contactoNombre ?? "",
           contactoCorreo: c.contactoCorreo ?? "",
           contactoTelefono: c.contactoTelefono ?? "",
-          requiereCertificado: c.requiereCertificado,
         });
         setValoresExistentes(c.valoresReferencia ?? []);
       })
@@ -118,7 +113,7 @@ export function ClienteForm() {
         await api.post("/clientes", {
           ...payload,
           valoresReferencia:
-            values.requiereCertificado && valores.length > 0
+            valores.length > 0
               ? valores.map((v) => ({
                   parametroId: v.parametroId,
                   limiteInferior: v.limiteInferior,
@@ -320,105 +315,73 @@ export function ClienteForm() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Configuración de certificados
-            </h2>
-            <FormField
-              control={form.control}
-              name="requiereCertificado"
-              render={({ field }) => (
-                <FormItem>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={field.value}
-                      onChange={(e) => field.onChange(e.target.checked)}
-                    />
-                    <span className="text-sm">
-                      Este cliente requiere certificado de calidad
-                    </span>
-                  </label>
-                  {field.value && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      El correo de contacto será obligatorio al emitir
-                      certificados.
-                    </p>
-                  )}
-                </FormItem>
-              )}
-            />
-          </section>
-
-          {requiereCert && (
-            <section className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Valores de referencia particulares
-                </h2>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDialogOpen(true)}
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Agregar
-                </Button>
-              </div>
-              <div className="text-xs text-state-warning p-2 rounded border border-state-warning/30 bg-state-warning/5">
-                Los rangos particulares deben estar dentro del rango
-                internacional del parámetro.
-              </div>
-              <div className="rounded-md border border-border bg-card">
-                <Table>
-                  <TableHeader>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Valores de referencia particulares
+              </h2>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setDialogOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-1" /> Agregar
+              </Button>
+            </div>
+            <div className="text-xs text-state-warning p-2 rounded border border-state-warning/30 bg-state-warning/5">
+              Los rangos particulares deben estar dentro del rango internacional
+              del parámetro.
+            </div>
+            <div className="rounded-md border border-border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Parámetro</TableHead>
+                    <TableHead>Unidad</TableHead>
+                    <TableHead>Rango internacional</TableHead>
+                    <TableHead>Lím. inf.</TableHead>
+                    <TableHead>Lím. sup.</TableHead>
+                    <TableHead className="text-right">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {valoresVisibles.length === 0 ? (
                     <TableRow>
-                      <TableHead>Parámetro</TableHead>
-                      <TableHead>Unidad</TableHead>
-                      <TableHead>Rango internacional</TableHead>
-                      <TableHead>Lím. inf.</TableHead>
-                      <TableHead>Lím. sup.</TableHead>
-                      <TableHead className="text-right">Acciones</TableHead>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center text-sm text-muted-foreground p-4"
+                      >
+                        Sin valores de referencia particulares.
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {valoresVisibles.length === 0 ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={6}
-                          className="text-center text-sm text-muted-foreground p-4"
-                        >
-                          Sin valores de referencia particulares.
+                  ) : (
+                    valoresVisibles.map((v, i) => (
+                      <TableRow key={`${v.parametroId}-${i}`}>
+                        <TableCell>
+                          <span className="font-mono">{v.parametroClave}</span>{" "}
+                          — {v.parametroNombre}
+                        </TableCell>
+                        <TableCell>{v.unidadMedida}</TableCell>
+                        <TableCell>{v.rangoInternacional}</TableCell>
+                        <TableCell>{v.limiteInferior}</TableCell>
+                        <TableCell>{v.limiteSuperior}</TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => void handleEliminarValor(i)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
-                    ) : (
-                      valoresVisibles.map((v, i) => (
-                        <TableRow key={`${v.parametroId}-${i}`}>
-                          <TableCell>
-                            <span className="font-mono">{v.parametroClave}</span>{" "}
-                            — {v.parametroNombre}
-                          </TableCell>
-                          <TableCell>{v.unidadMedida}</TableCell>
-                          <TableCell>{v.rangoInternacional}</TableCell>
-                          <TableCell>{v.limiteInferior}</TableCell>
-                          <TableCell>{v.limiteSuperior}</TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => void handleEliminarValor(i)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </section>
-          )}
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </section>
 
           {saveError && (
             <div className="text-sm text-state-danger p-3 rounded-md border border-state-danger/30 bg-state-danger/5">

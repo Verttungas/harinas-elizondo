@@ -38,7 +38,6 @@ interface InspeccionConsolidableResultado {
 
 interface InspeccionConsolidable {
   secuencia: string;
-  esFicticia: boolean;
   resultados: InspeccionConsolidableResultado[];
 }
 
@@ -56,10 +55,9 @@ export function consolidarResultados(
     valoresReferenciaCliente.map((vr) => [vr.parametroId.toString(), vr]),
   );
 
-  const inspeccionesOrdenadas = [...inspecciones].sort((a, b) => {
-    if (a.esFicticia !== b.esFicticia) return a.esFicticia ? 1 : -1;
-    return a.secuencia.localeCompare(b.secuencia);
-  });
+  const inspeccionesOrdenadas = [...inspecciones].sort((a, b) =>
+    a.secuencia.localeCompare(b.secuencia),
+  );
 
   const consolidados = new Map<string, ResultadoConsolidado>();
   for (const inspeccion of inspeccionesOrdenadas) {
@@ -216,10 +214,9 @@ export class CertificadoPdfService {
       inspecciones,
       cert.cliente.valoresReferencia,
     );
-    const inspeccionesOrdenadas = [...inspecciones].sort((a, b) => {
-      if (a.esFicticia !== b.esFicticia) return a.esFicticia ? 1 : -1;
-      return a.secuencia.localeCompare(b.secuencia);
-    });
+    const inspeccionesOrdenadas = [...inspecciones].sort((a, b) =>
+      a.secuencia.localeCompare(b.secuencia),
+    );
 
     const cumpleTodo = filas.every((f) => f.dentroEspecificacion);
 
@@ -246,6 +243,7 @@ export class CertificadoPdfService {
         cantidadSolicitada: formatDecimal(cert.cantidadSolicitada, 2),
         cantidadEntrega: formatDecimal(cert.cantidadEntrega, 2),
         numFactura: cert.numFactura ?? "—",
+        direccionEnvio: cert.direccionEnvio ?? "—",
         fechaEnvio: cert.fechaEnvio,
         fechaCaducidad: cert.fechaCaducidad,
       },
@@ -253,7 +251,6 @@ export class CertificadoPdfService {
       dictamen: cumpleTodo,
       inspeccionesConsolidadas: inspeccionesOrdenadas.map((i) => ({
         secuencia: i.secuencia,
-        esFicticia: i.esFicticia,
         fechaInspeccion: i.fechaInspeccion,
       })),
       usuarioEmisor: cert.usuarioCreador.nombre,
@@ -337,6 +334,7 @@ export class CertificadoPdfService {
       this.renderInfoBlock(doc, "DATOS DE EMBARQUE", [
         ["Orden de compra", data.embarque.numOrdenCompra],
         ["Factura", data.embarque.numFactura],
+        ["Dirección de envío", data.embarque.direccionEnvio],
         [
           "Cantidad solicitada / entrega",
           `${data.embarque.cantidadSolicitada} / ${data.embarque.cantidadEntrega}`,
@@ -369,7 +367,7 @@ export class CertificadoPdfService {
         .text(
           `Trazabilidad — Certificado ${data.numero} | Lote ${data.lote.numeroLote} | ` +
             `Inspecciones: ${data.inspeccionesConsolidadas
-              .map((i) => `${i.secuencia}${i.esFicticia ? "*" : ""}`)
+              .map((i) => i.secuencia)
               .join(", ")} | ` +
             `Emisor: ${data.usuarioEmisor} | Generado: ${formatDate(
               data.fechaEmision,
@@ -379,7 +377,7 @@ export class CertificadoPdfService {
       doc
         .fontSize(7)
         .text(
-          "(*) Inspección ficticia. Los valores de referencia usados son los del cliente cuando existen; en caso contrario se utiliza el rango internacional del parámetro.",
+          "Los valores de referencia usados son los del cliente cuando existen; en caso contrario se utiliza el rango internacional del parámetro.",
           { align: "center" },
         );
 
@@ -510,6 +508,7 @@ interface PdfData {
     cantidadSolicitada: string;
     cantidadEntrega: string;
     numFactura: string;
+    direccionEnvio: string;
     fechaEnvio: Date | null;
     fechaCaducidad: Date | null;
   };
@@ -525,7 +524,6 @@ interface PdfData {
   dictamen: boolean;
   inspeccionesConsolidadas: Array<{
     secuencia: string;
-    esFicticia: boolean;
     fechaInspeccion: Date;
   }>;
   usuarioEmisor: string;

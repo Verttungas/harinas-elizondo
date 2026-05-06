@@ -31,7 +31,6 @@ export const crearClienteSchema = z.object({
   contactoNombre: z.string().max(120).optional(),
   contactoCorreo: z.string().email("Correo inválido").optional(),
   contactoTelefono: z.string().max(20).optional(),
-  requiereCertificado: z.boolean().default(true),
   valoresReferencia: z.array(agregarValorReferenciaSchema).optional(),
 });
 
@@ -42,7 +41,6 @@ export const actualizarClienteSchema = z.object({
   contactoNombre: z.string().max(120).optional(),
   contactoCorreo: z.string().email("Correo inválido").optional(),
   contactoTelefono: z.string().max(20).optional(),
-  requiereCertificado: z.boolean().optional(),
 });
 
 export const inactivarClienteSchema = z.object({
@@ -53,7 +51,6 @@ export const listClientesQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   estado: z.enum(["ACTIVO", "INACTIVO", "TODOS"]).default("ACTIVO"),
-  requiereCertificado: z.coerce.boolean().optional(),
   q: z.string().optional(),
 });
 

@@ -13,7 +13,6 @@ import {
 import { auditLog, type PrismaLike } from "../../lib/audit.js";
 import type {
   ActualizarInspeccionInput,
-  CrearFicticiaInput,
   CrearInspeccionInput,
   ListInspeccionesQuery,
   ResultadoInput,
@@ -92,7 +91,6 @@ export class InspeccionesService {
     const where: Prisma.InspeccionWhereInput = {};
     if (query.loteId !== undefined) where.loteId = query.loteId;
     if (query.estado !== "TODOS") where.estado = query.estado;
-    if (query.esFicticia !== undefined) where.esFicticia = query.esFicticia;
     if (query.desde || query.hasta) {
       where.fechaInspeccion = {};
       if (query.desde) where.fechaInspeccion.gte = new Date(query.desde);
@@ -125,9 +123,6 @@ export class InspeccionesService {
           include: {
             parametro: { include: { equipo: true } },
           },
-        },
-        inspeccionOrigen: {
-          select: { id: true, secuencia: true, esFicticia: true },
         },
       },
     });
@@ -171,7 +166,6 @@ export class InspeccionesService {
           detalle: {
             loteId: loteId.toString(),
             secuencia: inspeccion.secuencia,
-            esFicticia: false,
             estado: inspeccion.estado,
           },
         });
@@ -285,91 +279,6 @@ export class InspeccionesService {
     });
   }
 
-  async crearFicticia(
-    inspeccionOrigenId: bigint,
-    input: CrearFicticiaInput,
-    usuarioId: bigint,
-  ) {
-    const origen = await this.db.inspeccion.findUnique({
-      where: { id: inspeccionOrigenId },
-      include: {
-        resultados: { select: { parametroId: true, valor: true } },
-      },
-    });
-    if (!origen) throw new NotFoundError("Inspección origen no encontrada");
-    if (origen.estado !== "CERRADA") {
-      throw new ConflictError(
-        "Solo se pueden derivar ficticias de inspecciones cerradas",
-        { codigo: "INSPECCION_ORIGEN_NO_CERRADA" },
-      );
-    }
-
-    await validarResultadosContraParametros(this.db, input.resultados);
-
-    const mapaOrigen = new Map(
-      origen.resultados.map((r) => [r.parametroId.toString(), r.valor.toString()]),
-    );
-    const algunaDiferencia = input.resultados.some((r) => {
-      const original = mapaOrigen.get(r.parametroId.toString());
-      if (original === undefined) return true;
-      return new Prisma.Decimal(r.valor).toString() !== original;
-    });
-    if (!algunaDiferencia) {
-      throw new ValidationError(
-        "Los resultados de la ficticia deben diferir al menos en un valor respecto a la inspección origen",
-        { codigo: "FICTICIA_RESULTADOS_IDENTICOS" },
-      );
-    }
-
-    try {
-      return await this.db.$transaction(async (tx) => {
-        const ficticia = await tx.inspeccion.create({
-          data: {
-            loteId: origen.loteId,
-            secuencia: "",
-            fechaInspeccion: new Date(),
-            estado: "CERRADA",
-            esFicticia: true,
-            inspeccionOrigenId: origen.id,
-            justificacionAjuste: input.justificacion,
-            creadoPor: usuarioId,
-          },
-        });
-
-        await insertarResultados(tx, ficticia.id, input.resultados);
-
-        await auditLog(tx, {
-          usuarioId,
-          entidad: "Inspeccion",
-          entidadId: ficticia.id,
-          accion: "CREAR_FICTICIA",
-          detalle: {
-            inspeccionOrigenId: origen.id.toString(),
-            justificacion: input.justificacion,
-          },
-        });
-
-        return tx.inspeccion.findUnique({
-          where: { id: ficticia.id },
-          include: {
-            lote: { include: { producto: true } },
-            resultados: { include: { parametro: true } },
-            inspeccionOrigen: {
-              select: { id: true, secuencia: true },
-            },
-          },
-        });
-      });
-    } catch (err) {
-      if (isSequenceExhaustedError(err)) {
-        throw new ConflictError(
-          "El lote ya alcanzó la secuencia máxima Z (26 inspecciones)",
-          { codigo: "LOTE_SECUENCIA_AGOTADA" },
-        );
-      }
-      throw err;
-    }
-  }
 }
 
 export const inspeccionesService = new InspeccionesService();

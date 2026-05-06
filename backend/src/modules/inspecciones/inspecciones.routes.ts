@@ -5,13 +5,11 @@ import { idParamSchema } from "../../lib/schemas.js";
 import {
   actualizarInspeccion,
   cerrarInspeccion,
-  crearInspeccionFicticia,
   getInspeccion,
   listInspecciones,
 } from "./inspecciones.controller.js";
 import {
   actualizarInspeccionSchema,
-  crearFicticiaSchema,
   listInspeccionesQuerySchema,
 } from "./inspecciones.schemas.js";
 
@@ -45,14 +43,6 @@ router.post(
   requireRole("LABORATORIO", "CONTROL_CALIDAD"),
   validate({ params: idParamSchema }),
   cerrarInspeccion,
-);
-
-router.post(
-  "/:id/ficticia",
-  requireAuth,
-  requireRole("CONTROL_CALIDAD"),
-  validate({ params: idParamSchema, body: crearFicticiaSchema }),
-  crearInspeccionFicticia,
 );
 
 export default router;

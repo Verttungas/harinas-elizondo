@@ -1,7 +1,4 @@
-import {
-  crearFicticiaSchema,
-  crearInspeccionSchema,
-} from "../../../../src/modules/inspecciones/inspecciones.schemas.js";
+import { crearInspeccionSchema } from "../../../../src/modules/inspecciones/inspecciones.schemas.js";
 
 describe("crearInspeccionSchema", () => {
   const base = {
@@ -36,38 +33,5 @@ describe("crearInspeccionSchema", () => {
       guardarComoBorrador: true,
     });
     expect(r.success).toBe(true);
-  });
-});
-
-describe("crearFicticiaSchema", () => {
-  const base = {
-    justificacion: "Ajuste por error de lectura en el equipo",
-    resultados: [{ parametroId: 1, valor: 280 }],
-  };
-
-  it("acepta una ficticia con justificación ≥ 10 caracteres", () => {
-    const r = crearFicticiaSchema.safeParse(base);
-    expect(r.success).toBe(true);
-  });
-
-  it("rechaza justificación corta (< 10 caracteres)", () => {
-    const r = crearFicticiaSchema.safeParse({
-      ...base,
-      justificacion: "corto",
-    });
-    expect(r.success).toBe(false);
-  });
-
-  it("rechaza ficticia sin resultados", () => {
-    const r = crearFicticiaSchema.safeParse({ ...base, resultados: [] });
-    expect(r.success).toBe(false);
-  });
-
-  it("rechaza justificación > 1000 caracteres", () => {
-    const r = crearFicticiaSchema.safeParse({
-      ...base,
-      justificacion: "x".repeat(1001),
-    });
-    expect(r.success).toBe(false);
   });
 });

@@ -24,19 +24,11 @@ export const desviacionesQuerySchema = z.object({
   productoId: z.coerce.bigint().optional(),
 });
 
-export const ficticiasQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
-  desde: isoDate.optional(),
-  hasta: isoDate.optional(),
-});
-
 export const exportQuerySchema = z.object({
   tipo: z.enum([
     "parametros",
     "certificados-por-cliente",
     "desviaciones",
-    "ficticias",
   ]),
   formato: z.enum(["csv"]).default("csv"),
   parametroId: z.coerce.bigint().optional(),
@@ -51,5 +43,4 @@ export type CertificadosPorClienteQuery = z.infer<
   typeof certificadosPorClienteQuerySchema
 >;
 export type DesviacionesQuery = z.infer<typeof desviacionesQuerySchema>;
-export type FicticiasQuery = z.infer<typeof ficticiasQuerySchema>;
 export type ExportQuery = z.infer<typeof exportQuerySchema>;

@@ -8,7 +8,6 @@ describe("crearClienteSchema", () => {
     claveSap: "C-00001",
     nombre: "Grupo Bimbo",
     rfc: "BIM601201A12",
-    requiereCertificado: true,
   };
 
   it("acepta un cliente válido con RFC de 12 caracteres", () => {
@@ -32,18 +31,6 @@ describe("crearClienteSchema", () => {
       contactoCorreo: "no-es-correo",
     });
     expect(r.success).toBe(false);
-  });
-
-  it("aplica default requiereCertificado=true cuando no se provee", () => {
-    const r = crearClienteSchema.safeParse({
-      claveSap: "C-00002",
-      nombre: "Cliente X",
-      rfc: "XXX010101ABC",
-    });
-    expect(r.success).toBe(true);
-    if (r.success) {
-      expect(r.data.requiereCertificado).toBe(true);
-    }
   });
 
   it("rechaza clave SAP vacía", () => {

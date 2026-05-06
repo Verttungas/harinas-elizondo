@@ -10,6 +10,7 @@ const datosEmbarqueSchema = z
     cantidadSolicitada: z.number().positive(),
     cantidadEntrega: z.number().positive(),
     numFactura: z.string().min(1).max(50),
+    direccionEnvio: z.string().min(1, "Requerido").max(500),
     fechaEnvio: isoDate,
     fechaCaducidad: isoDate,
   })

@@ -85,12 +85,6 @@ export function PasoCliente({ cliente, onSelect, onNext, onCancel }: Props) {
             <p className="text-xs text-muted-foreground">
               RFC: {cliente.rfc} · Correo: {cliente.contactoCorreo ?? "—"}
             </p>
-            {!cliente.requiereCertificado && (
-              <p className="text-xs text-state-warning">
-                Este cliente no tiene requiereCertificado activo. Actívelo antes
-                de continuar.
-              </p>
-            )}
             {!cliente.contactoCorreo && (
               <p className="text-xs text-state-danger">
                 Sin correo de contacto. Regístrelo antes de emitir.
@@ -112,11 +106,7 @@ export function PasoCliente({ cliente, onSelect, onNext, onCancel }: Props) {
         </Button>
         <Button
           onClick={onNext}
-          disabled={
-            !cliente ||
-            !cliente.requiereCertificado ||
-            !cliente.contactoCorreo
-          }
+          disabled={!cliente || !cliente.contactoCorreo}
         >
           Siguiente
         </Button>

@@ -4,7 +4,6 @@ import type { IdParam } from "../../lib/schemas.js";
 import { inspeccionesService } from "./inspecciones.service.js";
 import type {
   ActualizarInspeccionInput,
-  CrearFicticiaInput,
   CrearInspeccionInput,
   ListInspeccionesQuery,
   LoteParam,
@@ -92,21 +91,3 @@ export async function cerrarInspeccion(
   }
 }
 
-export async function crearInspeccionFicticia(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
-  try {
-    const { id } = req.params as unknown as IdParam;
-    const body = req.body as CrearFicticiaInput;
-    const user = (req as AuthenticatedRequest).user;
-    const ficticia = await inspeccionesService.crearFicticia(id, body, user.id);
-    res
-      .status(201)
-      .location(`/api/v1/inspecciones/${ficticia!.id.toString()}`)
-      .json(ficticia);
-  } catch (err) {
-    next(err);
-  }
-}

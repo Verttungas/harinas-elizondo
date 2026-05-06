@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusBadge } from "@/components/shared/StatusBadge";
 import { formatFecha } from "@/lib/format";
 import type { WizardState } from "./WizardCertificado";
 
@@ -30,12 +29,15 @@ export function PasoRevision({ state, onPrev, onConfirm }: Props) {
               {cliente.claveSap} — {cliente.nombre}
             </strong>
           </p>
-          <p className="text-xs text-muted-foreground">
-            RFC: {cliente.rfc}
-          </p>
+          <p className="text-xs text-muted-foreground">RFC: {cliente.rfc}</p>
           <p className="text-xs text-muted-foreground">
             Correo destino: {cliente.contactoCorreo}
           </p>
+          {cliente.domicilio && (
+            <p className="text-xs text-muted-foreground">
+              Domicilio: {cliente.domicilio}
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -60,9 +62,6 @@ export function PasoRevision({ state, onPrev, onConfirm }: Props) {
                 <span className="text-xs text-muted-foreground">
                   {formatFecha(i.fechaInspeccion)}
                 </span>
-                {i.esFicticia && (
-                  <StatusBadge status="BORRADOR" label="Ficticia" />
-                )}
               </div>
             ))}
           </div>
@@ -97,6 +96,10 @@ export function PasoRevision({ state, onPrev, onConfirm }: Props) {
           <div>
             <p className="text-xs text-muted-foreground">Fecha de caducidad</p>
             <p>{formatFecha(embarque.fechaCaducidad)}</p>
+          </div>
+          <div className="col-span-2">
+            <p className="text-xs text-muted-foreground">Dirección de envío</p>
+            <p className="whitespace-pre-line">{embarque.direccionEnvio}</p>
           </div>
         </CardContent>
       </Card>

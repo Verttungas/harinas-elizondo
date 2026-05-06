@@ -81,8 +81,6 @@ export class ClientesService {
 
     const where: Prisma.ClienteWhereInput = {};
     if (query.estado !== "TODOS") where.estado = query.estado;
-    if (query.requiereCertificado !== undefined)
-      where.requiereCertificado = query.requiereCertificado;
     const textSearch = buildTextSearch(query.q, ["claveSap", "nombre", "rfc"]);
     if (textSearch) Object.assign(where, textSearch);
 
@@ -126,9 +124,9 @@ export class ClientesService {
   }
 
   async crear(input: CrearClienteInput, usuarioId: bigint): Promise<Cliente> {
-    if (input.requiereCertificado && !input.contactoCorreo) {
+    if (!input.contactoCorreo) {
       throw new UnprocessableEntityError(
-        "El correo de contacto es obligatorio cuando el cliente requiere certificado",
+        "El correo de contacto es obligatorio para emitir certificados",
         { codigo: "CONTACTO_CORREO_REQUERIDO" },
       );
     }
@@ -152,7 +150,6 @@ export class ClientesService {
           contactoNombre: input.contactoNombre ?? null,
           contactoCorreo: input.contactoCorreo ?? null,
           contactoTelefono: input.contactoTelefono ?? null,
-          requiereCertificado: input.requiereCertificado,
           creadoPor: usuarioId,
           actualizadoPor: usuarioId,
         },
@@ -188,16 +185,14 @@ export class ClientesService {
       const cliente = await tx.cliente.findUnique({ where: { id } });
       if (!cliente) throw new NotFoundError("Cliente no encontrado");
 
-      const requiereCert =
-        input.requiereCertificado ?? cliente.requiereCertificado;
       const correoResultante =
         input.contactoCorreo !== undefined
           ? input.contactoCorreo
           : cliente.contactoCorreo;
 
-      if (requiereCert && !correoResultante) {
+      if (!correoResultante) {
         throw new UnprocessableEntityError(
-          "El correo de contacto es obligatorio cuando el cliente requiere certificado",
+          "El correo de contacto es obligatorio para emitir certificados",
           { codigo: "CONTACTO_CORREO_REQUERIDO" },
         );
       }
@@ -214,8 +209,6 @@ export class ClientesService {
         data.contactoCorreo = input.contactoCorreo;
       if (input.contactoTelefono !== undefined)
         data.contactoTelefono = input.contactoTelefono;
-      if (input.requiereCertificado !== undefined)
-        data.requiereCertificado = input.requiereCertificado;
 
       const actualizado = await tx.cliente.update({ where: { id }, data });
 

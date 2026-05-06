@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Download, Send, GitFork } from "lucide-react";
+import { Download, Send } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -9,22 +8,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorState } from "@/components/shared/ErrorState";
-import { EditarCertificadoDialog } from "@/components/certificados/EditarCertificadoDialog";
 import { useQuery } from "@/hooks/useApi";
 import { useAuth } from "@/hooks/useAuth";
 import { api, handleApiError } from "@/lib/api";
 import { formatFecha, formatFechaHora } from "@/lib/format";
-import type { Certificado, Inspeccion } from "@/types/domain.types";
+import type { Certificado } from "@/types/domain.types";
 
 export function CertificadoDetalle() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { usuario } = useAuth();
   const puedeReenviar = usuario?.rol === "CONTROL_CALIDAD";
-  const puedeEditar = usuario?.rol === "CONTROL_CALIDAD";
-
-  const [inspeccionParaFicticia, setInspeccionParaFicticia] =
-    useState<Inspeccion | null>(null);
 
   const { data, loading, error, refetch } = useQuery(
     () => api.get<Certificado>(`/certificados/${id}`).then((r) => r.data),
@@ -103,6 +97,11 @@ export function CertificadoDetalle() {
             <p className="text-xs text-muted-foreground">
               {data.cliente?.claveSap} · {data.cliente?.rfc}
             </p>
+            {data.cliente?.domicilio && (
+              <p className="text-xs text-muted-foreground">
+                Domicilio: {data.cliente.domicilio}
+              </p>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -147,6 +146,12 @@ export function CertificadoDetalle() {
               <p className="text-xs text-muted-foreground">Caducidad</p>
               <p>{formatFecha(data.fechaCaducidad)}</p>
             </div>
+            <div className="col-span-2 md:col-span-3">
+              <p className="text-xs text-muted-foreground">Dirección de envío</p>
+              <p className="whitespace-pre-line">
+                {data.direccionEnvio ?? "—"}
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -156,10 +161,6 @@ export function CertificadoDetalle() {
           <CardTitle className="text-sm">Inspecciones incluidas</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <p className="text-xs text-muted-foreground">
-            Si una inspección queda fuera de especificación, puedes derivar una
-            ficticia ajustada — la original se preserva intacta.
-          </p>
           {(data.certificadoInspeccion ?? []).map((ci) => (
             <div
               key={String(ci.inspeccion.id)}
@@ -170,19 +171,6 @@ export function CertificadoDetalle() {
                 {formatFecha(ci.inspeccion.fechaInspeccion)}
               </span>
               <StatusBadge status={ci.inspeccion.estado} />
-              {ci.inspeccion.esFicticia && (
-                <StatusBadge status="BORRADOR" label="Ficticia" />
-              )}
-              {puedeEditar && !ci.inspeccion.esFicticia && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setInspeccionParaFicticia(ci.inspeccion)}
-                >
-                  <GitFork className="h-4 w-4 mr-1" />
-                  Generar ficticia
-                </Button>
-              )}
             </div>
           ))}
         </CardContent>
@@ -224,18 +212,6 @@ export function CertificadoDetalle() {
           Volver al listado
         </Button>
       </div>
-
-      {inspeccionParaFicticia && (
-        <EditarCertificadoDialog
-          open={!!inspeccionParaFicticia}
-          onOpenChange={(o) => !o && setInspeccionParaFicticia(null)}
-          inspeccionOrigen={inspeccionParaFicticia}
-          onCreated={() => {
-            setInspeccionParaFicticia(null);
-            void refetch();
-          }}
-        />
-      )}
     </div>
   );
 }

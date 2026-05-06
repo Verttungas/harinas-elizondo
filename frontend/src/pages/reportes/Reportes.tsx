@@ -74,7 +74,7 @@ interface ReporteGuardado {
 }
 
 const tiposReporte: Array<{ value: TipoExport; label: string }> = [
-  { value: "parametros", label: "Tendencia por parametro" },
+  { value: "parametros", label: "Tendencia por parámetro" },
   { value: "certificados-por-cliente", label: "Certificados por cliente" },
   { value: "desviaciones", label: "Desviaciones por lote" },
 ];

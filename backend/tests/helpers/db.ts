@@ -174,7 +174,6 @@ export async function seedDatosInspecciones(
       rfc: "BIM601201A12",
       contactoNombre: "Ing. Contacto",
       contactoCorreo: "contacto@bimbo.fhesa.test",
-      requiereCertificado: true,
       creadoPor: users.control.id,
       actualizadoPor: users.control.id,
       valoresReferencia: {

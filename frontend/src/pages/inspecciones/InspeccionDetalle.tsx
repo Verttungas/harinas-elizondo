@@ -115,28 +115,10 @@ export function InspeccionDetalle() {
                 <StatusBadge status={data.estado} />
               </dd>
             </div>
-            <div>
-              <dt className="text-xs text-muted-foreground">Ficticia</dt>
-              <dd>
-                {data.esFicticia ? (
-                  <StatusBadge status="BORRADOR" label="Sí" />
-                ) : (
-                  "No"
-                )}
-              </dd>
-            </div>
             {data.observaciones && (
               <div className="col-span-2">
                 <dt className="text-xs text-muted-foreground">Observaciones</dt>
                 <dd>{data.observaciones}</dd>
-              </div>
-            )}
-            {data.justificacionAjuste && (
-              <div className="col-span-2">
-                <dt className="text-xs text-muted-foreground">
-                  Justificación de ajuste
-                </dt>
-                <dd>{data.justificacionAjuste}</dd>
               </div>
             )}
           </dl>

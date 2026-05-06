@@ -95,10 +95,6 @@ export function PasoLoteInspecciones({
     onNext();
   };
 
-  const algunaFicticia = disponibles
-    .filter((i) => seleccionadas.has(String(i.id)))
-    .some((i) => i.esFicticia);
-
   return (
     <section className="space-y-4">
       <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -151,18 +147,9 @@ export function PasoLoteInspecciones({
                     {formatFecha(i.fechaInspeccion)}
                   </span>
                   <StatusBadge status={i.estado} />
-                  {i.esFicticia && (
-                    <StatusBadge status="BORRADOR" label="Ficticia" />
-                  )}
                 </li>
               ))}
             </ul>
-          )}
-          {algunaFicticia && (
-            <div className="text-xs text-state-warning p-2 rounded bg-state-warning/5 border border-state-warning/30">
-              Está incluyendo al menos una inspección ficticia en el
-              certificado.
-            </div>
           )}
         </div>
       )}

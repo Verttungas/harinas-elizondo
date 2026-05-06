@@ -38,7 +38,6 @@ import type { PaginatedResponse } from "@/types/api.types";
 import { TabParametros } from "./tabs/TabParametros";
 import { TabCertificadosPorCliente } from "./tabs/TabCertificadosPorCliente";
 import { TabDesviaciones } from "./tabs/TabDesviaciones";
-import { TabFicticias } from "./tabs/TabFicticias";
 
 export type ReportesFiltros = {
   desde: string;
@@ -61,8 +60,7 @@ function defaultFiltros(): ReportesFiltros {
 type TipoExport =
   | "parametros"
   | "certificados-por-cliente"
-  | "desviaciones"
-  | "ficticias";
+  | "desviaciones";
 
 type TabReporte = TipoExport | "guardados";
 
@@ -76,10 +74,9 @@ interface ReporteGuardado {
 }
 
 const tiposReporte: Array<{ value: TipoExport; label: string }> = [
-  { value: "parametros", label: "Tendencia por parametro" },
+  { value: "parametros", label: "Tendencia por parámetros" },
   { value: "certificados-por-cliente", label: "Certificados por cliente" },
   { value: "desviaciones", label: "Desviaciones por lote" },
-  { value: "ficticias", label: "Inspecciones ficticias" },
 ];
 
 const tipoLabel = new Map(tiposReporte.map((tipo) => [tipo.value, tipo.label]));
@@ -161,7 +158,6 @@ export function Reportes() {
             Certificados por cliente
           </TabsTrigger>
           <TabsTrigger value="desviaciones">Desviaciones por lote</TabsTrigger>
-          <TabsTrigger value="ficticias">Inspecciones ficticias</TabsTrigger>
           {esAdministrador && (
             <TabsTrigger value="guardados">Reportes guardados</TabsTrigger>
           )}
@@ -174,9 +170,6 @@ export function Reportes() {
         </TabsContent>
         <TabsContent value="desviaciones" className="pt-4">
           <TabDesviaciones filtros={filtros} setFiltros={setFiltros} />
-        </TabsContent>
-        <TabsContent value="ficticias" className="pt-4">
-          <TabFicticias filtros={filtros} />
         </TabsContent>
         {esAdministrador && (
           <TabsContent value="guardados" className="pt-4">
@@ -262,7 +255,7 @@ function ReportesGuardados({
       setFormOpen(false);
       void refetch();
     } catch (err) {
-      toast.error(err instanceof SyntaxError ? "Filtros JSON invalidos" : handleApiError(err));
+      toast.error(err instanceof SyntaxError ? "Filtros JSON inválidos" : handleApiError(err));
     } finally {
       setSaving(false);
     }
@@ -345,7 +338,7 @@ function ReportesGuardados({
               {form.id ? "Editar reporte" : "Nuevo reporte"}
             </DialogTitle>
             <DialogDescription>
-              Guarda una configuracion reutilizable de reporte.
+              Guarda una configuración reutilizable de reporte.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
@@ -359,7 +352,7 @@ function ReportesGuardados({
               />
             </div>
             <div className="grid gap-2">
-              <Label>Descripcion</Label>
+              <Label>Descripción</Label>
               <Input
                 value={form.descripcion}
                 onChange={(e) =>
@@ -414,7 +407,7 @@ function ReportesGuardados({
           open={!!reporteEliminar}
           onOpenChange={(open) => !open && setReporteEliminar(null)}
           title="Eliminar reporte"
-          description={`El reporte ${reporteEliminar.nombre} quedara inactivo.`}
+          description={`El reporte ${reporteEliminar.nombre} quedará inactivo.`}
           confirmLabel="Eliminar"
           destructive
           onConfirm={handleDelete}

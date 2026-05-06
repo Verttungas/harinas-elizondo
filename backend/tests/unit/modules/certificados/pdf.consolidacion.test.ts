@@ -13,7 +13,6 @@ describe("consolidarResultados — desviación contra rango aplicable (Obs-007 b
     const inspecciones = [
       {
         secuencia: "A",
-        esFicticia: false,
         resultados: [
           {
             parametroId: 1n,
@@ -43,7 +42,6 @@ describe("consolidarResultados — desviación contra rango aplicable (Obs-007 b
     const inspecciones = [
       {
         secuencia: "A",
-        esFicticia: false,
         resultados: [
           {
             parametroId: 2n,
@@ -68,7 +66,6 @@ describe("consolidarResultados — desviación contra rango aplicable (Obs-007 b
     const inspecciones = [
       {
         secuencia: "A",
-        esFicticia: false,
         resultados: [
           {
             parametroId: 1n,
@@ -89,11 +86,10 @@ describe("consolidarResultados — desviación contra rango aplicable (Obs-007 b
     expect(Number(filas[0]!.desviacion)).toBeCloseTo(39.5, 4);
   });
 
-  it("la inspección ficticia sobreescribe a la original al consolidar", () => {
+  it("la inspección posterior sobreescribe a la anterior al consolidar", () => {
     const inspecciones = [
       {
         secuencia: "A",
-        esFicticia: false,
         resultados: [
           {
             parametroId: 1n,
@@ -104,7 +100,6 @@ describe("consolidarResultados — desviación contra rango aplicable (Obs-007 b
       },
       {
         secuencia: "B",
-        esFicticia: true,
         resultados: [
           {
             parametroId: 1n,

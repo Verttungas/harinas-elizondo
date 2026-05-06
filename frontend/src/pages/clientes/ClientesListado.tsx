@@ -27,7 +27,6 @@ import type { Cliente } from "@/types/domain.types";
 import type { PaginatedResponse } from "@/types/api.types";
 
 type EstadoFiltro = "ACTIVO" | "INACTIVO" | "TODOS";
-type ReqCertFiltro = "TODOS" | "SI" | "NO";
 
 export function ClientesListado() {
   const navigate = useNavigate();
@@ -37,7 +36,6 @@ export function ClientesListado() {
 
   const [q, setQ] = useState("");
   const [estado, setEstado] = useState<EstadoFiltro>("ACTIVO");
-  const [reqCert, setReqCert] = useState<ReqCertFiltro>("TODOS");
   const [page, setPage] = useState(1);
   const debouncedQ = useDebounce(q, 400);
 
@@ -54,13 +52,10 @@ export function ClientesListado() {
             limit: 20,
             estado,
             ...(debouncedQ ? { q: debouncedQ } : {}),
-            ...(reqCert !== "TODOS"
-              ? { requiereCertificado: reqCert === "SI" }
-              : {}),
           },
         })
         .then((r) => r.data),
-    [debouncedQ, estado, reqCert, page],
+    [debouncedQ, estado, page],
   );
 
   const handleInactivar = async (motivo: string) => {
@@ -101,11 +96,6 @@ export function ClientesListado() {
       key: "contacto",
       header: "Contacto",
       render: (c) => c.contactoNombre ?? "—",
-    },
-    {
-      key: "requiereCertificado",
-      header: "Req. cert.",
-      render: (c) => (c.requiereCertificado ? "Sí" : "No"),
     },
     {
       key: "estado",
@@ -203,25 +193,6 @@ export function ClientesListado() {
               <SelectItem value="ACTIVO">Activos</SelectItem>
               <SelectItem value="INACTIVO">Inactivos</SelectItem>
               <SelectItem value="TODOS">Todos</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="min-w-[160px]">
-          <Label className="text-xs">Requiere certificado</Label>
-          <Select
-            value={reqCert}
-            onValueChange={(v) => {
-              setReqCert(v as ReqCertFiltro);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="TODOS">Todos</SelectItem>
-              <SelectItem value="SI">Sí</SelectItem>
-              <SelectItem value="NO">No</SelectItem>
             </SelectContent>
           </Select>
         </div>

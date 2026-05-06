@@ -198,18 +198,7 @@ export function LoteDetalle() {
                         {formatFecha(insp.fechaInspeccion)}
                       </span>
                       <StatusBadge status={insp.estado} />
-                      {insp.esFicticia && (
-                        <StatusBadge status="BORRADOR" label="Ficticia" />
-                      )}
                     </div>
-                    {insp.inspeccionOrigen && (
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Deriva de inspección{" "}
-                        <span className="font-mono">
-                          {insp.inspeccionOrigen.secuencia}
-                        </span>
-                      </p>
-                    )}
                   </div>
                   <Button
                     variant="ghost"

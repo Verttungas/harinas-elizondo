@@ -25,7 +25,6 @@ export function clienteInput(overrides: Partial<CrearClienteInput> = {}): CrearC
     nombre: "Cliente de prueba",
     rfc: "TST010101ABC",
     contactoCorreo: "cliente@test.mx",
-    requiereCertificado: true,
     ...overrides,
   } as CrearClienteInput;
 }

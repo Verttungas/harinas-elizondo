@@ -232,9 +232,8 @@ export function InspeccionForm() {
   };
 
   const ultimaSecuencia = useMemo(() => {
-    const noFicticias = inspeccionesPrev.filter((i) => !i.esFicticia);
-    if (noFicticias.length === 0) return undefined;
-    const ordenadas = [...noFicticias].sort((a, b) =>
+    if (inspeccionesPrev.length === 0) return undefined;
+    const ordenadas = [...inspeccionesPrev].sort((a, b) =>
       a.secuencia.localeCompare(b.secuencia),
     );
     return ordenadas[ordenadas.length - 1]?.secuencia;

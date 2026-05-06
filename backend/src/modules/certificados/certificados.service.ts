@@ -96,7 +96,6 @@ export class CertificadosService {
       select: {
         id: true,
         estado: true,
-        requiereCertificado: true,
         nombre: true,
         claveSap: true,
         contactoCorreo: true,
@@ -107,12 +106,6 @@ export class CertificadosService {
       throw new UnprocessableEntityError(
         "El cliente no se encuentra activo",
         { codigo: "CLIENTE_INACTIVO" },
-      );
-    }
-    if (!cliente.requiereCertificado) {
-      throw new UnprocessableEntityError(
-        "El cliente no requiere certificado",
-        { codigo: "CLIENTE_NO_REQUIERE_CERTIFICADO" },
       );
     }
     if (!cliente.contactoCorreo) {
@@ -217,6 +210,7 @@ export class CertificadosService {
             cantidadSolicitada: new Prisma.Decimal(embarque.cantidadSolicitada),
             cantidadEntrega: new Prisma.Decimal(embarque.cantidadEntrega),
             numFactura: embarque.numFactura,
+            direccionEnvio: embarque.direccionEnvio,
             fechaEnvio: new Date(embarque.fechaEnvio),
             fechaCaducidad: new Date(embarque.fechaCaducidad),
             creadoPor: usuarioId,

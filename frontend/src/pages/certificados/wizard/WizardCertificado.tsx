@@ -121,6 +121,7 @@ export function WizardCertificado() {
       {state.step === 3 && (
         <PasoEmbarque
           embarque={state.embarque}
+          cliente={state.cliente}
           loteId={state.lote?.id}
           onConfirm={(e) => dispatch({ type: "SET_EMBARQUE", embarque: e })}
           onNext={() => dispatch({ type: "NEXT" })}

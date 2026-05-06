@@ -8,7 +8,6 @@ import {
   exportReporte,
   getCertificadosPorCliente,
   getDesviaciones,
-  getFicticias,
   getParametros,
   getResumen,
   listReportesGuardados,
@@ -19,7 +18,6 @@ import {
   crearReporteGuardadoSchema,
   desviacionesQuerySchema,
   exportQuerySchema,
-  ficticiasQuerySchema,
   listReportesGuardadosQuerySchema,
   parametrosQuerySchema,
 } from "./reportes.schemas.js";
@@ -92,14 +90,6 @@ router.get(
   rolesReportes,
   validate({ query: desviacionesQuerySchema }),
   getDesviaciones,
-);
-
-router.get(
-  "/ficticias",
-  requireAuth,
-  rolesReportes,
-  validate({ query: ficticiasQuerySchema }),
-  getFicticias,
 );
 
 router.get(

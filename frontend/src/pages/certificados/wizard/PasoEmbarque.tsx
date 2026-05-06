@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { api } from "@/lib/api";
 import { formatNumero } from "@/lib/format";
-import type { DatosEmbarque, SaldoLote } from "@/types/domain.types";
+import type { Cliente, DatosEmbarque, SaldoLote } from "@/types/domain.types";
 
 const embarqueSchema = z
   .object({
@@ -22,6 +23,7 @@ const embarqueSchema = z
     cantidadSolicitada: z.coerce.number().positive("Debe ser positivo"),
     cantidadEntrega: z.coerce.number().positive("Debe ser positivo"),
     numFactura: z.string().min(1, "Requerido").max(50),
+    direccionEnvio: z.string().min(1, "Requerido").max(500),
     fechaEnvio: z.string().min(1, "Requerido"),
     fechaCaducidad: z.string().min(1, "Requerido"),
   })
@@ -43,6 +45,7 @@ type EmbarqueInput = z.input<typeof embarqueSchema>;
 
 interface Props {
   embarque?: DatosEmbarque;
+  cliente?: Cliente;
   loteId?: string | number;
   onConfirm: (e: DatosEmbarque) => void;
   onNext: () => void;
@@ -51,6 +54,7 @@ interface Props {
 
 export function PasoEmbarque({
   embarque,
+  cliente,
   loteId,
   onConfirm,
   onNext,
@@ -63,12 +67,21 @@ export function PasoEmbarque({
       cantidadSolicitada: embarque?.cantidadSolicitada ?? 0,
       cantidadEntrega: embarque?.cantidadEntrega ?? 0,
       numFactura: embarque?.numFactura ?? "",
+      direccionEnvio: embarque?.direccionEnvio ?? "",
       fechaEnvio: embarque?.fechaEnvio
         ? embarque.fechaEnvio.slice(0, 10)
         : new Date().toISOString().slice(0, 10),
       fechaCaducidad: embarque?.fechaCaducidad?.slice(0, 10) ?? "",
     },
   });
+
+  const usarDomicilio = () => {
+    if (cliente?.domicilio) {
+      form.setValue("direccionEnvio", cliente.domicilio, {
+        shouldValidate: true,
+      });
+    }
+  };
 
   const [saldo, setSaldo] = useState<SaldoLote | null>(null);
   const [saldoError, setSaldoError] = useState<string | null>(null);
@@ -119,6 +132,7 @@ export function PasoEmbarque({
       cantidadSolicitada: values.cantidadSolicitada,
       cantidadEntrega: values.cantidadEntrega,
       numFactura: values.numFactura,
+      direccionEnvio: values.direccionEnvio,
       fechaEnvio: values.fechaEnvio,
       fechaCaducidad: values.fechaCaducidad,
     });
@@ -269,6 +283,40 @@ export function PasoEmbarque({
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="direccionEnvio"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Dirección de envío *</FormLabel>
+                    {cliente?.domicilio && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-auto px-2 py-1 text-xs"
+                        onClick={usarDomicilio}
+                      >
+                        Usar domicilio del cliente
+                      </Button>
+                    )}
+                  </div>
+                  <FormControl>
+                    <Textarea
+                      rows={2}
+                      placeholder="Calle, número, colonia, ciudad, CP — destino físico del embarque"
+                      {...field}
+                    />
+                  </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    Puede diferir del domicilio fiscal del cliente (p. ej.
+                    bodega o sucursal de entrega).
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

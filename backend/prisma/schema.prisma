@@ -203,7 +203,6 @@ model Cliente {
   contactoNombre      String?       @map("contacto_nombre") @db.VarChar(120)
   contactoCorreo      String?       @map("contacto_correo") @db.VarChar(120)
   contactoTelefono    String?       @map("contacto_telefono") @db.VarChar(20)
-  requiereCertificado Boolean       @default(true) @map("requiere_certificado")
   estado              EstadoCliente @default(ACTIVO)
   motivoInactivacion  String?       @map("motivo_inactivacion")
   creadoEn            DateTime      @default(now()) @map("creado_en")
@@ -265,23 +264,18 @@ model LoteProduccion {
 // ============================================================================
 
 model Inspeccion {
-  id                  BigInt           @id @default(autoincrement())
-  loteId              BigInt           @map("lote_id")
-  secuencia           String           @db.Char(1)
-  fechaInspeccion     DateTime         @map("fecha_inspeccion")
-  estado              EstadoInspeccion @default(BORRADOR)
-  esFicticia          Boolean          @default(false) @map("es_ficticia")
-  inspeccionOrigenId  BigInt?          @map("inspeccion_origen_id")
-  justificacionAjuste String?          @map("justificacion_ajuste")
-  observaciones       String?
-  creadoEn            DateTime         @default(now()) @map("creado_en")
-  actualizadoEn       DateTime         @default(now()) @updatedAt @map("actualizado_en")
-  creadoPor           BigInt           @map("creado_por")
+  id              BigInt           @id @default(autoincrement())
+  loteId          BigInt           @map("lote_id")
+  secuencia       String           @db.Char(1)
+  fechaInspeccion DateTime         @map("fecha_inspeccion")
+  estado          EstadoInspeccion @default(BORRADOR)
+  observaciones   String?
+  creadoEn        DateTime         @default(now()) @map("creado_en")
+  actualizadoEn   DateTime         @default(now()) @updatedAt @map("actualizado_en")
+  creadoPor       BigInt           @map("creado_por")
 
   lote                  LoteProduccion          @relation(fields: [loteId], references: [id])
   usuarioCreador        Usuario                 @relation(fields: [creadoPor], references: [id])
-  inspeccionOrigen      Inspeccion?             @relation("ficticiaDerivada", fields: [inspeccionOrigenId], references: [id])
-  inspeccionesDerivadas Inspeccion[]            @relation("ficticiaDerivada")
   resultados            ResultadoInspeccion[]
   certificadoInspeccion CertificadoInspeccion[]
 
@@ -325,6 +319,7 @@ model Certificado {
   cantidadSolicitada Decimal?          @map("cantidad_solicitada") @db.Decimal(12, 2)
   cantidadEntrega    Decimal?          @map("cantidad_entrega") @db.Decimal(12, 2)
   numFactura         String?           @map("num_factura") @db.VarChar(50)
+  direccionEnvio     String?           @map("direccion_envio")
   fechaEnvio         DateTime?         @map("fecha_envio") @db.Date
   fechaCaducidad     DateTime?         @map("fecha_caducidad") @db.Date
   creadoEn           DateTime          @default(now()) @map("creado_en")

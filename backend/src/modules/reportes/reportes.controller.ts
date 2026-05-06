@@ -8,7 +8,6 @@ import type {
   CrearReporteGuardadoInput,
   DesviacionesQuery,
   ExportQuery,
-  FicticiasQuery,
   ListReportesGuardadosQuery,
   ParametrosQuery,
 } from "./reportes.schemas.js";
@@ -128,20 +127,6 @@ export async function getDesviaciones(
   try {
     const query = req.query as unknown as DesviacionesQuery;
     const resultado = await reportesService.desviaciones(query);
-    res.status(200).json(resultado);
-  } catch (err) {
-    next(err);
-  }
-}
-
-export async function getFicticias(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
-  try {
-    const query = req.query as unknown as FicticiasQuery;
-    const resultado = await reportesService.ficticias(query);
     res.status(200).json(resultado);
   } catch (err) {
     next(err);

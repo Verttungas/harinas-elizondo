@@ -41,7 +41,6 @@ interface PuntoParametro {
   secuencia: string;
   valor: number;
   dentroEspecificacion: boolean;
-  esFicticia: boolean;
 }
 
 interface ParametrosResponse {
@@ -194,7 +193,6 @@ export function TabParametros({ filtros, setFiltros }: Props) {
                   <TableHead>Secuencia</TableHead>
                   <TableHead>Valor</TableHead>
                   <TableHead>En espec.</TableHead>
-                  <TableHead>Ficticia</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -207,7 +205,6 @@ export function TabParametros({ filtros, setFiltros }: Props) {
                     <TableCell>
                       {p.dentroEspecificacion ? "Sí" : "No"}
                     </TableCell>
-                    <TableCell>{p.esFicticia ? "Sí" : "No"}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

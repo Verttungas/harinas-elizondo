@@ -63,7 +63,7 @@ export function Dashboard() {
         <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Indicadores del mes
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <KpiCard
             title="Certificados emitidos"
             valor={resumen.data?.certificadosEmitidos.valor}
@@ -85,11 +85,6 @@ export function Dashboard() {
           <KpiCard
             title="Clientes activos"
             valor={resumen.data?.clientesActivos.valor}
-            loading={resumen.loading}
-          />
-          <KpiCard
-            title="Inspecciones ficticias"
-            valor={resumen.data?.inspeccionesFicticias.valor}
             loading={resumen.loading}
           />
         </div>

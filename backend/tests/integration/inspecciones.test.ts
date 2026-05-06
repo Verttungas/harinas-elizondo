@@ -5,7 +5,7 @@ import { prisma } from "../../src/lib/prisma.js";
 import { resetTestDb, seedDatosInspecciones } from "../helpers/db.js";
 import { loginAs } from "../helpers/auth.js";
 
-describe("Inspecciones (secuencia A-Z y ficticias)", () => {
+describe("Inspecciones (secuencia A-Z)", () => {
   let tokenControl: string;
   let tokenCalidad: string;
   let loteId: bigint;
@@ -109,64 +109,6 @@ describe("Inspecciones (secuencia A-Z y ficticias)", () => {
         });
 
       expect(res.status).toBe(404);
-    });
-  });
-
-  describe("POST /api/v1/inspecciones/:id/ficticia", () => {
-    let inspeccionAId: bigint;
-
-    beforeAll(async () => {
-      const insp = await prisma.inspeccion.findFirstOrThrow({
-        where: { loteId, secuencia: "A" },
-      });
-      inspeccionAId = insp.id;
-    });
-
-    it("201 crea una ficticia derivada con justificación y valores distintos", async () => {
-      const res = await request(app)
-        .post(`/api/v1/inspecciones/${inspeccionAId.toString()}/ficticia`)
-        .set("Authorization", `Bearer ${tokenControl}`)
-        .send({
-          justificacion: "Corrección por reprocesamiento bajo condiciones controladas",
-          resultados: [
-            { parametroId: parametroWId.toString(), valor: 285 },
-            { parametroId: parametroPId.toString(), valor: 70 },
-          ],
-        });
-
-      expect(res.status).toBe(201);
-      expect(res.body.esFicticia).toBe(true);
-      expect(String(res.body.inspeccionOrigenId)).toBe(inspeccionAId.toString());
-      expect(res.body.secuencia).toMatch(/^[A-Z]$/);
-    });
-
-    it("400 si los resultados de la ficticia son idénticos al origen", async () => {
-      const res = await request(app)
-        .post(`/api/v1/inspecciones/${inspeccionAId.toString()}/ficticia`)
-        .set("Authorization", `Bearer ${tokenControl}`)
-        .send({
-          justificacion: "Intento con mismos valores, debe fallar",
-          resultados: [
-            { parametroId: parametroWId.toString(), valor: 275 },
-            { parametroId: parametroPId.toString(), valor: 65 },
-          ],
-        });
-
-      expect(res.status).toBe(400);
-      expect(res.body.error.codigo).toBe("VALIDATION_ERROR");
-      expect(res.body.error.detalles.codigo).toBe("FICTICIA_RESULTADOS_IDENTICOS");
-    });
-
-    it("400 si la justificación es demasiado corta", async () => {
-      const res = await request(app)
-        .post(`/api/v1/inspecciones/${inspeccionAId.toString()}/ficticia`)
-        .set("Authorization", `Bearer ${tokenControl}`)
-        .send({
-          justificacion: "corto",
-          resultados: [{ parametroId: parametroWId.toString(), valor: 290 }],
-        });
-
-      expect(res.status).toBe(400);
     });
   });
 

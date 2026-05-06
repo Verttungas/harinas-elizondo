@@ -33,7 +33,6 @@ export function InspeccionesListado() {
   const [estado, setEstado] = useState<"TODOS" | "BORRADOR" | "CERRADA">(
     "TODOS",
   );
-  const [esFicticia, setEsFicticia] = useState<"TODOS" | "SI" | "NO">("TODOS");
   const [page, setPage] = useState(1);
 
   const { data: rawData, loading } = useQuery(
@@ -44,13 +43,10 @@ export function InspeccionesListado() {
             page,
             limit: 20,
             estado,
-            ...(esFicticia !== "TODOS"
-              ? { esFicticia: esFicticia === "SI" }
-              : {}),
           },
         })
         .then((r) => r.data),
-    [estado, esFicticia, page],
+    [estado, page],
   );
 
   const data =
@@ -85,12 +81,6 @@ export function InspeccionesListado() {
       key: "estado",
       header: "Estado",
       render: (i) => <StatusBadge status={i.estado} />,
-    },
-    {
-      key: "esFicticia",
-      header: "Ficticia",
-      render: (i) =>
-        i.esFicticia ? <StatusBadge status="BORRADOR" label="Ficticia" /> : "—",
     },
     {
       key: "acciones",
@@ -159,25 +149,6 @@ export function InspeccionesListado() {
               <SelectItem value="TODOS">Todos</SelectItem>
               <SelectItem value="BORRADOR">Borrador</SelectItem>
               <SelectItem value="CERRADA">Cerrada</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="min-w-[140px]">
-          <Label className="text-xs">Es ficticia</Label>
-          <Select
-            value={esFicticia}
-            onValueChange={(v) => {
-              setEsFicticia(v as typeof esFicticia);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="TODOS">Todos</SelectItem>
-              <SelectItem value="SI">Sí</SelectItem>
-              <SelectItem value="NO">No</SelectItem>
             </SelectContent>
           </Select>
         </div>

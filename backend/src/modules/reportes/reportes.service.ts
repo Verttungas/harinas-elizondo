@@ -4,7 +4,6 @@ import { prisma as defaultPrisma } from "../../lib/prisma.js";
 import {
   buildPaginationResponse,
   parsePaginationQuery,
-  type PaginationResponse,
 } from "../../lib/pagination.js";
 import { UnprocessableEntityError } from "../../domain/errors.js";
 import type {
@@ -13,7 +12,6 @@ import type {
   CrearReporteGuardadoInput,
   DesviacionesQuery,
   ExportQuery,
-  FicticiasQuery,
   ListReportesGuardadosQuery,
   ParametrosQuery,
 } from "./reportes.schemas.js";
@@ -103,7 +101,6 @@ export class ReportesService {
     const [
       certificadosMesActual,
       certificadosMesAnterior,
-      ficticiasMesActual,
       clientesActivos,
       resultadosMesActual,
     ] = await Promise.all([
@@ -113,12 +110,6 @@ export class ReportesService {
       this.db.certificado.count({
         where: {
           fechaEmision: { gte: inicioMesAnterior, lt: inicioMesActual },
-        },
-      }),
-      this.db.inspeccion.count({
-        where: {
-          esFicticia: true,
-          fechaInspeccion: { gte: inicioMesActual },
         },
       }),
       this.db.cliente.count({ where: { estado: "ACTIVO" } }),
@@ -186,7 +177,6 @@ export class ReportesService {
         variacionPuntos,
       },
       clientesActivos: { valor: clientesActivos },
-      inspeccionesFicticias: { valor: ficticiasMesActual },
     };
   }
 
@@ -236,7 +226,6 @@ export class ReportesService {
           select: {
             id: true,
             secuencia: true,
-            esFicticia: true,
             fechaInspeccion: true,
             lote: { select: { id: true, numeroLote: true } },
           },
@@ -254,7 +243,6 @@ export class ReportesService {
         secuencia: r.inspeccion.secuencia,
         valor: Number(r.valor.toString()),
         dentroEspecificacion: r.dentroEspecificacion,
-        esFicticia: r.inspeccion.esFicticia,
       })),
     };
   }
@@ -361,36 +349,6 @@ export class ReportesService {
       .slice(0, 20);
   }
 
-  async ficticias(query: FicticiasQuery): Promise<PaginationResponse<unknown>> {
-    const { page, limit, skip, take } = parsePaginationQuery(query);
-
-    const where: Record<string, unknown> = { esFicticia: true };
-    if (query.desde || query.hasta) {
-      const rango: Record<string, Date> = {};
-      if (query.desde) rango.gte = new Date(query.desde);
-      if (query.hasta) rango.lte = new Date(query.hasta);
-      where.fechaInspeccion = rango;
-    }
-
-    const [data, total] = await this.db.$transaction([
-      this.db.inspeccion.findMany({
-        where: where as never,
-        skip,
-        take,
-        orderBy: { fechaInspeccion: "desc" },
-        include: {
-          lote: { select: { id: true, numeroLote: true } },
-          inspeccionOrigen: {
-            select: { id: true, secuencia: true },
-          },
-        },
-      }),
-      this.db.inspeccion.count({ where: where as never }),
-    ]);
-
-    return buildPaginationResponse(data, total, page, limit);
-  }
-
   async exportCsv(query: ExportQuery): Promise<string> {
     switch (query.tipo) {
       case "parametros": {
@@ -414,7 +372,6 @@ export class ReportesService {
             secuencia: p.secuencia,
             valor: p.valor,
             dentro_especificacion: p.dentroEspecificacion ? "SI" : "NO",
-            es_ficticia: p.esFicticia ? "SI" : "NO",
           })),
           { header: true },
         );
@@ -461,33 +418,6 @@ export class ReportesService {
             total_resultados: r.total,
             fuera_especificacion: r.fuera,
             porcentaje_fuera: r.porcentajeFuera,
-          })),
-          { header: true },
-        );
-      }
-      case "ficticias": {
-        const res = await this.ficticias({
-          page: 1,
-          limit: 100,
-          desde: query.desde,
-          hasta: query.hasta,
-        });
-        const data = res.data as Array<{
-          id: bigint;
-          secuencia: string;
-          fechaInspeccion: Date;
-          justificacionAjuste: string | null;
-          lote: { numeroLote: string };
-          inspeccionOrigen: { secuencia: string } | null;
-        }>;
-        return csvStringify(
-          data.map((i) => ({
-            inspeccion_id: i.id.toString(),
-            numero_lote: i.lote.numeroLote,
-            secuencia: i.secuencia,
-            secuencia_origen: i.inspeccionOrigen?.secuencia ?? "",
-            fecha_inspeccion: i.fechaInspeccion.toISOString(),
-            justificacion: i.justificacionAjuste ?? "",
           })),
           { header: true },
         );

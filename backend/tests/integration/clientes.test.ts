@@ -26,7 +26,6 @@ describe("Clientes (CRUD + valores de referencia)", () => {
           nombre: "Cliente Test",
           rfc: "TST010101AB1",
           contactoCorreo: "contacto@test.mx",
-          requiereCertificado: true,
         });
 
       expect(res.status).toBe(201);
@@ -42,7 +41,6 @@ describe("Clientes (CRUD + valores de referencia)", () => {
           nombre: "Otro",
           rfc: "TST010101AB1",
           contactoCorreo: "otro@test.mx",
-          requiereCertificado: true,
         });
 
       expect(res.status).toBe(409);
@@ -58,14 +56,13 @@ describe("Clientes (CRUD + valores de referencia)", () => {
           claveSap: "C-BAD-RFC",
           nombre: "Cliente RFC malo",
           rfc: "1234",
-          requiereCertificado: true,
         });
 
       expect(res.status).toBe(400);
       expect(res.body.error.codigo).toBe("VALIDATION_ERROR");
     });
 
-    it("422 si requiere certificado y no hay correo de contacto", async () => {
+    it("422 si no hay correo de contacto", async () => {
       const res = await request(app)
         .post("/api/v1/clientes")
         .set("Authorization", `Bearer ${tokenControl}`)
@@ -73,7 +70,6 @@ describe("Clientes (CRUD + valores de referencia)", () => {
           claveSap: "C-NO-CORREO",
           nombre: "Sin correo",
           rfc: "TST010101AB2",
-          requiereCertificado: true,
         });
 
       expect(res.status).toBe(422);
@@ -149,7 +145,6 @@ describe("Clientes (CRUD + valores de referencia)", () => {
           nombre: "Para inactivar",
           rfc: "TST010101AB3",
           contactoCorreo: "inac@test.mx",
-          requiereCertificado: true,
         });
       clienteId = BigInt(res.body.id);
     });

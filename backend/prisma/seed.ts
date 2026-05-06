@@ -215,7 +215,6 @@ async function main() {
         contactoNombre: 'Ing. Roberto Gutiérrez',
         contactoCorreo: 'compras@bimbo.fhesa.test',
         contactoTelefono: '5555010001',
-        requiereCertificado: true,
         creadoPor: controlId,
         actualizadoPor: controlId,
       },
@@ -230,7 +229,6 @@ async function main() {
         contactoNombre: 'Sr. Juan Colón',
         contactoCorreo: 'juan@colon.fhesa.test',
         contactoTelefono: '5555010002',
-        requiereCertificado: true,
         creadoPor: controlId,
         actualizadoPor: controlId,
       },
@@ -245,7 +243,6 @@ async function main() {
         contactoNombre: 'Lic. María Esperanza',
         contactoCorreo: 'contacto@esperanza.fhesa.test',
         contactoTelefono: '5555010003',
-        requiereCertificado: true,
         creadoPor: controlId,
         actualizadoPor: controlId,
       },
@@ -325,7 +322,7 @@ async function main() {
     });
 
     // ------------------------------------------------------------------------
-    // 7. Inspecciones (5) con secuencia explícita
+    // 7. Inspecciones (4) con secuencia explícita
     // ------------------------------------------------------------------------
     // Lote 1: solo A
     const insp1A = await tx.inspeccion.create({
@@ -334,7 +331,6 @@ async function main() {
         secuencia: 'A',
         fechaInspeccion: new Date('2026-04-10T10:00:00Z'),
         estado: 'CERRADA',
-        esFicticia: false,
         creadoPor: usuarioLab.id,
       },
     });
@@ -346,7 +342,6 @@ async function main() {
         secuencia: 'A',
         fechaInspeccion: new Date('2026-04-12T09:30:00Z'),
         estado: 'CERRADA',
-        esFicticia: false,
         creadoPor: usuarioLab.id,
       },
     });
@@ -357,39 +352,23 @@ async function main() {
         secuencia: 'B',
         fechaInspeccion: new Date('2026-04-12T14:15:00Z'),
         estado: 'CERRADA',
-        esFicticia: false,
         creadoPor: usuarioLab.id,
       },
     });
 
-    // Lote 3: A (fuera de spec), B ficticia derivada de A
+    // Lote 3: solo A
     const insp3A = await tx.inspeccion.create({
       data: {
         loteId: lote3.id,
         secuencia: 'A',
         fechaInspeccion: new Date('2026-04-13T10:00:00Z'),
         estado: 'CERRADA',
-        esFicticia: false,
-        creadoPor: usuarioLab.id,
-      },
-    });
-
-    const insp3B = await tx.inspeccion.create({
-      data: {
-        loteId: lote3.id,
-        secuencia: 'B',
-        fechaInspeccion: new Date('2026-04-13T15:30:00Z'),
-        estado: 'CERRADA',
-        esFicticia: true,
-        inspeccionOrigenId: insp3A.id,
-        justificacionAjuste:
-          'Ajuste por revisión: reprocesamiento del lote bajo condiciones controladas, retomada muestra representativa',
         creadoPor: usuarioLab.id,
       },
     });
 
     // ------------------------------------------------------------------------
-    // 8. Resultados de inspección (20 = 4 por inspección, solo Alveógrafo)
+    // 8. Resultados de inspección (16 = 4 por inspección, solo Alveógrafo)
     // El trigger calcula desviacion y dentroEspecificacion;
     // se pasa un valor dummy a dentroEspecificacion porque es NOT NULL.
     // ------------------------------------------------------------------------
@@ -400,8 +379,7 @@ async function main() {
       { inspeccionId: insp1A.id, valores: { W: 275, P: 68, L: 115, PL: 0.59 } },
       { inspeccionId: insp2A.id, valores: { W: 290, P: 72, L: 120, PL: 0.6 } },
       { inspeccionId: insp2B.id, valores: { W: 295, P: 74, L: 122, PL: 0.61 } },
-      { inspeccionId: insp3A.id, valores: { W: 145, P: 55, L: 90, PL: 0.61 } },
-      { inspeccionId: insp3B.id, valores: { W: 200, P: 60, L: 100, PL: 0.6 } },
+      { inspeccionId: insp3A.id, valores: { W: 200, P: 60, L: 100, PL: 0.6 } },
     ];
 
     for (const { inspeccionId, valores } of resultadosPorInspeccion) {

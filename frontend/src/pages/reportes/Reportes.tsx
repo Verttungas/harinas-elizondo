@@ -255,7 +255,7 @@ function ReportesGuardados({
       setFormOpen(false);
       void refetch();
     } catch (err) {
-      toast.error(err instanceof SyntaxError ? "Filtros JSON invalidos" : handleApiError(err));
+      toast.error(err instanceof SyntaxError ? "Filtros JSON inválidos" : handleApiError(err));
     } finally {
       setSaving(false);
     }
@@ -338,7 +338,7 @@ function ReportesGuardados({
               {form.id ? "Editar reporte" : "Nuevo reporte"}
             </DialogTitle>
             <DialogDescription>
-              Guarda una configuracion reutilizable de reporte.
+              Guarda una configuración reutilizable de reporte.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
@@ -352,7 +352,7 @@ function ReportesGuardados({
               />
             </div>
             <div className="grid gap-2">
-              <Label>Descripcion</Label>
+              <Label>Descripción</Label>
               <Input
                 value={form.descripcion}
                 onChange={(e) =>
@@ -407,7 +407,7 @@ function ReportesGuardados({
           open={!!reporteEliminar}
           onOpenChange={(open) => !open && setReporteEliminar(null)}
           title="Eliminar reporte"
-          description={`El reporte ${reporteEliminar.nombre} quedara inactivo.`}
+          description={`El reporte ${reporteEliminar.nombre} quedará inactivo.`}
           confirmLabel="Eliminar"
           destructive
           onConfirm={handleDelete}

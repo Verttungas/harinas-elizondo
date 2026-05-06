@@ -72,17 +72,14 @@ export class ReportesService {
   }
 
   async actualizarGuardado(id: bigint, input: ActualizarReporteGuardadoInput) {
-    const data: Prisma.ReporteGuardadoUpdateInput = {
-      ...(input.nombre !== undefined ? { nombre: input.nombre } : {}),
-      ...(input.descripcion !== undefined
-        ? { descripcion: input.descripcion }
-        : {}),
-      ...(input.tipo !== undefined ? { tipo: input.tipo } : {}),
-      ...(input.filtros !== undefined
-        ? { filtros: input.filtros as Prisma.InputJsonValue }
-        : {}),
-      ...(input.activo !== undefined ? { activo: input.activo } : {}),
-    };
+    const data: Prisma.ReporteGuardadoUpdateInput = {};
+    if (input.nombre !== undefined) data.nombre = input.nombre;
+    if (input.descripcion !== undefined) data.descripcion = input.descripcion;
+    if (input.tipo !== undefined) data.tipo = input.tipo;
+    if (input.filtros !== undefined) {
+      data.filtros = input.filtros as Prisma.InputJsonValue;
+    }
+    if (input.activo !== undefined) data.activo = input.activo;
 
     return this.db.reporteGuardado.update({
       where: { id },

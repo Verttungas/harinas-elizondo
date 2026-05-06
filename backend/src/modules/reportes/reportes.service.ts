@@ -1,6 +1,10 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { stringify as csvStringify } from "csv-stringify/sync";
 import { prisma as defaultPrisma } from "../../lib/prisma.js";
+import {
+  buildPaginationResponse,
+  parsePaginationQuery,
+} from "../../lib/pagination.js";
 import { UnprocessableEntityError } from "../../domain/errors.js";
 import type {
   ActualizarReporteGuardadoInput,

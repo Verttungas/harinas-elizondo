@@ -1,4 +1,5 @@
 export type Rol =
+  | "ADMINISTRADOR"
   | "LABORATORIO"
   | "CONTROL_CALIDAD"
   | "ASEGURAMIENTO_CALIDAD"
@@ -10,6 +11,11 @@ export interface Usuario {
   correo: string;
   nombre: string;
   rol: Rol;
+  activo?: boolean;
+  intentosFallidos?: number;
+  bloqueadoHasta?: string | null;
+  creadoEn?: string;
+  actualizadoEn?: string;
 }
 
 export type EstadoActivo = "ACTIVO" | "INACTIVO" | "BAJA";

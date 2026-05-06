@@ -5,10 +5,12 @@ import { env } from "../config/env.js";
 import { prisma } from "../lib/prisma.js";
 import { ForbiddenError, UnauthorizedError } from "../domain/errors.js";
 
+type AppRole = RolUsuario | "ADMINISTRADOR";
+
 export interface AuthenticatedUser {
   id: bigint;
   correo: string;
-  rol: RolUsuario;
+  rol: AppRole;
   nombre: string;
 }
 
@@ -18,7 +20,7 @@ export interface AuthenticatedRequest extends Request {
 
 interface JwtPayload {
   sub: string;
-  rol: RolUsuario;
+  rol: AppRole;
 }
 
 export function generateToken(usuario: Usuario): string {
@@ -87,11 +89,15 @@ export async function requireAuth(
   }
 }
 
-export function requireRole(...roles: RolUsuario[]) {
+export function requireRole(...roles: AppRole[]) {
   return (req: Request, _res: Response, next: NextFunction): void => {
     const user = (req as AuthenticatedRequest).user;
     if (!user) {
       next(new UnauthorizedError());
+      return;
+    }
+    if (user.rol === "ADMINISTRADOR") {
+      next();
       return;
     }
     if (!roles.includes(user.rol)) {

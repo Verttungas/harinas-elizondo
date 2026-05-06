@@ -17,6 +17,7 @@ datasource db {
 // ============================================================================
 
 enum RolUsuario {
+  ADMINISTRADOR
   LABORATORIO
   CONTROL_CALIDAD
   ASEGURAMIENTO_CALIDAD
@@ -94,9 +95,28 @@ model Usuario {
   lotesCreados         LoteProduccion[]
   inspeccionesCreadas  Inspeccion[]
   certificadosEmitidos Certificado[]
+  reportesGuardados    ReporteGuardado[]
   bitacoras            Bitacora[]
 
   @@map("usuarios")
+}
+
+model ReporteGuardado {
+  id            BigInt   @id @default(autoincrement())
+  nombre        String   @db.VarChar(120)
+  descripcion   String?
+  tipo          String   @db.VarChar(40)
+  filtros       Json     @default("{}")
+  activo        Boolean  @default(true)
+  creadoPor     BigInt   @map("creado_por")
+  creadoEn      DateTime @default(now()) @map("creado_en")
+  actualizadoEn DateTime @default(now()) @updatedAt @map("actualizado_en")
+
+  creador Usuario @relation(fields: [creadoPor], references: [id])
+
+  @@index([tipo])
+  @@index([activo])
+  @@map("reportes_guardados")
 }
 
 // ============================================================================

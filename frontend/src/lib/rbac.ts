@@ -1,6 +1,16 @@
 import type { Rol } from "@/types/domain.types";
 
 export const navAccessByRole: Record<Rol, string[]> = {
+  ADMINISTRADOR: [
+    "/dashboard",
+    "/usuarios",
+    "/equipos",
+    "/clientes",
+    "/lotes",
+    "/inspecciones",
+    "/certificados",
+    "/reportes",
+  ],
   CONTROL_CALIDAD: [
     "/dashboard",
     "/equipos",
@@ -32,11 +42,20 @@ export function rolPuedeVerRuta(rol: Rol | undefined, ruta: string): boolean {
   return navAccessByRole[rol].includes(ruta);
 }
 
-export const rolesEscrituraEquipos: Rol[] = ["CONTROL_CALIDAD"];
-export const rolesEscrituraClientes: Rol[] = ["CONTROL_CALIDAD"];
-export const rolesEscrituraLotes: Rol[] = ["CONTROL_CALIDAD", "LABORATORIO"];
+export const rolesEscrituraClientes: Rol[] = ["CONTROL_CALIDAD", "ADMINISTRADOR"];
+export const rolesEscrituraEquipos: Rol[] = ["CONTROL_CALIDAD", "ADMINISTRADOR"];
+export const rolesEscrituraLotes: Rol[] = [
+  "CONTROL_CALIDAD",
+  "LABORATORIO",
+  "ADMINISTRADOR",
+];
 export const rolesEscrituraInspecciones: Rol[] = [
   "CONTROL_CALIDAD",
   "LABORATORIO",
+  "ADMINISTRADOR",
 ];
-export const rolesEscrituraCertificados: Rol[] = ["CONTROL_CALIDAD"];
+export const rolesEscrituraCertificados: Rol[] = [
+  "CONTROL_CALIDAD",
+  "ADMINISTRADOR",
+];
+export const rolesAdministracionUsuarios: Rol[] = ["ADMINISTRADOR"];

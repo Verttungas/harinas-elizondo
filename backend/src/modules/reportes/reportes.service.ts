@@ -8,10 +8,13 @@ import {
 } from "../../lib/pagination.js";
 import { UnprocessableEntityError } from "../../domain/errors.js";
 import type {
+  ActualizarReporteGuardadoInput,
   CertificadosPorClienteQuery,
+  CrearReporteGuardadoInput,
   DesviacionesQuery,
   ExportQuery,
   FicticiasQuery,
+  ListReportesGuardadosQuery,
   ParametrosQuery,
 } from "./reportes.schemas.js";
 
@@ -25,6 +28,60 @@ function firstOfPreviousMonth(date: Date): Date {
 
 export class ReportesService {
   constructor(private readonly db: PrismaClient = defaultPrisma) {}
+
+  async listGuardados(query: ListReportesGuardadosQuery) {
+    const { page, limit, skip, take } = parsePaginationQuery(query);
+    const where = {
+      ...(query.estado !== "TODOS" ? { activo: query.estado === "ACTIVO" } : {}),
+      ...(query.tipo !== "TODOS" ? { tipo: query.tipo } : {}),
+      ...(query.q
+        ? {
+            OR: [
+              { nombre: { contains: query.q, mode: "insensitive" as const } },
+              { descripcion: { contains: query.q, mode: "insensitive" as const } },
+            ],
+          }
+        : {}),
+    };
+
+    const [data, total] = await this.db.$transaction([
+      this.db.reporteGuardado.findMany({
+        where,
+        orderBy: [{ activo: "desc" }, { actualizadoEn: "desc" }],
+        skip,
+        take,
+      }),
+      this.db.reporteGuardado.count({ where }),
+    ]);
+
+    return buildPaginationResponse(data, total, page, limit);
+  }
+
+  async crearGuardado(input: CrearReporteGuardadoInput, usuarioId: bigint) {
+    return this.db.reporteGuardado.create({
+      data: {
+        nombre: input.nombre,
+        descripcion: input.descripcion,
+        tipo: input.tipo,
+        filtros: input.filtros,
+        creadoPor: usuarioId,
+      },
+    });
+  }
+
+  async actualizarGuardado(id: bigint, input: ActualizarReporteGuardadoInput) {
+    return this.db.reporteGuardado.update({
+      where: { id },
+      data: input,
+    });
+  }
+
+  async eliminarGuardado(id: bigint) {
+    return this.db.reporteGuardado.update({
+      where: { id },
+      data: { activo: false },
+    });
+  }
 
   async resumen() {
     const now = new Date();

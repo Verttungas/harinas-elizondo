@@ -3,10 +3,19 @@ import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
+function createDeterministicRandom(seed: number) {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
+
 async function main() {
   const passwordHash = await bcrypt.hash('fhesa123', 10);
 
   await prisma.$transaction(async (tx) => {
+    const random = createDeterministicRandom(20260501);
     // ------------------------------------------------------------------------
     // 1. Usuarios (6, uno por rol)
     // ------------------------------------------------------------------------
@@ -279,118 +288,138 @@ async function main() {
     });
 
     // ------------------------------------------------------------------------
-    // 6. Lotes de producción (3)
+    // 6. Generador pseudoaleatorio determinístico (5 Meses: Enero 2026 - Mayo 2026)
     // ------------------------------------------------------------------------
-    const prodHtr000 = await tx.producto.findUniqueOrThrow({
-      where: { clave: 'HTR-000' },
-    });
-    const prodHtr0000 = await tx.producto.findUniqueOrThrow({
-      where: { clave: 'HTR-0000' },
-    });
+    const prodHtr000 = await tx.producto.findUniqueOrThrow({ where: { clave: 'HTR-000' } });
+    const prodHtr0000 = await tx.producto.findUniqueOrThrow({ where: { clave: 'HTR-0000' } });
+    const prodHtrInt = await tx.producto.findUniqueOrThrow({ where: { clave: 'HTR-INT' } });
+    const productos = [prodHtr000, prodHtr0000, prodHtrInt];
 
-    const lote1 = await tx.loteProduccion.create({
-      data: {
-        numeroLote: 'L-2026-001',
-        productoId: prodHtr000.id,
-        fechaProduccion: new Date('2026-04-10'),
-        cantidadProducida: 5000,
-        unidadCantidad: 'kg',
-        creadoPor: controlId,
-      },
-    });
+    const clientePanaderia = await tx.cliente.findFirstOrThrow({ where: { claveSap: 'C-00002' } });
+    const clientes = [clienteBimbo, clienteEsperanza, clientePanaderia];
 
-    const lote2 = await tx.loteProduccion.create({
-      data: {
-        numeroLote: 'L-2026-002',
-        productoId: prodHtr0000.id,
-        fechaProduccion: new Date('2026-04-12'),
-        cantidadProducida: 4500,
-        unidadCantidad: 'kg',
-        creadoPor: controlId,
-      },
-    });
+    let loteIndex = 1;
+    let certIndex = 1;
 
-    const lote3 = await tx.loteProduccion.create({
-      data: {
-        numeroLote: 'L-2026-003',
-        productoId: prodHtr000.id,
-        fechaProduccion: new Date('2026-04-13'),
-        cantidadProducida: 5200,
-        unidadCantidad: 'kg',
-        creadoPor: controlId,
-      },
-    });
+    for (let mes = 0; mes <= 4; mes++) { // Enero (0) a Mayo (4)
+      const numLotes = 8 + Math.floor(random() * 5); // 8 a 12 lotes por mes
+      
+      for (let i = 0; i < numLotes; i++) {
+        const diaProduccion = 1 + Math.floor(random() * 25);
+        const fechaProduccion = new Date(Date.UTC(2026, mes, diaProduccion, 8, 0, 0));
+        
+        const prod = productos[Math.floor(random() * productos.length)];
+        const cantidadProd = 3000 + Math.floor(random() * 7000); // 3000 a 10000 kg
 
-    // ------------------------------------------------------------------------
-    // 7. Inspecciones (4) con secuencia explícita
-    // ------------------------------------------------------------------------
-    // Lote 1: solo A
-    const insp1A = await tx.inspeccion.create({
-      data: {
-        loteId: lote1.id,
-        secuencia: 'A',
-        fechaInspeccion: new Date('2026-04-10T10:00:00Z'),
-        estado: 'CERRADA',
-        creadoPor: usuarioLab.id,
-      },
-    });
+        const lote = await tx.loteProduccion.create({
+          data: {
+            numeroLote: `L-2026-${String(loteIndex).padStart(3, '0')}`,
+            productoId: prod.id,
+            fechaProduccion,
+            cantidadProducida: cantidadProd,
+            unidadCantidad: 'kg',
+            creadoPor: controlId,
+          },
+        });
+        loteIndex++;
 
-    // Lote 2: A, B
-    const insp2A = await tx.inspeccion.create({
-      data: {
-        loteId: lote2.id,
-        secuencia: 'A',
-        fechaInspeccion: new Date('2026-04-12T09:30:00Z'),
-        estado: 'CERRADA',
-        creadoPor: usuarioLab.id,
-      },
-    });
+        // Inspección inicial A (al día siguiente de producción)
+        const fechaInsp = new Date(fechaProduccion);
+        fechaInsp.setUTCDate(fechaInsp.getUTCDate() + 1);
+        
+        let inspeccion = await tx.inspeccion.create({
+          data: {
+            loteId: lote.id,
+            secuencia: 'A',
+            fechaInspeccion: fechaInsp,
+            estado: 'CERRADA',
+            creadoPor: usuarioLab.id,
+          },
+        });
 
-    const insp2B = await tx.inspeccion.create({
-      data: {
-        loteId: lote2.id,
-        secuencia: 'B',
-        fechaInspeccion: new Date('2026-04-12T14:15:00Z'),
-        estado: 'CERRADA',
-        creadoPor: usuarioLab.id,
-      },
-    });
+        // 10% de probabilidad de salir fuera de especificación (necesita inspección B)
+        const fallaPrimera = random() < 0.1;
 
-    // Lote 3: solo A
-    const insp3A = await tx.inspeccion.create({
-      data: {
-        loteId: lote3.id,
-        secuencia: 'A',
-        fechaInspeccion: new Date('2026-04-13T10:00:00Z'),
-        estado: 'CERRADA',
-        creadoPor: usuarioLab.id,
-      },
-    });
+        const wVal = fallaPrimera ? 100 : 250 + random() * 100;
+        await tx.resultadoInspeccion.createMany({
+          data: [
+            { inspeccionId: inspeccion.id, parametroId: paramW.id, valor: wVal, dentroEspecificacion: !fallaPrimera },
+            { inspeccionId: inspeccion.id, parametroId: paramP.id, valor: 70, dentroEspecificacion: true },
+            { inspeccionId: inspeccion.id, parametroId: paramL.id, valor: 110, dentroEspecificacion: true },
+            { inspeccionId: inspeccion.id, parametroId: paramPL.id, valor: 0.63, dentroEspecificacion: true },
+          ],
+        });
 
-    // ------------------------------------------------------------------------
-    // 8. Resultados de inspección (16 = 4 por inspección, solo Alveógrafo)
-    // El trigger calcula desviacion y dentroEspecificacion;
-    // se pasa un valor dummy a dentroEspecificacion porque es NOT NULL.
-    // ------------------------------------------------------------------------
-    const resultadosPorInspeccion: Array<{
-      inspeccionId: bigint;
-      valores: { W: number; P: number; L: number; PL: number };
-    }> = [
-      { inspeccionId: insp1A.id, valores: { W: 275, P: 68, L: 115, PL: 0.59 } },
-      { inspeccionId: insp2A.id, valores: { W: 290, P: 72, L: 120, PL: 0.6 } },
-      { inspeccionId: insp2B.id, valores: { W: 295, P: 74, L: 122, PL: 0.61 } },
-      { inspeccionId: insp3A.id, valores: { W: 200, P: 60, L: 100, PL: 0.6 } },
-    ];
+        if (fallaPrimera) {
+          const fechaInspB = new Date(fechaInsp);
+          fechaInspB.setUTCHours(fechaInspB.getUTCHours() + 5); // 5 horas después
+          
+          inspeccion = await tx.inspeccion.create({
+            data: {
+              loteId: lote.id,
+              secuencia: 'B',
+              fechaInspeccion: fechaInspB,
+              estado: 'CERRADA',
+              creadoPor: usuarioLab.id,
+            },
+          });
+          
+          // La B ya pasa
+          await tx.resultadoInspeccion.createMany({
+            data: [
+              { inspeccionId: inspeccion.id, parametroId: paramW.id, valor: 280, dentroEspecificacion: true },
+              { inspeccionId: inspeccion.id, parametroId: paramP.id, valor: 70, dentroEspecificacion: true },
+              { inspeccionId: inspeccion.id, parametroId: paramL.id, valor: 110, dentroEspecificacion: true },
+              { inspeccionId: inspeccion.id, parametroId: paramPL.id, valor: 0.63, dentroEspecificacion: true },
+            ],
+          });
+        }
 
-    for (const { inspeccionId, valores } of resultadosPorInspeccion) {
-      await tx.resultadoInspeccion.createMany({
-        data: [
-          { inspeccionId, parametroId: paramW.id, valor: valores.W, dentroEspecificacion: false },
-          { inspeccionId, parametroId: paramP.id, valor: valores.P, dentroEspecificacion: false },
-          { inspeccionId, parametroId: paramL.id, valor: valores.L, dentroEspecificacion: false },
-          { inspeccionId, parametroId: paramPL.id, valor: valores.PL, dentroEspecificacion: false },
-        ],
-      });
+        // Certificado: 85% de probabilidad de emitir uno (dejamos algunos lotes con saldo para ver el KPI de "Saldo Global")
+        const loteReservadoParaE2E = lote.numeroLote === 'L-2026-001';
+
+        if (!loteReservadoParaE2E && random() < 0.85) {
+          const fechaEmision = new Date(inspeccion.fechaInspeccion);
+          // Emisión 1 a 3 días después de la inspección
+          fechaEmision.setUTCDate(fechaEmision.getUTCDate() + 1 + Math.floor(random() * 3));
+          
+          const cliente = clientes[Math.floor(random() * clientes.length)];
+          const cantidadPedida = Math.floor(cantidadProd * (0.5 + random() * 0.5)); // Piden del 50% al 100% del lote
+
+          const esPendiente = random() < 0.1; // 10% de envíos pendientes
+
+          await tx.certificado.create({
+            data: {
+              numero: `CERT-2026-${String(certIndex).padStart(6, '0')}`,
+              clienteId: cliente.id,
+              loteId: lote.id,
+              fechaEmision,
+              estado: esPendiente ? 'EMITIDO' : 'ENVIADO',
+              rutaPdf: `certificados-pdf/2026/${String(mes + 1).padStart(2, '0')}/CERT-2026-${String(certIndex).padStart(6, '0')}.pdf`,
+              numOrdenCompra: `OC-${Math.floor(random() * 10000)}`,
+              cantidadSolicitada: cantidadPedida,
+              cantidadEntrega: cantidadPedida,
+              numFactura: `FAC-${8000 + certIndex}`,
+              fechaEnvio: esPendiente ? null : new Date(fechaEmision.getTime() + 86400000), // 1 día después
+              fechaCaducidad: new Date(fechaEmision.getTime() + (180 * 86400000)), // 6 meses después
+              creadoPor: controlId,
+              certificadoInspeccion: {
+                create: [{ inspeccionId: inspeccion.id, orden: 1 }]
+              },
+              envios: {
+                create: [{
+                  destinatarioTipo: 'CLIENTE',
+                  destinatarioCorreo: 'ventas@fhesa.test',
+                  estado: esPendiente ? 'PENDIENTE' : 'ENVIADO',
+                  intentos: esPendiente ? 0 : 1,
+                  enviadoEn: esPendiente ? null : new Date(fechaEmision.getTime() + 3600000)
+                }]
+              }
+            }
+          });
+          certIndex++;
+        }
+      }
     }
   });
 

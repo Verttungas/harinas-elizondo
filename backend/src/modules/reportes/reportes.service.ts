@@ -101,8 +101,10 @@ export class ReportesService {
     const [
       certificadosMesActual,
       certificadosMesAnterior,
-      clientesActivos,
-      resultadosMesActual,
+      lotesActivos,
+      entregasPorLote,
+      certificadosConLoteActual,
+      certificadosConLoteAnterior
     ] = await Promise.all([
       this.db.certificado.count({
         where: { fechaEmision: { gte: inicioMesActual } },
@@ -112,71 +114,84 @@ export class ReportesService {
           fechaEmision: { gte: inicioMesAnterior, lt: inicioMesActual },
         },
       }),
-      this.db.cliente.count({ where: { estado: "ACTIVO" } }),
-      this.db.resultadoInspeccion.findMany({
+      this.db.loteProduccion.findMany({
         where: {
-          inspeccion: {
-            estado: "CERRADA",
-            fechaInspeccion: { gte: inicioMesActual },
+          cantidadProducida: { not: null },
+          inspecciones: { some: { estado: "CERRADA" } }
+        },
+        select: {
+          id: true,
+          cantidadProducida: true,
+        }
+      }),
+      this.db.certificado.groupBy({
+        by: ["loteId"],
+        where: {
+          lote: {
+            cantidadProducida: { not: null },
+            inspecciones: { some: { estado: "CERRADA" } },
           },
         },
-        select: { dentroEspecificacion: true, inspeccion: { select: { loteId: true } } },
+        _sum: { cantidadEntrega: true },
       }),
+      this.db.certificado.findMany({
+        where: { fechaEmision: { gte: inicioMesActual } },
+        select: { fechaEmision: true, lote: { select: { fechaProduccion: true } } }
+      }),
+      this.db.certificado.findMany({
+        where: { fechaEmision: { gte: inicioMesAnterior, lt: inicioMesActual } },
+        select: { fechaEmision: true, lote: { select: { fechaProduccion: true } } }
+      })
     ]);
 
-    // % lotes en especificación (mes actual)
-    const lotesPorEspec = new Map<string, boolean>();
-    for (const r of resultadosMesActual) {
-      const key = r.inspeccion.loteId.toString();
-      const prev = lotesPorEspec.get(key);
-      lotesPorEspec.set(key, (prev ?? true) && r.dentroEspecificacion);
-    }
-    const totalLotes = lotesPorEspec.size;
-    const lotesOk = Array.from(lotesPorEspec.values()).filter(Boolean).length;
-    const porcentajeActual =
-      totalLotes === 0 ? 0 : (lotesOk / totalLotes) * 100;
-
-    // Mes anterior (mismo cálculo para variacionPuntos)
-    const resultadosMesAnterior = await this.db.resultadoInspeccion.findMany({
-      where: {
-        inspeccion: {
-          estado: "CERRADA",
-          fechaInspeccion: {
-            gte: inicioMesAnterior,
-            lt: inicioMesActual,
-          },
-        },
-      },
-      select: {
-        dentroEspecificacion: true,
-        inspeccion: { select: { loteId: true } },
-      },
-    });
-    const lotesPrev = new Map<string, boolean>();
-    for (const r of resultadosMesAnterior) {
-      const key = r.inspeccion.loteId.toString();
-      const prev = lotesPrev.get(key);
-      lotesPrev.set(key, (prev ?? true) && r.dentroEspecificacion);
-    }
-    const totalPrev = lotesPrev.size;
-    const okPrev = Array.from(lotesPrev.values()).filter(Boolean).length;
-    const porcentajePrev = totalPrev === 0 ? 0 : (okPrev / totalPrev) * 100;
-
-    const variacionMes = certificadosMesActual - certificadosMesAnterior;
-    const variacionPuntos = Number(
-      (porcentajeActual - porcentajePrev).toFixed(2),
+    // Cálculo: Saldo Global de Harina
+    const entregasPorLoteMap = new Map(
+      entregasPorLote.map((row) => [
+        row.loteId.toString(),
+        Number(row._sum.cantidadEntrega ?? 0),
+      ]),
     );
+
+    let saldoGlobal = 0;
+    for (const lote of lotesActivos) {
+      const producida = Number(lote.cantidadProducida ?? 0);
+      const entregada = entregasPorLoteMap.get(lote.id.toString()) ?? 0;
+      saldoGlobal += Math.max(0, producida - entregada);
+    }
+
+    // Cálculo: Tiempo Medio de Certificación (Días)
+    type CertificadoConFechaLote = Prisma.CertificadoGetPayload<{
+      select: {
+        fechaEmision: true;
+        lote: { select: { fechaProduccion: true } };
+      };
+    }>;
+
+    const calcTiempoMedio = (certs: CertificadoConFechaLote[]) => {
+      if (certs.length === 0) return 0;
+      const diffs = certs.map((c) => c.fechaEmision.getTime() - c.lote.fechaProduccion.getTime());
+      const avgMs = diffs.reduce((sum, val) => sum + val, 0) / certs.length;
+      return avgMs / (1000 * 60 * 60 * 24); // Convertir a días
+    };
+
+    const tiempoMedioActual = calcTiempoMedio(certificadosConLoteActual);
+    const tiempoMedioAnterior = calcTiempoMedio(certificadosConLoteAnterior);
+    
+    const variacionMes = certificadosMesActual - certificadosMesAnterior;
+    const variacionDias = Number((tiempoMedioActual - tiempoMedioAnterior).toFixed(1));
 
     return {
       certificadosEmitidos: {
         valor: certificadosMesActual,
         variacionMesAnterior: variacionMes,
       },
-      lotesEnEspecificacion: {
-        valor: Number(porcentajeActual.toFixed(2)),
-        variacionPuntos,
+      saldoGlobal: {
+        valor: Number(saldoGlobal.toFixed(2)),
       },
-      clientesActivos: { valor: clientesActivos },
+      tiempoMedioCertificacion: {
+        valor: Number(tiempoMedioActual.toFixed(1)),
+        variacionDias,
+      },
     };
   }
 

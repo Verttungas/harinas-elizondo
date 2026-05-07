@@ -61,31 +61,36 @@ export function Dashboard() {
 
       <section className="space-y-3">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Indicadores del mes
+          Indicadores operativos
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <KpiCard
             title="Certificados emitidos"
-            valor={resumen.data?.certificadosEmitidos.valor}
-            variacion={resumen.data?.certificadosEmitidos.variacionMesAnterior}
+            valor={resumen.data?.certificadosEmitidos?.valor}
+            variacion={resumen.data?.certificadosEmitidos?.variacionMesAnterior}
             variacionSufijo="vs. mes anterior"
             loading={resumen.loading}
           />
           <KpiCard
-            title="Lotes en especificación"
+            title="Saldo global disponible"
             valor={
-              resumen.data?.lotesEnEspecificacion.valor !== undefined
-                ? `${formatNumero(resumen.data.lotesEnEspecificacion.valor, 1)}%`
+              resumen.data?.saldoGlobal?.valor !== undefined
+                ? `${formatNumero(resumen.data.saldoGlobal.valor, 0)} kg`
                 : undefined
             }
-            variacion={resumen.data?.lotesEnEspecificacion.variacionPuntos}
-            variacionSufijo="pts"
             loading={resumen.loading}
           />
           <KpiCard
-            title="Clientes activos"
-            valor={resumen.data?.clientesActivos.valor}
+            title="Tiempo medio de certificación"
+            valor={
+              resumen.data?.tiempoMedioCertificacion?.valor !== undefined
+                ? `${formatNumero(resumen.data.tiempoMedioCertificacion.valor, 1)} días`
+                : undefined
+            }
+            variacion={resumen.data?.tiempoMedioCertificacion?.variacionDias}
+            variacionSufijo="días vs. mes ant."
             loading={resumen.loading}
+            invertirColor={true}
           />
         </div>
       </section>
@@ -192,6 +197,7 @@ interface KpiCardProps {
   variacion?: number;
   variacionSufijo?: string;
   loading?: boolean;
+  invertirColor?: boolean;
 }
 
 function KpiCard({
@@ -200,6 +206,7 @@ function KpiCard({
   variacion,
   variacionSufijo,
   loading,
+  invertirColor = false,
 }: KpiCardProps) {
   return (
     <Card>
@@ -220,9 +227,9 @@ function KpiCard({
           <p
             className={
               variacion > 0
-                ? "text-xs text-state-success"
+                ? `text-xs ${invertirColor ? "text-state-danger" : "text-state-success"}`
                 : variacion < 0
-                  ? "text-xs text-state-danger"
+                  ? `text-xs ${invertirColor ? "text-state-success" : "text-state-danger"}`
                   : "text-xs text-muted-foreground"
             }
           >

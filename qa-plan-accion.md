@@ -29,6 +29,8 @@
 | H-3.6 Autocomplete de lote | No-bloqueante | ✅ Hecho | InspeccionForm campo "Número de lote" |
 | H-3.7 Acordeón de equipos | No-bloqueante | ✅ Hecho | InspeccionForm sección Resultados |
 | H-3.8 Dashboard diferenciado por rol | No-bloqueante | ⏸ Diferido | post-presentación (entrega movida a la siguiente semana) |
+| H-3.9 Dashboard: Indicadores operativos | No-bloqueante | ✅ Hecho | Dashboard principal (Saldo y Tiempo Medio) |
+| H-3.10 Generador de datos (5 meses) | No-bloqueante | ✅ Hecho | npx prisma db seed (Enero-Mayo 2026) |
 
 ### Archivos creados o modificados
 
@@ -384,6 +386,44 @@ Ejemplo: valor 220, rango cliente 201–220, internacional 200–350.
 
 ---
 
+### H-3.9 — Dashboard: Indicadores operativos estratégicos
+
+**Estado:** `[x]` Hecho
+**Cubre:** Mejora de KPIs según requerimiento de UAT (Obs-010 parcial)
+**Estimación:** 2 h
+
+**Contexto.** Se retiraron métricas de bajo valor ("Lotes en especificación" y "Clientes activos") y se implementaron dos indicadores clave para la operación: **Saldo Global de Harina Disponible** (en kg) y **Tiempo Medio de Certificación** (en días).
+
+**Pasos.**
+- [x] **Backend.** Modificado `reportes.service.ts` para calcular el saldo (producción total vs. entregas) y el promedio de días entre producción y emisión.
+- [x] **Frontend.** Modificado `Dashboard.tsx` para mostrar los nuevos indicadores. Se agregó lógica de colores invertida para el tiempo medio (menos tiempo = verde).
+- [x] **Frontend.** Corrección de seguridad en accesos a datos con optional chaining (`?.`) para evitar crasheos durante la carga.
+
+**Criterios de aceptación.**
+- El dashboard muestra el saldo global en kg.
+- El tiempo medio de certificación se muestra en días con un decimal.
+- El sistema no se rompe si el backend tarda en responder.
+
+---
+
+### H-3.10 — Generación de datos semilla (5 meses)
+
+**Estado:** `[x]` Hecho
+**Estimación:** 3 h
+
+**Contexto.** El sistema requería un volumen de datos robusto para demostraciones y validación de KPIs. Se reemplazó el seed estático por un motor generador aleatorio.
+
+**Pasos.**
+- [x] **Motor de generación.** Implementado en `prisma/seed.ts` un bucle que genera entre 8 y 12 lotes mensuales de Enero a Mayo de 2026.
+- [x] **Casos de prueba.** Se configuró una tasa de falla del 10% en inspecciones para generar automáticamente la serie B (ficticias).
+- [x] **Coherencia temporal.** Las fechas de producción, inspección y emisión guardan lógica cronológica para alimentar los indicadores.
+
+**Criterios de aceptación.**
+- Al correr `npx prisma db seed`, se generan ~50 lotes y ~40 certificados.
+- Las gráficas del dashboard muestran datos históricos de 5 meses.
+
+---
+
 ### H-3.8 — Dashboard diferenciado por rol *(deuda post-entrega)*
 
 **Estado:** `[-]` Descartado para 2026-05-01
@@ -486,6 +526,7 @@ H-1.2 puede degradarse al "Plan B" (retirar botón de ojo). Todo lo demás es bo
 - 2026-04-30 — Claude — H-1.3 implementado: nuevo `GET /api/v1/lotes/:id/saldo` (`lotesService.getSaldo`) usando `Prisma.Decimal.minus()`; validación de saldo dentro del `$transaction` de `CertificadosService.emitir()` lanza `UnprocessableEntityError` con código `LOTE_SALDO_INSUFICIENTE` y detalles serializados (producida, entregada, disponible, solicitada, unidadCantidad). Tipos `SaldoLote` agregados al frontend; `PasoEmbarque` recibe `loteId` desde el wizard, consulta el saldo y bloquea el botón Siguiente con tooltip si la cantidad excede; `LoteDetalle` muestra tarjeta "Inventario del lote" con producida/entregada/disponible. Test de integración añadido (1000 kg → 500 OK → 600 rechazado → saldo final 500). `tsc --noEmit` frontend limpio; backend pendiente de correr en Docker (`docker compose exec backend npm run typecheck` y `npm test`).
 - 2026-04-30 — Claude — H-1.2 implementado: `LoteDetalle.tsx` consume `GET /inspecciones?loteId=...` y `GET /certificados?loteId=...` (ambos ya soportan ese filtro). Renderiza tarjeta de información del lote, timeline de inspecciones ordenadas por secuencia A–Z (con badge de estado, marca de ficticia y referencia a inspección origen) y listado de certificados emitidos clicables hacia su detalle. Ruta `/lotes/:id` ya estaba registrada. Saldo del lote diferido a H-1.3. `tsc --noEmit` limpio.
 - 2026-04-30 — Claude — H-1.1 implementado: nuevo módulo `frontend/src/lib/rbac.ts` con mapa rol→rutas y constantes de escritura por dominio; `TopNav` filtra `navItems`; `AppRoutes` envuelve `/equipos/nuevo`, `/equipos/:id/editar`, `/clientes/nuevo`, `/clientes/:id/editar`, `/lotes/nuevo`, `/inspecciones/nueva`, `/inspecciones/:id/editar` y `/certificados/nuevo` con `<RoleRoute>`; `Dashboard` oculta acciones rápidas según rol; listados de Lotes/Equipos/Clientes/Inspecciones consumen las constantes centralizadas. `tsc --noEmit` limpio. Pendiente UAT con los 5 roles.
+- 2026-05-06 — Antigravity (Claude) — Implementación de KPIs estratégicos (H-3.9) y motor generador de 5 meses de datos (H-3.10). Dashboard actualizado con Saldo Global (kg) y Tiempo Medio (días). Seed robusto con ~50 lotes de Enero a Mayo 2026. Corrección de seguridad en renderizado de KPIs (optional chaining). .env restaurado para soporte de docker compose.
 
 ---
 

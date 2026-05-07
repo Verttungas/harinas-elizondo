@@ -172,6 +172,6 @@ export interface SaldoLote {
 
 export interface ResumenReporte {
   certificadosEmitidos: { valor: number; variacionMesAnterior: number };
-  lotesEnEspecificacion: { valor: number; variacionPuntos: number };
-  clientesActivos: { valor: number };
+  saldoGlobal: { valor: number };
+  tiempoMedioCertificacion: { valor: number; variacionDias: number };
 }

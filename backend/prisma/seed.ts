@@ -3,10 +3,19 @@ import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
+function createDeterministicRandom(seed: number) {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
+
 async function main() {
   const passwordHash = await bcrypt.hash('fhesa123', 10);
 
   await prisma.$transaction(async (tx) => {
+    const random = createDeterministicRandom(20260501);
     // ------------------------------------------------------------------------
     // 1. Usuarios (6, uno por rol)
     // ------------------------------------------------------------------------
@@ -279,7 +288,7 @@ async function main() {
     });
 
     // ------------------------------------------------------------------------
-    // 6. Generador Aleatorio Controlado (5 Meses: Enero 2026 - Mayo 2026)
+    // 6. Generador pseudoaleatorio determinístico (5 Meses: Enero 2026 - Mayo 2026)
     // ------------------------------------------------------------------------
     const prodHtr000 = await tx.producto.findUniqueOrThrow({ where: { clave: 'HTR-000' } });
     const prodHtr0000 = await tx.producto.findUniqueOrThrow({ where: { clave: 'HTR-0000' } });
@@ -293,14 +302,14 @@ async function main() {
     let certIndex = 1;
 
     for (let mes = 0; mes <= 4; mes++) { // Enero (0) a Mayo (4)
-      const numLotes = 8 + Math.floor(Math.random() * 5); // 8 a 12 lotes por mes
+      const numLotes = 8 + Math.floor(random() * 5); // 8 a 12 lotes por mes
       
       for (let i = 0; i < numLotes; i++) {
-        const diaProduccion = 1 + Math.floor(Math.random() * 25);
+        const diaProduccion = 1 + Math.floor(random() * 25);
         const fechaProduccion = new Date(Date.UTC(2026, mes, diaProduccion, 8, 0, 0));
         
-        const prod = productos[Math.floor(Math.random() * productos.length)];
-        const cantidadProd = 3000 + Math.floor(Math.random() * 7000); // 3000 a 10000 kg
+        const prod = productos[Math.floor(random() * productos.length)];
+        const cantidadProd = 3000 + Math.floor(random() * 7000); // 3000 a 10000 kg
 
         const lote = await tx.loteProduccion.create({
           data: {
@@ -329,9 +338,9 @@ async function main() {
         });
 
         // 10% de probabilidad de salir fuera de especificación (necesita inspección B)
-        const fallaPrimera = Math.random() < 0.1;
+        const fallaPrimera = random() < 0.1;
 
-        const wVal = fallaPrimera ? 100 : 250 + Math.random() * 100;
+        const wVal = fallaPrimera ? 100 : 250 + random() * 100;
         await tx.resultadoInspeccion.createMany({
           data: [
             { inspeccionId: inspeccion.id, parametroId: paramW.id, valor: wVal, dentroEspecificacion: !fallaPrimera },
@@ -367,15 +376,17 @@ async function main() {
         }
 
         // Certificado: 85% de probabilidad de emitir uno (dejamos algunos lotes con saldo para ver el KPI de "Saldo Global")
-        if (Math.random() < 0.85) {
+        const loteReservadoParaE2E = lote.numeroLote === 'L-2026-001';
+
+        if (!loteReservadoParaE2E && random() < 0.85) {
           const fechaEmision = new Date(inspeccion.fechaInspeccion);
           // Emisión 1 a 3 días después de la inspección
-          fechaEmision.setUTCDate(fechaEmision.getUTCDate() + 1 + Math.floor(Math.random() * 3));
+          fechaEmision.setUTCDate(fechaEmision.getUTCDate() + 1 + Math.floor(random() * 3));
           
-          const cliente = clientes[Math.floor(Math.random() * clientes.length)];
-          const cantidadPedida = Math.floor(cantidadProd * (0.5 + Math.random() * 0.5)); // Piden del 50% al 100% del lote
+          const cliente = clientes[Math.floor(random() * clientes.length)];
+          const cantidadPedida = Math.floor(cantidadProd * (0.5 + random() * 0.5)); // Piden del 50% al 100% del lote
 
-          const esPendiente = Math.random() < 0.1; // 10% de envíos pendientes
+          const esPendiente = random() < 0.1; // 10% de envíos pendientes
 
           await tx.certificado.create({
             data: {
@@ -385,7 +396,7 @@ async function main() {
               fechaEmision,
               estado: esPendiente ? 'EMITIDO' : 'ENVIADO',
               rutaPdf: `certificados-pdf/2026/${String(mes + 1).padStart(2, '0')}/CERT-2026-${String(certIndex).padStart(6, '0')}.pdf`,
-              numOrdenCompra: `OC-${Math.floor(Math.random() * 10000)}`,
+              numOrdenCompra: `OC-${Math.floor(random() * 10000)}`,
               cantidadSolicitada: cantidadPedida,
               cantidadEntrega: cantidadPedida,
               numFactura: `FAC-${8000 + certIndex}`,

@@ -61,7 +61,7 @@ export function Dashboard() {
 
       <section className="space-y-3">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Indicadores del mes
+          Indicadores operativos
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <KpiCard

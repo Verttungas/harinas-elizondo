@@ -102,6 +102,7 @@ export class ReportesService {
       certificadosMesActual,
       certificadosMesAnterior,
       lotesActivos,
+      entregasPorLote,
       certificadosConLoteActual,
       certificadosConLoteAnterior
     ] = await Promise.all([
@@ -119,9 +120,19 @@ export class ReportesService {
           inspecciones: { some: { estado: "CERRADA" } }
         },
         select: {
+          id: true,
           cantidadProducida: true,
-          certificados: { select: { cantidadEntrega: true } }
         }
+      }),
+      this.db.certificado.groupBy({
+        by: ["loteId"],
+        where: {
+          lote: {
+            cantidadProducida: { not: null },
+            inspecciones: { some: { estado: "CERRADA" } },
+          },
+        },
+        _sum: { cantidadEntrega: true },
       }),
       this.db.certificado.findMany({
         where: { fechaEmision: { gte: inicioMesActual } },
@@ -134,15 +145,29 @@ export class ReportesService {
     ]);
 
     // Cálculo: Saldo Global de Harina
+    const entregasPorLoteMap = new Map(
+      entregasPorLote.map((row) => [
+        row.loteId.toString(),
+        Number(row._sum.cantidadEntrega ?? 0),
+      ]),
+    );
+
     let saldoGlobal = 0;
     for (const lote of lotesActivos) {
-      const producida = Number(lote.cantidadProducida) || 0;
-      const entregada = lote.certificados.reduce((sum, c) => sum + (Number(c.cantidadEntrega) || 0), 0);
+      const producida = Number(lote.cantidadProducida ?? 0);
+      const entregada = entregasPorLoteMap.get(lote.id.toString()) ?? 0;
       saldoGlobal += Math.max(0, producida - entregada);
     }
 
     // Cálculo: Tiempo Medio de Certificación (Días)
-    const calcTiempoMedio = (certs: any[]) => {
+    type CertificadoConFechaLote = Prisma.CertificadoGetPayload<{
+      select: {
+        fechaEmision: true;
+        lote: { select: { fechaProduccion: true } };
+      };
+    }>;
+
+    const calcTiempoMedio = (certs: CertificadoConFechaLote[]) => {
       if (certs.length === 0) return 0;
       const diffs = certs.map((c) => c.fechaEmision.getTime() - c.lote.fechaProduccion.getTime());
       const avgMs = diffs.reduce((sum, val) => sum + val, 0) / certs.length;

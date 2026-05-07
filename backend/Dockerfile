@@ -11,6 +11,10 @@ COPY . .
 
 RUN npx prisma generate || true
 
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+
 EXPOSE 3000
 
+ENTRYPOINT ["sh", "./entrypoint.sh"]
 CMD ["npm", "run", "dev"]

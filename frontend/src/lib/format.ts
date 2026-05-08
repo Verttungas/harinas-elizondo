@@ -1,8 +1,10 @@
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 
-export function formatFecha(iso: string | Date): string {
+export function formatFecha(iso: string | Date | null | undefined): string {
+  if (iso == null || iso === "") return "—";
   const date = typeof iso === "string" ? parseISO(iso) : iso;
+  if (Number.isNaN(date.getTime())) return "—";
   // Las fechas "solo fecha" se serializan como medianoche UTC; formatear en
   // zona local las desplaza un día en husos negativos (CDMX = UTC-6 muestra
   // "14 ago" en lugar de "15 ago"). Detectamos el caso y formateamos en UTC.
@@ -22,8 +24,10 @@ export function formatFecha(iso: string | Date): string {
   return format(date, "d MMM yyyy", { locale: es });
 }
 
-export function formatFechaHora(iso: string | Date): string {
+export function formatFechaHora(iso: string | Date | null | undefined): string {
+  if (iso == null || iso === "") return "—";
   const date = typeof iso === "string" ? parseISO(iso) : iso;
+  if (Number.isNaN(date.getTime())) return "—";
   return format(date, "d MMM yyyy, HH:mm", { locale: es });
 }
 

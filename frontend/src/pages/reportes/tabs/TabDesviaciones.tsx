@@ -82,16 +82,19 @@ export function TabDesviaciones({ filtros, setFiltros }: Props) {
       <div className="max-w-md">
         <Label className="text-xs">Producto (opcional)</Label>
         <Select
-          value={filtros.productoId ?? ""}
+          value={filtros.productoId ?? "__todos__"}
           onValueChange={(v) =>
-            setFiltros((f) => ({ ...f, productoId: v || undefined }))
+            setFiltros((f) => ({
+              ...f,
+              productoId: v === "__todos__" ? undefined : v,
+            }))
           }
         >
           <SelectTrigger>
             <SelectValue placeholder="Todos los productos" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos los productos</SelectItem>
+            <SelectItem value="__todos__">Todos los productos</SelectItem>
             {productos.map((p) => (
               <SelectItem key={String(p.id)} value={String(p.id)}>
                 {p.clave} — {p.nombre}

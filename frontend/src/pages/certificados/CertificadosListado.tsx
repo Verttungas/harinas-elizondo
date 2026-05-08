@@ -20,6 +20,7 @@ import { useQuery } from "@/hooks/useApi";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useAuth } from "@/hooks/useAuth";
 import { api, handleApiError } from "@/lib/api";
+import { rolesEscrituraCertificados } from "@/lib/rbac";
 import { formatFecha } from "@/lib/format";
 import type { Certificado, EstadoCertificado } from "@/types/domain.types";
 import type { PaginatedResponse } from "@/types/api.types";
@@ -29,7 +30,7 @@ type EstadoFiltro = EstadoCertificado | "TODOS";
 export function CertificadosListado() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
-  const puedeEmitir = usuario?.rol === "CONTROL_CALIDAD";
+  const puedeEmitir = !!usuario?.rol && rolesEscrituraCertificados.includes(usuario.rol);
 
   const [q, setQ] = useState("");
   const [estado, setEstado] = useState<EstadoFiltro>("TODOS");

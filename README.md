@@ -22,44 +22,44 @@
 
 ---
 
-## 📋 Tabla de contenidos
+## Tabla de contenidos
 
-- [Descripción](#-descripción)
-- [Características](#-características)
-- [Arquitectura](#-arquitectura)
-- [Stack tecnológico](#-stack-tecnológico)
-- [Estructura del repositorio](#-estructura-del-repositorio)
-- [Puesta en marcha](#-puesta-en-marcha)
-- [Roles del sistema](#-roles-del-sistema)
-- [Reglas de negocio](#-reglas-de-negocio-clave)
-- [Equipo](#-equipo-2)
+- [Descripción](#descripción)
+- [Características](#características)
+- [Arquitectura](#arquitectura)
+- [Stack tecnológico](#stack-tecnológico)
+- [Estructura del repositorio](#estructura-del-repositorio)
+- [Puesta en marcha](#puesta-en-marcha)
+- [Roles del sistema](#roles-del-sistema)
+- [Reglas de negocio](#reglas-de-negocio-clave)
+- [Equipo](#equipo-2)
 
 ---
 
-## 🌾 Descripción
+## Descripción
 
 FHESA es una aplicación web diseñada para **Fábrica de Harinas Elizondo** que digitaliza el flujo completo de calidad: desde el registro de lotes de producción, el ingreso de resultados de inspección de laboratorio, hasta la emisión de certificados de calidad oficiales en PDF enviados al cliente final.
 
-> **Contexto académico:** Proyecto desarrollado para la asignatura *Desarrollo de Software* en la Universidad Anáhuac México Norte (Ingeniería en Sistemas y TI), bajo la dirección del Prof. Nicolás Haidar Salazar. Entrega final: **1 de mayo de 2026**.
+> **Contexto académico:** Proyecto desarrollado para la asignatura *Desarrollo de Software* en la Universidad Anáhuac México Norte (Ingeniería en Sistemas y TI), bajo la dirección del Prof. Nicolás Haidar Salazar. Entrega final: **10 de mayo de 2026**.
 
 ---
 
-## ✨ Características
+## Características
 
 | Característica | Descripción |
 |---|---|
-| 🧪 **Gestión de lotes e inspecciones** | Secuencia A-Z por lote, hasta 26 inspecciones con trazabilidad completa |
-| 📑 **Certificados inmutables** | Numeración `CERT-AAAA-NNNNNN` con reinicio anual y generación PDF |
-| 👥 **Clientes y rangos particulares** | Rangos de especificación contenidos dentro de estándares internacionales |
-| 🔬 **Inspecciones ficticias** | Ajustes justificados preservando el registro original intacto |
-| 📧 **Envío automático por correo** | Integración con SMTP (MailHog en desarrollo) |
-| 📊 **Reportes operativos y ejecutivos** | Indicadores para distintos niveles jerárquicos |
-| 🔐 **Control de acceso por roles** | 5 roles diferenciados con permisos granulares |
-| 🐳 **Contenerizado** | Un solo comando para levantar todo el stack |
+| **Gestión de lotes e inspecciones** | Secuencia A-Z por lote, hasta 26 inspecciones con trazabilidad completa |
+| **Certificados inmutables** | Numeración `CERT-AAAA-NNNNNN` con reinicio anual y generación PDF |
+| **Clientes y rangos particulares** | Rangos de especificación contenidos dentro de estándares internacionales |
+| **Inspecciones ficticias** | Ajustes justificados preservando el registro original intacto |
+| **Envío automático por correo** | Integración con SMTP (MailHog en desarrollo) |
+| **Reportes operativos y ejecutivos** | Indicadores para distintos niveles jerárquicos |
+| **Control de acceso por roles** | 6 roles diferenciados con permisos granulares |
+| **Contenerizado** | Un solo comando para levantar todo el stack |
 
 ---
 
-## 🏛 Arquitectura
+## Arquitectura
 
 Arquitectura **en capas** siguiendo el modelo de vistas **4+1 de Kruchten**, con validación de entrada vía **Zod**, inyección de dependencias por constructor y separación estricta entre controladores, servicios y persistencia.
 
@@ -73,7 +73,7 @@ Arquitectura **en capas** siguiendo el modelo de vistas **4+1 de Kruchten**, con
 
 ---
 
-## 🧰 Stack tecnológico
+## Stack tecnológico
 
 <table>
 <tr>
@@ -114,7 +114,7 @@ Arquitectura **en capas** siguiendo el modelo de vistas **4+1 de Kruchten**, con
 
 ---
 
-## 📁 Estructura del repositorio
+## Estructura del repositorio
 
 ```
 harinas-elizondo/
@@ -139,7 +139,7 @@ harinas-elizondo/
 
 ---
 
-## 🚀 Puesta en marcha
+## Puesta en marcha
 
 ### Prerrequisitos
 
@@ -165,10 +165,10 @@ docker compose up
 
 | Servicio | URL | Descripción |
 |---|---|---|
-| 🎨 **Frontend** | http://localhost:5173 | Aplicación React |
-| ⚙️ **Backend API** | http://localhost:3000 | API REST |
-| 🐘 **PostgreSQL** | `localhost:5432` | Base de datos |
-| 📨 **MailHog UI** | http://localhost:8025 | Bandeja de correo de desarrollo |
+| **Frontend** | http://localhost:5173 | Aplicación React |
+| **Backend API** | http://localhost:3000 | API REST |
+| **PostgreSQL** | `localhost:5432` | Base de datos |
+| **MailHog UI** | http://localhost:8025 | Bandeja de correo de desarrollo |
 
 ### Comandos útiles
 
@@ -183,19 +183,20 @@ docker compose down                                          # Detener
 
 ---
 
-## 👤 Roles del sistema
+## Roles del sistema
 
 | Rol | Responsabilidades |
 |---|---|
-| 🔬 **`LABORATORIO`** | Registra inspecciones y resultados de análisis |
-| ✅ **`CONTROL_CALIDAD`** | Gestiona equipos, clientes y emite certificados |
-| 📋 **`ASEGURAMIENTO_CALIDAD`** | Consulta reportes y auditoría |
-| 🏭 **`GERENTE_PLANTA`** | Consulta indicadores operativos |
-| 📈 **`DIRECTOR_OPERACIONES`** | Consulta reportes ejecutivos |
+| **`ADMINISTRADOR`** | Gestiona usuarios del sistema (alta, edición, baja y asignación de roles) |
+| **`LABORATORIO`** | Registra inspecciones y resultados de análisis |
+| **`CONTROL_CALIDAD`** | Gestiona equipos, clientes y emite certificados |
+| **`ASEGURAMIENTO_CALIDAD`** | Consulta reportes y auditoría |
+| **`GERENTE_PLANTA`** | Consulta indicadores operativos |
+| **`DIRECTOR_OPERACIONES`** | Consulta reportes ejecutivos |
 
 ---
 
-## 📐 Reglas de negocio clave
+## Reglas de negocio clave
 
 - **Secuencia A-Z** — Las inspecciones de un lote se identifican con letras de la A a la Z (máx. 26 por lote).
 - **Inspección ficticia** — Cuando un resultado queda fuera de especificación, se puede generar una inspección ajustada que consume una letra de la secuencia, con justificación obligatoria y preservando la original intacta.
@@ -206,7 +207,7 @@ docker compose down                                          # Detener
 
 ---
 
-## 👥 Equipo 2
+## Equipo 2
 
 > Ingeniería en Sistemas y TI · Universidad Anáhuac México Norte · Facultad de Ingeniería
 

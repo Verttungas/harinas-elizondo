@@ -41,7 +41,7 @@ router.get(
 router.post(
   "/",
   requireAuth,
-  requireRole("LABORATORIO", "CONTROL_CALIDAD"),
+  requireRole("LABORATORIO", "CONTROL_CALIDAD", "GERENTE_PLANTA"),
   validate({ body: crearLoteSchema }),
   crearLote,
 );
@@ -49,7 +49,7 @@ router.post(
 router.post(
   "/:loteId/inspecciones",
   requireAuth,
-  requireRole("LABORATORIO", "CONTROL_CALIDAD"),
+  requireRole("LABORATORIO", "CONTROL_CALIDAD", "GERENTE_PLANTA"),
   validate({ params: loteParamSchema, body: crearInspeccionSchema }),
   crearInspeccionEnLote,
 );

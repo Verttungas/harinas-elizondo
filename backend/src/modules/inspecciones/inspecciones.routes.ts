@@ -32,7 +32,7 @@ router.get(
 router.put(
   "/:id",
   requireAuth,
-  requireRole("LABORATORIO", "CONTROL_CALIDAD"),
+  requireRole("LABORATORIO", "CONTROL_CALIDAD", "GERENTE_PLANTA"),
   validate({ params: idParamSchema, body: actualizarInspeccionSchema }),
   actualizarInspeccion,
 );
@@ -40,7 +40,7 @@ router.put(
 router.post(
   "/:id/cerrar",
   requireAuth,
-  requireRole("LABORATORIO", "CONTROL_CALIDAD"),
+  requireRole("LABORATORIO", "CONTROL_CALIDAD", "GERENTE_PLANTA"),
   validate({ params: idParamSchema }),
   cerrarInspeccion,
 );

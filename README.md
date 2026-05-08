@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/logo.webp" alt="Harinas Elizondo" width="200" />
+<img src="frontend/public/logo.webp" alt="Harinas Elizondo" width="200" />
 
 # Sistema de Emisión de Certificados de Calidad
 
@@ -32,8 +32,6 @@
 - [Puesta en marcha](#-puesta-en-marcha)
 - [Roles del sistema](#-roles-del-sistema)
 - [Reglas de negocio](#-reglas-de-negocio-clave)
-- [Pruebas](#-pruebas)
-- [Documentación](#-documentación)
 - [Equipo](#-equipo-5)
 
 ---
@@ -91,7 +89,6 @@ Los diagramas UML completos (casos de uso, vista lógica, modelo ER, secuencia, 
 - Zod (validación)
 - PDFKit (certificados)
 - Nodemailer (correo)
-- Jest + Supertest
 
 </td>
 <td valign="top">
@@ -104,7 +101,6 @@ Los diagramas UML completos (casos de uso, vista lógica, modelo ER, secuencia, 
 - shadcn/ui
 - React Router
 - Zustand (stores)
-- Playwright (E2E)
 
 </td>
 <td valign="top">
@@ -113,7 +109,6 @@ Los diagramas UML completos (casos de uso, vista lógica, modelo ER, secuencia, 
 - PostgreSQL 16
 - Docker Compose
 - MailHog (correo dev)
-- PlantUML (diagramas)
 
 </td>
 </tr>
@@ -132,21 +127,14 @@ harinas-elizondo/
 │   │   ├── middlewares/
 │   │   ├── lib/
 │   │   └── config/
-│   ├── prisma/                 Schema y migraciones
-│   └── tests/                  unit · integration
+│   └── prisma/                 Schema y migraciones
 ├── frontend/                   Aplicación React + Vite
-│   ├── src/
-│   │   ├── pages/              10 pantallas del sistema
-│   │   ├── components/         UI reutilizable + shadcn
-│   │   ├── stores/             auth store (Zustand)
-│   │   ├── hooks/
-│   │   └── lib/                cliente HTTP
-│   └── tests/e2e/              Playwright
-├── diagrams/                   8 diagramas PlantUML + wireframes
-├── docs/
-│   ├── guias-de-prueba/        Guías UAT, unitarias, integración, E2E
-│   ├── prompts/                Prompts por fase de construcción
-│   └── assets/                 Imágenes del README
+│   └── src/
+│       ├── pages/              10 pantallas del sistema
+│       ├── components/         UI reutilizable + shadcn
+│       ├── stores/             auth store (Zustand)
+│       ├── hooks/
+│       └── lib/                cliente HTTP
 ├── compose.yaml                Orquestación Docker (Compose Specification)
 └── .env.example                Plantilla de variables de entorno
 ```
@@ -193,7 +181,6 @@ docker compose exec backend sh                               # Shell en el conte
 docker compose exec backend npx prisma migrate dev           # Nueva migración
 docker compose exec backend npx prisma studio --port 5555 --hostname 0.0.0.0  # Explorador de BD (exponer puerto 5555 en compose.yaml o ejecutar fuera de Docker)
 docker compose down                                          # Detener
-./run-tests.sh                                               # Suite completa de pruebas
 ```
 
 ---
@@ -218,33 +205,6 @@ docker compose down                                          # Detener
 - **Certificado inmutable** — Una vez emitido, no se edita. Las correcciones generan un nuevo certificado con nueva numeración.
 - **Formato de número** — `CERT-AAAA-NNNNNN` con consecutivo que reinicia cada año.
 - **Soft delete** — No se elimina físicamente ningún registro de negocio.
-
----
-
-## 🧪 Pruebas
-
-| Tipo | Herramienta | Ubicación |
-|---|---|---|
-| Unitarias | Jest | [`backend/tests/unit/`](backend/tests/unit/) |
-| Integración | Jest + Supertest | [`backend/tests/integration/`](backend/tests/integration/) |
-| End-to-end | Playwright | [`frontend/tests/e2e/`](frontend/tests/e2e/) |
-| UAT | Manual (guía) | [`docs/guias-de-prueba/guia-uat.md`](docs/guias-de-prueba/guia-uat.md) |
-
-Ejecución de la suite completa:
-
-```bash
-./run-tests.sh
-```
-
-Las guías detalladas de cada nivel de prueba viven en [`docs/guias-de-prueba/`](docs/guias-de-prueba/).
-
----
-
-## 📚 Documentación
-
-- [`CLAUDE.md`](CLAUDE.md) — Contexto, convenciones y reglas absolutas del proyecto
-- [`diagrams/`](diagrams/) — Diagramas UML (casos de uso, ER, vistas 4+1)
-- [`docs/guias-de-prueba/`](docs/guias-de-prueba/) — Guías de pruebas y matriz de casos
 
 ---
 

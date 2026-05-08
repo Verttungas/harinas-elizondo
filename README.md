@@ -52,7 +52,7 @@ FHESA es una aplicación web diseñada para **Fábrica de Harinas Elizondo** que
 | **Certificados inmutables** | Numeración `CERT-AAAA-NNNNNN` con reinicio anual y generación PDF |
 | **Clientes y rangos particulares** | Rangos de especificación contenidos dentro de estándares internacionales |
 | **Inspecciones ficticias** | Ajustes justificados preservando el registro original intacto |
-| **Envío automático por correo** | Integración con SMTP (MailHog en desarrollo) |
+| **Envío automático por correo** | Integración con SMTP (Mailpit en desarrollo) |
 | **Reportes operativos y ejecutivos** | Indicadores para distintos niveles jerárquicos |
 | **Control de acceso por roles** | 6 roles diferenciados con permisos granulares |
 | **Contenerizado** | Un solo comando para levantar todo el stack |
@@ -106,7 +106,7 @@ Arquitectura **en capas** siguiendo el modelo de vistas **4+1 de Kruchten**, con
 **Infraestructura**
 - PostgreSQL 16
 - Docker Compose
-- MailHog (correo dev)
+- Mailpit (correo dev)
 
 </td>
 </tr>
@@ -168,7 +168,7 @@ docker compose up
 | **Frontend** | http://localhost:5173 | Aplicación React |
 | **Backend API** | http://localhost:3000 | API REST |
 | **PostgreSQL** | `localhost:5432` | Base de datos |
-| **MailHog UI** | http://localhost:8025 | Bandeja de correo de desarrollo |
+| **Mailpit UI** | http://localhost:8025 | Bandeja de correo de desarrollo |
 
 ### Comandos útiles
 

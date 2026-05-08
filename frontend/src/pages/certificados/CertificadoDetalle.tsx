@@ -11,6 +11,7 @@ import { ErrorState } from "@/components/shared/ErrorState";
 import { useQuery } from "@/hooks/useApi";
 import { useAuth } from "@/hooks/useAuth";
 import { api, handleApiError } from "@/lib/api";
+import { rolesEscrituraCertificados } from "@/lib/rbac";
 import { formatFecha, formatFechaHora } from "@/lib/format";
 import type { Certificado } from "@/types/domain.types";
 
@@ -18,7 +19,7 @@ export function CertificadoDetalle() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { usuario } = useAuth();
-  const puedeReenviar = usuario?.rol === "CONTROL_CALIDAD";
+  const puedeReenviar = !!usuario?.rol && rolesEscrituraCertificados.includes(usuario.rol);
 
   const { data, loading, error, refetch } = useQuery(
     () => api.get<Certificado>(`/certificados/${id}`).then((r) => r.data),

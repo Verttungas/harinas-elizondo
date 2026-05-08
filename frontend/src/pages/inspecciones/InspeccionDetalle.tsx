@@ -20,6 +20,7 @@ import {
 import { useQuery } from "@/hooks/useApi";
 import { useAuth } from "@/hooks/useAuth";
 import { api, handleApiError } from "@/lib/api";
+import { rolesEscrituraInspecciones } from "@/lib/rbac";
 import { formatFecha } from "@/lib/format";
 import { toNumber } from "@/lib/number";
 import type { Inspeccion } from "@/types/domain.types";
@@ -29,7 +30,7 @@ export function InspeccionDetalle() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
   const puedeEditar =
-    usuario?.rol === "LABORATORIO" || usuario?.rol === "CONTROL_CALIDAD";
+    !!usuario?.rol && rolesEscrituraInspecciones.includes(usuario.rol);
 
   const [cerrando, setCerrando] = useState(false);
 

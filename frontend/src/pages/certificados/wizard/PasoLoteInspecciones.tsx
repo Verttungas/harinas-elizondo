@@ -30,7 +30,7 @@ export function PasoLoteInspecciones({
   const [seleccionadas, setSeleccionadas] = useState<Set<string>>(
     new Set(inspecciones?.map((i) => String(i.id)) ?? []),
   );
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(lote != null);
 
   useEffect(() => {
     if (candidato) void cargarInspecciones(candidato);
@@ -158,7 +158,12 @@ export function PasoLoteInspecciones({
         <Button variant="outline" onClick={onPrev}>
           Anterior
         </Button>
-        <Button onClick={confirmar}>Siguiente</Button>
+        <Button
+          onClick={confirmar}
+          disabled={!candidato || seleccionadas.size === 0 || loading}
+        >
+          Siguiente
+        </Button>
       </div>
     </section>
   );

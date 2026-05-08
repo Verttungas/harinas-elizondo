@@ -39,11 +39,11 @@ export function Dashboard() {
     puedeRegistrarLote;
   const puedeVerResumen = !!rol && rolesLecturaReportes.includes(rol);
 
-  const resumen = useQuery(
+  const resumen = useQuery<ResumenReporte | null>(
     () =>
       puedeVerResumen
         ? api.get<ResumenReporte>("/reportes/resumen").then((r) => r.data)
-        : Promise.resolve(undefined as unknown as ResumenReporte),
+        : Promise.resolve(null),
     [puedeVerResumen],
   );
 

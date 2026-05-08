@@ -158,7 +158,12 @@ export function PasoLoteInspecciones({
         <Button variant="outline" onClick={onPrev}>
           Anterior
         </Button>
-        <Button onClick={confirmar}>Siguiente</Button>
+        <Button
+          onClick={confirmar}
+          disabled={!candidato || seleccionadas.size === 0}
+        >
+          Siguiente
+        </Button>
       </div>
     </section>
   );

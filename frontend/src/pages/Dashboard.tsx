@@ -14,6 +14,7 @@ import {
   rolesEscrituraClientes,
   rolesEscrituraInspecciones,
   rolesEscrituraLotes,
+  rolesLecturaReportes,
 } from "@/lib/rbac";
 import type {
   Certificado,
@@ -36,10 +37,14 @@ export function Dashboard() {
     puedeEmitirCertificado ||
     puedeNuevoCliente ||
     puedeRegistrarLote;
+  const puedeVerResumen = !!rol && rolesLecturaReportes.includes(rol);
 
   const resumen = useQuery(
-    () => api.get<ResumenReporte>("/reportes/resumen").then((r) => r.data),
-    [],
+    () =>
+      puedeVerResumen
+        ? api.get<ResumenReporte>("/reportes/resumen").then((r) => r.data)
+        : Promise.resolve(undefined as unknown as ResumenReporte),
+    [puedeVerResumen],
   );
 
   const ultimos = useQuery(
@@ -59,41 +64,45 @@ export function Dashboard() {
         description={usuario ? `Bienvenido, ${usuario.nombre}` : "Bienvenido"}
       />
 
-      <section className="space-y-3">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Indicadores operativos
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <KpiCard
-            title="Certificados emitidos"
-            valor={resumen.data?.certificadosEmitidos?.valor}
-            variacion={resumen.data?.certificadosEmitidos?.variacionMesAnterior}
-            variacionSufijo="vs. mes anterior"
-            loading={resumen.loading}
-          />
-          <KpiCard
-            title="Saldo global disponible"
-            valor={
-              resumen.data?.saldoGlobal?.valor !== undefined
-                ? `${formatNumero(resumen.data.saldoGlobal.valor, 0)} kg`
-                : undefined
-            }
-            loading={resumen.loading}
-          />
-          <KpiCard
-            title="Tiempo medio de certificación"
-            valor={
-              resumen.data?.tiempoMedioCertificacion?.valor !== undefined
-                ? `${formatNumero(resumen.data.tiempoMedioCertificacion.valor, 1)} días`
-                : undefined
-            }
-            variacion={resumen.data?.tiempoMedioCertificacion?.variacionDias}
-            variacionSufijo="días vs. mes ant."
-            loading={resumen.loading}
-            invertirColor={true}
-          />
-        </div>
-      </section>
+      {puedeVerResumen && (
+        <section className="space-y-3">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Indicadores operativos
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <KpiCard
+              title="Certificados emitidos"
+              valor={resumen.data?.certificadosEmitidos?.valor}
+              variacion={
+                resumen.data?.certificadosEmitidos?.variacionMesAnterior
+              }
+              variacionSufijo="vs. mes anterior"
+              loading={resumen.loading}
+            />
+            <KpiCard
+              title="Saldo global disponible"
+              valor={
+                resumen.data?.saldoGlobal?.valor !== undefined
+                  ? `${formatNumero(resumen.data.saldoGlobal.valor, 0)} kg`
+                  : undefined
+              }
+              loading={resumen.loading}
+            />
+            <KpiCard
+              title="Tiempo medio de certificación"
+              valor={
+                resumen.data?.tiempoMedioCertificacion?.valor !== undefined
+                  ? `${formatNumero(resumen.data.tiempoMedioCertificacion.valor, 1)} días`
+                  : undefined
+              }
+              variacion={resumen.data?.tiempoMedioCertificacion?.variacionDias}
+              variacionSufijo="días vs. mes ant."
+              loading={resumen.loading}
+              invertirColor={true}
+            />
+          </div>
+        </section>
+      )}
 
       {muestraAccionesRapidas && (
         <section className="space-y-3">

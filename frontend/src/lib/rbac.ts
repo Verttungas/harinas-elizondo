@@ -25,7 +25,6 @@ export const navAccessByRole: Record<Rol, string[]> = {
     "/lotes",
     "/inspecciones",
     "/certificados",
-    "/reportes",
   ],
   ASEGURAMIENTO_CALIDAD: [
     "/dashboard",
@@ -59,3 +58,10 @@ export const rolesEscrituraCertificados: Rol[] = [
   "ADMINISTRADOR",
 ];
 export const rolesAdministracionUsuarios: Rol[] = ["ADMINISTRADOR"];
+export const rolesLecturaReportes: Rol[] = [
+  "CONTROL_CALIDAD",
+  "ASEGURAMIENTO_CALIDAD",
+  "GERENTE_PLANTA",
+  "DIRECTOR_OPERACIONES",
+  "ADMINISTRADOR",
+];

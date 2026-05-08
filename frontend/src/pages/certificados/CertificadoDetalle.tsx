@@ -124,7 +124,7 @@ export function CertificadoDetalle() {
           </CardHeader>
           <CardContent className="text-sm grid grid-cols-2 md:grid-cols-3 gap-3">
             <div>
-              <p className="text-xs text-muted-foreground">Orden de compra</p>
+              <p className="text-xs text-muted-foreground">Pedido</p>
               <p>{data.numOrdenCompra}</p>
             </div>
             <div>

@@ -74,7 +74,7 @@ export function PasoRevision({ state, onPrev, onConfirm }: Props) {
         </CardHeader>
         <CardContent className="text-sm grid grid-cols-2 gap-2">
           <div>
-            <p className="text-xs text-muted-foreground">Orden de compra</p>
+            <p className="text-xs text-muted-foreground">Pedido</p>
             <p>{embarque.numOrdenCompra}</p>
           </div>
           <div>

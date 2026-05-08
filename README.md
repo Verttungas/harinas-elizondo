@@ -32,7 +32,7 @@
 - [Puesta en marcha](#-puesta-en-marcha)
 - [Roles del sistema](#-roles-del-sistema)
 - [Reglas de negocio](#-reglas-de-negocio-clave)
-- [Equipo](#-equipo-5)
+- [Equipo](#-equipo-2)
 
 ---
 
@@ -70,8 +70,6 @@ Arquitectura **en capas** siguiendo el modelo de vistas **4+1 de Kruchten**, con
 │                         └──►  PDFKit  +  Nodemailer (SMTP)   │
 └─────────────────────────────────────────────────────────────┘
 ```
-
-Los diagramas UML completos (casos de uso, vista lógica, modelo ER, secuencia, despliegue) viven en [`diagrams/`](diagrams/) en formato PlantUML.
 
 ---
 
@@ -122,7 +120,7 @@ Los diagramas UML completos (casos de uso, vista lógica, modelo ER, secuencia, 
 harinas-elizondo/
 ├── backend/                    Servicio Express + Prisma
 │   ├── src/
-│   │   ├── modules/            auth · clientes · equipos · productos
+│   │   ├── modules/            auth · usuarios · clientes · equipos · productos
 │   │   │                       lotes · inspecciones · certificados · reportes
 │   │   ├── middlewares/
 │   │   ├── lib/
@@ -208,17 +206,17 @@ docker compose down                                          # Detener
 
 ---
 
-## 👥 Equipo 5
+## 👥 Equipo 2
 
 > Ingeniería en Sistemas y TI · Universidad Anáhuac México Norte · Facultad de Ingeniería
 
-| Ícono | Nombre |
-|---|---|
-| 👨‍💻 | **Carlos Alberto Ortiz Pérez Vertti** |
-| 👨‍💻 | **Fernando Alexander Martínez Villavicencio** |
-| 👨‍💻 | **Mario Arturo Olmos López** |
-| 👨‍💻 | **Mauricio Sánchez de la Torre** |
-| 👨‍💻 | **Juan Pablo Pinto Ruíz** |
+| Ícono | Rol | Apellidos, Nombres |
+|:-:|---|---|
+| <img src="https://cdn.simpleicons.org/vitest/6E9F18" width="18" alt="" /> | **QA · Documentación** | Martínez Villavicencio, Fernando Alexander |
+| <img src="https://cdn.simpleicons.org/react/61DAFB" width="18" alt="" /> | **Frontend** | Olmos López, Mario Arturo |
+| <img src="https://cdn.simpleicons.org/githubactions/2088FF" width="18" alt="" /> | **Líder Técnico · Diseño · DevOps · CI/CD** | Ortiz Pérez Vertti, Carlos Alberto |
+| <img src="https://cdn.simpleicons.org/nodedotjs/5FA04E" width="18" alt="" /> | **Backend** | Pinto Ruíz, Juan Pablo |
+| <img src="https://cdn.simpleicons.org/postgresql/4169E1" width="18" alt="" /> | **Base de datos** | Sánchez de la Torre, Mauricio |
 
 **Profesor:** Nicolás Haidar Salazar
 **Asignatura:** Desarrollo de Software
@@ -227,6 +225,6 @@ docker compose down                                          # Detener
 
 <div align="center">
 
-<sub>© 2026 Equipo 5 · Fábrica de Harinas Elizondo, S.A. de C.V.</sub>
+<sub>© 2026 Equipo 2 · Fábrica de Harinas Elizondo, S.A. de C.V.</sub>
 
 </div>

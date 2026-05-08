@@ -204,7 +204,7 @@ Validar, con usuarios finales (o el profesor en rol de usuario final), que el Si
 | 1 | Ir a Certificados → "Emitir certificado" | Paso 1: buscar cliente |
 | 2 | Buscar "Bimbo", seleccionar | Paso 1 completo, pasar al Paso 2 |
 | 3 | Capturar lote L-2026-001, seleccionar inspección A | Paso 2 completo |
-| 4 | Capturar orden de compra, cantidades (entrega ≤ solicitada), factura, fechas | Paso 3 completo |
+| 4 | Capturar pedido, cantidades (entrega ≤ solicitada), factura, fechas | Paso 3 completo |
 | 5 | Revisar resumen, clic en "Emitir" | Redirige a detalle con número `CERT-2026-NNNNNN` |
 | 6 | Abrir MailHog (`http://localhost:8025`) | Se ven dos correos (cliente + almacén), con PDF adjunto |
 

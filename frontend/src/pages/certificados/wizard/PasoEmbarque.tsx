@@ -198,7 +198,7 @@ export function PasoEmbarque({
               name="numOrdenCompra"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Núm. orden de compra *</FormLabel>
+                  <FormLabel>Núm. pedido *</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>

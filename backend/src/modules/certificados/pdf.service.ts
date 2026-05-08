@@ -332,7 +332,7 @@ export class CertificadoPdfService {
       ]);
 
       this.renderInfoBlock(doc, "DATOS DE EMBARQUE", [
-        ["Orden de compra", data.embarque.numOrdenCompra],
+        ["Pedido", data.embarque.numOrdenCompra],
         ["Factura", data.embarque.numFactura],
         ["Dirección de envío", data.embarque.direccionEnvio],
         [

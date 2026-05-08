@@ -267,6 +267,9 @@ async function main() {
     const paramL = equipoAlv.parametros.find((p) => p.clave === 'L')!;
     const paramPL = equipoAlv.parametros.find((p) => p.clave === 'P/L')!;
     const paramABS = equipoFar.parametros.find((p) => p.clave === 'ABS')!;
+    const paramTDM = equipoFar.parametros.find((p) => p.clave === 'TDM')!;
+    const paramEST = equipoFar.parametros.find((p) => p.clave === 'EST')!;
+    const paramGRB = equipoFar.parametros.find((p) => p.clave === 'GRB')!;
     const paramFQN = equipoFar.parametros.find((p) => p.clave === 'FQN')!;
 
     // ------------------------------------------------------------------------
@@ -410,14 +413,23 @@ async function main() {
 
         const fallaPrimera = !dejarEnBorrador && random() < 0.12;
         const wVal = fallaPrimera ? 100 : 250 + random() * 100;
+        // Cada inspección registra resultados para los 9 parámetros activos
+        // (alveógrafo + farinógrafo). Los valores se generan dentro de
+        // especificación, salvo el W cuando `fallaPrimera` es true.
+        const resultadosA = [
+          { parametroId: paramW.id, valor: wVal, dentroEspecificacion: !fallaPrimera },
+          { parametroId: paramP.id, valor: 50 + random() * 40, dentroEspecificacion: true },
+          { parametroId: paramL.id, valor: 90 + random() * 50, dentroEspecificacion: true },
+          { parametroId: paramPL.id, valor: 0.5 + random() * 0.4, dentroEspecificacion: true },
+          { parametroId: paramABS.id, valor: 57 + random() * 6, dentroEspecificacion: true },
+          { parametroId: paramTDM.id, valor: 3 + random() * 4, dentroEspecificacion: true },
+          { parametroId: paramEST.id, valor: 7 + random() * 6, dentroEspecificacion: true },
+          { parametroId: paramGRB.id, valor: 40 + random() * 30, dentroEspecificacion: true },
+          { parametroId: paramFQN.id, valor: 60 + random() * 30, dentroEspecificacion: true },
+        ];
 
         await tx.resultadoInspeccion.createMany({
-          data: [
-            { inspeccionId: inspeccion.id, parametroId: paramW.id, valor: wVal, dentroEspecificacion: !fallaPrimera },
-            { inspeccionId: inspeccion.id, parametroId: paramP.id, valor: 70, dentroEspecificacion: true },
-            { inspeccionId: inspeccion.id, parametroId: paramL.id, valor: 110, dentroEspecificacion: true },
-            { inspeccionId: inspeccion.id, parametroId: paramPL.id, valor: 0.63, dentroEspecificacion: true },
-          ],
+          data: resultadosA.map((r) => ({ inspeccionId: inspeccion.id, ...r })),
         });
 
         if (fallaPrimera) {
@@ -435,13 +447,20 @@ async function main() {
             },
           });
 
+          const resultadosB = [
+            { parametroId: paramW.id, valor: 260 + random() * 80, dentroEspecificacion: true },
+            { parametroId: paramP.id, valor: 50 + random() * 40, dentroEspecificacion: true },
+            { parametroId: paramL.id, valor: 90 + random() * 50, dentroEspecificacion: true },
+            { parametroId: paramPL.id, valor: 0.5 + random() * 0.4, dentroEspecificacion: true },
+            { parametroId: paramABS.id, valor: 57 + random() * 6, dentroEspecificacion: true },
+            { parametroId: paramTDM.id, valor: 3 + random() * 4, dentroEspecificacion: true },
+            { parametroId: paramEST.id, valor: 7 + random() * 6, dentroEspecificacion: true },
+            { parametroId: paramGRB.id, valor: 40 + random() * 30, dentroEspecificacion: true },
+            { parametroId: paramFQN.id, valor: 60 + random() * 30, dentroEspecificacion: true },
+          ];
+
           await tx.resultadoInspeccion.createMany({
-            data: [
-              { inspeccionId: inspeccion.id, parametroId: paramW.id, valor: 280, dentroEspecificacion: true },
-              { inspeccionId: inspeccion.id, parametroId: paramP.id, valor: 70, dentroEspecificacion: true },
-              { inspeccionId: inspeccion.id, parametroId: paramL.id, valor: 110, dentroEspecificacion: true },
-              { inspeccionId: inspeccion.id, parametroId: paramPL.id, valor: 0.63, dentroEspecificacion: true },
-            ],
+            data: resultadosB.map((r) => ({ inspeccionId: inspeccion.id, ...r })),
           });
         }
 

@@ -40,7 +40,7 @@ router.get(
 router.post(
   "/",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  requireRole("CONTROL_CALIDAD", "LABORATORIO", "GERENTE_PLANTA"),
   validate({ body: emitirCertificadoSchema }),
   emitirCertificado,
 );
@@ -48,7 +48,7 @@ router.post(
 router.post(
   "/:id/reenviar",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  requireRole("CONTROL_CALIDAD", "LABORATORIO", "GERENTE_PLANTA"),
   validate({ params: idParamSchema }),
   reenviarCertificado,
 );

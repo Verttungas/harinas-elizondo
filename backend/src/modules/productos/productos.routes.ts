@@ -19,7 +19,7 @@ router.get(
 router.post(
   "/",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  requireRole("CONTROL_CALIDAD", "LABORATORIO", "GERENTE_PLANTA"),
   validate({ body: crearProductoSchema }),
   crearProducto,
 );

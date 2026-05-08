@@ -38,10 +38,16 @@ router.get(
   getCliente,
 );
 
+const rolesEscrituraClientes = requireRole(
+  "CONTROL_CALIDAD",
+  "LABORATORIO",
+  "GERENTE_PLANTA",
+);
+
 router.post(
   "/",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraClientes,
   validate({ body: crearClienteSchema }),
   crearCliente,
 );
@@ -49,7 +55,7 @@ router.post(
 router.put(
   "/:id",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraClientes,
   validate({ params: idParamSchema, body: actualizarClienteSchema }),
   actualizarCliente,
 );
@@ -57,7 +63,7 @@ router.put(
 router.post(
   "/:id/valores-referencia",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraClientes,
   validate({ params: idParamSchema, body: agregarValorReferenciaSchema }),
   agregarValorReferencia,
 );
@@ -65,7 +71,7 @@ router.post(
 router.put(
   "/:id/valores-referencia/:vrId",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraClientes,
   validate({
     params: valorReferenciaParamsSchema,
     body: actualizarValorReferenciaSchema,
@@ -76,7 +82,7 @@ router.put(
 router.delete(
   "/:id/valores-referencia/:vrId",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraClientes,
   validate({ params: valorReferenciaParamsSchema }),
   eliminarValorReferencia,
 );
@@ -84,7 +90,7 @@ router.delete(
 router.post(
   "/:id/inactivar",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraClientes,
   validate({ params: idParamSchema, body: inactivarClienteSchema }),
   inactivarCliente,
 );
@@ -92,7 +98,7 @@ router.post(
 router.post(
   "/:id/reactivar",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraClientes,
   validate({ params: idParamSchema }),
   reactivarCliente,
 );

@@ -30,14 +30,13 @@ const rolesReportes = requireRole(
   "ASEGURAMIENTO_CALIDAD",
   "GERENTE_PLANTA",
   "DIRECTOR_OPERACIONES",
+  "LABORATORIO",
 );
-
-const soloAdministradores = requireRole("ADMINISTRADOR");
 
 router.get(
   "/guardados",
   requireAuth,
-  soloAdministradores,
+  rolesReportes,
   validate({ query: listReportesGuardadosQuerySchema }),
   listReportesGuardados,
 );
@@ -45,7 +44,7 @@ router.get(
 router.post(
   "/guardados",
   requireAuth,
-  soloAdministradores,
+  rolesReportes,
   validate({ body: crearReporteGuardadoSchema }),
   crearReporteGuardado,
 );
@@ -53,7 +52,7 @@ router.post(
 router.put(
   "/guardados/:id",
   requireAuth,
-  soloAdministradores,
+  rolesReportes,
   validate({ params: idParamSchema, body: actualizarReporteGuardadoSchema }),
   actualizarReporteGuardado,
 );
@@ -61,7 +60,7 @@ router.put(
 router.delete(
   "/guardados/:id",
   requireAuth,
-  soloAdministradores,
+  rolesReportes,
   validate({ params: idParamSchema }),
   eliminarReporteGuardado,
 );

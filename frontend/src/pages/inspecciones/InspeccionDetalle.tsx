@@ -29,8 +29,9 @@ export function InspeccionDetalle() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { usuario } = useAuth();
-  const puedeEditar =
-    !!usuario?.rol && rolesEscrituraInspecciones.includes(usuario.rol);
+  const puedeEditar = usuario
+    ? rolesEscrituraInspecciones.includes(usuario.rol)
+    : false;
 
   const [cerrando, setCerrando] = useState(false);
 

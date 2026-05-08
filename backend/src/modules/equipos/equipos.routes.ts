@@ -39,10 +39,16 @@ router.get(
   getEquipo,
 );
 
+const rolesEscrituraEquipos = requireRole(
+  "CONTROL_CALIDAD",
+  "LABORATORIO",
+  "GERENTE_PLANTA",
+);
+
 router.post(
   "/",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraEquipos,
   validate({ body: crearEquipoSchema }),
   crearEquipo,
 );
@@ -50,7 +56,7 @@ router.post(
 router.put(
   "/:id",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraEquipos,
   validate({ params: idParamSchema, body: actualizarEquipoSchema }),
   actualizarEquipo,
 );
@@ -58,7 +64,7 @@ router.put(
 router.post(
   "/:id/parametros",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraEquipos,
   validate({ params: idParamSchema, body: crearParametroSchema }),
   agregarParametro,
 );
@@ -66,7 +72,7 @@ router.post(
 router.put(
   "/:id/parametros/:paramId",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraEquipos,
   validate({ params: parametroParamsSchema, body: actualizarParametroSchema }),
   actualizarParametro,
 );
@@ -74,7 +80,7 @@ router.put(
 router.delete(
   "/:id/parametros/:paramId",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraEquipos,
   validate({ params: parametroParamsSchema }),
   inactivarParametro,
 );
@@ -82,7 +88,7 @@ router.delete(
 router.post(
   "/:id/inactivar",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraEquipos,
   validate({ params: idParamSchema, body: inactivarEquipoSchema }),
   inactivarEquipo,
 );
@@ -90,7 +96,7 @@ router.post(
 router.post(
   "/:id/baja",
   requireAuth,
-  requireRole("CONTROL_CALIDAD"),
+  rolesEscrituraEquipos,
   validate({ params: idParamSchema, body: darBajaEquipoSchema }),
   darBajaEquipo,
 );

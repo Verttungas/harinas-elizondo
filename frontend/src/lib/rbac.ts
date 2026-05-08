@@ -22,9 +22,12 @@ export const navAccessByRole: Record<Rol, string[]> = {
   ],
   LABORATORIO: [
     "/dashboard",
+    "/equipos",
+    "/clientes",
     "/lotes",
     "/inspecciones",
     "/certificados",
+    "/reportes",
   ],
   ASEGURAMIENTO_CALIDAD: [
     "/dashboard",
@@ -32,7 +35,15 @@ export const navAccessByRole: Record<Rol, string[]> = {
     "/certificados",
     "/reportes",
   ],
-  GERENTE_PLANTA: ["/dashboard", "/certificados", "/reportes"],
+  GERENTE_PLANTA: [
+    "/dashboard",
+    "/equipos",
+    "/clientes",
+    "/lotes",
+    "/inspecciones",
+    "/certificados",
+    "/reportes",
+  ],
   DIRECTOR_OPERACIONES: ["/dashboard", "/certificados", "/reportes"],
 };
 
@@ -41,20 +52,34 @@ export function rolPuedeVerRuta(rol: Rol | undefined, ruta: string): boolean {
   return navAccessByRole[rol].includes(ruta);
 }
 
-export const rolesEscrituraClientes: Rol[] = ["CONTROL_CALIDAD", "ADMINISTRADOR"];
-export const rolesEscrituraEquipos: Rol[] = ["CONTROL_CALIDAD", "ADMINISTRADOR"];
+export const rolesEscrituraClientes: Rol[] = [
+  "CONTROL_CALIDAD",
+  "LABORATORIO",
+  "GERENTE_PLANTA",
+  "ADMINISTRADOR",
+];
+export const rolesEscrituraEquipos: Rol[] = [
+  "CONTROL_CALIDAD",
+  "LABORATORIO",
+  "GERENTE_PLANTA",
+  "ADMINISTRADOR",
+];
 export const rolesEscrituraLotes: Rol[] = [
   "CONTROL_CALIDAD",
   "LABORATORIO",
+  "GERENTE_PLANTA",
   "ADMINISTRADOR",
 ];
 export const rolesEscrituraInspecciones: Rol[] = [
   "CONTROL_CALIDAD",
   "LABORATORIO",
+  "GERENTE_PLANTA",
   "ADMINISTRADOR",
 ];
 export const rolesEscrituraCertificados: Rol[] = [
   "CONTROL_CALIDAD",
+  "LABORATORIO",
+  "GERENTE_PLANTA",
   "ADMINISTRADOR",
 ];
 export const rolesAdministracionUsuarios: Rol[] = ["ADMINISTRADOR"];
@@ -63,5 +88,6 @@ export const rolesLecturaReportes: Rol[] = [
   "ASEGURAMIENTO_CALIDAD",
   "GERENTE_PLANTA",
   "DIRECTOR_OPERACIONES",
+  "LABORATORIO",
   "ADMINISTRADOR",
 ];

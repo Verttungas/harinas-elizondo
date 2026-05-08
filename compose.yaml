@@ -21,7 +21,7 @@ services:
       - app-network
 
   mailhog:
-    image: mailhog/mailhog:v1.0.1
+    image: axllent/mailpit:latest
     restart: unless-stopped
     ports:
       - "1025:1025"

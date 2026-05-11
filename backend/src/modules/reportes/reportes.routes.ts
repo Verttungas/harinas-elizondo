@@ -2,26 +2,18 @@ import { Router } from "express";
 import { requireAuth, requireRole } from "../../middlewares/auth.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import {
-  actualizarReporteGuardado,
-  crearReporteGuardado,
-  eliminarReporteGuardado,
   exportReporte,
   getCertificadosPorCliente,
   getDesviaciones,
   getParametros,
   getResumen,
-  listReportesGuardados,
 } from "./reportes.controller.js";
 import {
-  actualizarReporteGuardadoSchema,
   certificadosPorClienteQuerySchema,
-  crearReporteGuardadoSchema,
   desviacionesQuerySchema,
   exportQuerySchema,
-  listReportesGuardadosQuerySchema,
   parametrosQuerySchema,
 } from "./reportes.schemas.js";
-import { idParamSchema } from "../../lib/schemas.js";
 
 const router = Router();
 
@@ -31,38 +23,6 @@ const rolesReportes = requireRole(
   "GERENTE_PLANTA",
   "DIRECTOR_OPERACIONES",
   "LABORATORIO",
-);
-
-router.get(
-  "/guardados",
-  requireAuth,
-  rolesReportes,
-  validate({ query: listReportesGuardadosQuerySchema }),
-  listReportesGuardados,
-);
-
-router.post(
-  "/guardados",
-  requireAuth,
-  rolesReportes,
-  validate({ body: crearReporteGuardadoSchema }),
-  crearReporteGuardado,
-);
-
-router.put(
-  "/guardados/:id",
-  requireAuth,
-  rolesReportes,
-  validate({ params: idParamSchema, body: actualizarReporteGuardadoSchema }),
-  actualizarReporteGuardado,
-);
-
-router.delete(
-  "/guardados/:id",
-  requireAuth,
-  rolesReportes,
-  validate({ params: idParamSchema }),
-  eliminarReporteGuardado,
 );
 
 router.get("/resumen", requireAuth, rolesReportes, getResumen);

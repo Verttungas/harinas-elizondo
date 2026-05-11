@@ -6,8 +6,8 @@ import { FiltersBar } from "@/components/shared/FiltersBar";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LoteAutocomplete } from "@/components/shared/LoteAutocomplete";
 import {
   Select,
   SelectContent,
@@ -30,12 +30,13 @@ export function InspeccionesListado() {
     !!usuario?.rol && rolesEscrituraInspecciones.includes(usuario.rol);
 
   const [loteSearch, setLoteSearch] = useState("");
+  const [loteId, setLoteId] = useState<string | number | undefined>(undefined);
   const [estado, setEstado] = useState<"TODOS" | "BORRADOR" | "CERRADA">(
     "TODOS",
   );
   const [page, setPage] = useState(1);
 
-  const { data: rawData, loading } = useQuery(
+  const { data, loading } = useQuery(
     () =>
       api
         .get<PaginatedResponse<Inspeccion>>("/inspecciones", {
@@ -43,23 +44,12 @@ export function InspeccionesListado() {
             page,
             limit: 20,
             estado,
+            ...(loteId !== undefined ? { loteId } : {}),
           },
         })
         .then((r) => r.data),
-    [estado, page],
+    [estado, page, loteId],
   );
-
-  const data =
-    loteSearch && rawData
-      ? {
-          ...rawData,
-          data: rawData.data.filter((i) =>
-            i.lote?.numeroLote
-              ?.toLowerCase()
-              .includes(loteSearch.toLowerCase()),
-          ),
-        }
-      : rawData;
 
   const columns: DataTableColumn<Inspeccion>[] = [
     {
@@ -124,10 +114,15 @@ export function InspeccionesListado() {
       <FiltersBar>
         <div className="flex-1 min-w-[200px]">
           <Label className="text-xs">Número de lote</Label>
-          <Input
+          <LoteAutocomplete
             value={loteSearch}
-            onChange={(e) => {
-              setLoteSearch(e.target.value);
+            onChange={(v) => {
+              setLoteSearch(v);
+              setLoteId(undefined);
+              setPage(1);
+            }}
+            onSelect={(lote) => {
+              setLoteId(lote.id);
               setPage(1);
             }}
             placeholder="Buscar..."

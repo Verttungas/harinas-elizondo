@@ -40,41 +40,9 @@ export const exportQuerySchema = z.object({
   hasta: isoDate.optional(),
 });
 
-export const listReportesGuardadosQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
-  estado: z.enum(["ACTIVO", "INACTIVO", "TODOS"]).default("ACTIVO"),
-  tipo: z.enum(["TODOS", ...tipoReporteSchema.options]).default("TODOS"),
-  q: z.string().optional(),
-});
-
-export const crearReporteGuardadoSchema = z.object({
-  nombre: z.string().min(1).max(120),
-  descripcion: z.string().optional(),
-  tipo: tipoReporteSchema,
-  filtros: z.record(z.unknown()).default({}),
-});
-
-export const actualizarReporteGuardadoSchema = z.object({
-  nombre: z.string().min(1).max(120).optional(),
-  descripcion: z.string().optional(),
-  tipo: tipoReporteSchema.optional(),
-  filtros: z.record(z.unknown()).optional(),
-  activo: z.boolean().optional(),
-});
-
 export type ParametrosQuery = z.infer<typeof parametrosQuerySchema>;
 export type CertificadosPorClienteQuery = z.infer<
   typeof certificadosPorClienteQuerySchema
 >;
 export type DesviacionesQuery = z.infer<typeof desviacionesQuerySchema>;
 export type ExportQuery = z.infer<typeof exportQuerySchema>;
-export type ListReportesGuardadosQuery = z.infer<
-  typeof listReportesGuardadosQuerySchema
->;
-export type CrearReporteGuardadoInput = z.infer<
-  typeof crearReporteGuardadoSchema
->;
-export type ActualizarReporteGuardadoInput = z.infer<
-  typeof actualizarReporteGuardadoSchema
->;

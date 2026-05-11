@@ -1,7 +1,9 @@
 import { PrismaClient, RolUsuario } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { CertificadoPdfService } from '../src/modules/certificados/pdf.service.js';
 
 const prisma = new PrismaClient();
+const certificadoPdfService = new CertificadoPdfService(prisma);
 
 function createDeterministicRandom(seed: number) {
   let state = seed >>> 0;
@@ -32,7 +34,6 @@ async function main() {
         equipos_laboratorio,
         clientes,
         productos,
-        reportes_guardados,
         usuarios
       RESTART IDENTITY CASCADE
     `);
@@ -42,7 +43,7 @@ async function main() {
     // ------------------------------------------------------------------------
     // 1. Usuarios (6, uno por rol)
     // ------------------------------------------------------------------------
-    const usuarioAdmin = await tx.usuario.create({
+    await tx.usuario.create({
       data: {
         correo: 'admin@fhesa.mx',
         passwordHash,
@@ -504,7 +505,6 @@ async function main() {
               loteId: lote.id,
               fechaEmision,
               estado: estadoCert,
-              rutaPdf: `certificados-pdf/2026/${String(mes + 1).padStart(2, '0')}/CERT-2026-${String(certIndex).padStart(6, '0')}.pdf`,
               numOrdenCompra: `OC-${1000 + Math.floor(random() * 9000)}`,
               cantidadSolicitada: cantidadPedida,
               cantidadEntrega: cantidadPedida,
@@ -535,37 +535,16 @@ async function main() {
       }
     }
 
-    // ------------------------------------------------------------------------
-    // 7. Reportes guardados (vistas predefinidas)
-    // ------------------------------------------------------------------------
-    await tx.reporteGuardado.createMany({
-      data: [
-        {
-          nombre: 'Certificados emitidos del mes',
-          descripcion: 'Vista por defecto del director de operaciones.',
-          tipo: 'CERTIFICADOS',
-          filtros: { rangoMes: 'actual' },
-          creadoPor: usuarioAdmin.id,
-        },
-        {
-          nombre: 'Lotes con saldo pendiente',
-          descripcion: 'Lotes producidos sin certificado emitido.',
-          tipo: 'LOTES',
-          filtros: { conCertificado: false },
-          creadoPor: controlId,
-        },
-        {
-          nombre: 'Envíos fallidos',
-          descripcion: 'Envíos de certificado a reintentar.',
-          tipo: 'ENVIOS',
-          filtros: { estado: 'FALLIDO' },
-          creadoPor: controlId,
-        },
-      ],
-    });
   });
 
-  console.log('Seed completado: usuarios, productos, equipos, clientes, lotes, inspecciones y certificados generados.');
+  // Generar los PDFs de los certificados creados y guardar su ruta absoluta.
+  const certificados = await prisma.certificado.findMany({ select: { id: true } });
+  for (const c of certificados) {
+    const rutaPdf = await certificadoPdfService.generar(c.id);
+    await prisma.certificado.update({ where: { id: c.id }, data: { rutaPdf } });
+  }
+
+  console.log(`Seed completado: usuarios, productos, equipos, clientes, lotes, inspecciones y ${certificados.length} certificados (con PDF) generados.`);
 }
 
 main()

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { LoteAutocomplete } from "@/components/shared/LoteAutocomplete";
 import { api, handleApiError } from "@/lib/api";
 import { formatFecha } from "@/lib/format";
 import type { Inspeccion, Lote } from "@/types/domain.types";
@@ -104,9 +104,22 @@ export function PasoLoteInspecciones({
       <div className="flex gap-2 items-end">
         <div className="flex-1 max-w-md">
           <Label className="text-xs">Número de lote</Label>
-          <Input
+          <LoteAutocomplete
             value={numero}
-            onChange={(e) => setNumero(e.target.value)}
+            onChange={(v) => {
+              setNumero(v);
+              if (v === "") {
+                setCandidato(null);
+                setDisponibles([]);
+                setSeleccionadas(new Set());
+              }
+            }}
+            onSelect={(l) => {
+              setNumero(l.numeroLote);
+              setCandidato(l);
+              setSeleccionadas(new Set());
+              void cargarInspecciones(l);
+            }}
             placeholder="Ej. L-2026-0412"
           />
         </div>

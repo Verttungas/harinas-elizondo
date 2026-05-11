@@ -5,8 +5,8 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { FiltersBar } from "@/components/shared/FiltersBar";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LoteAutocomplete } from "@/components/shared/LoteAutocomplete";
 import { useQuery } from "@/hooks/useApi";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useAuth } from "@/hooks/useAuth";
@@ -109,12 +109,13 @@ export function LotesListado() {
       <FiltersBar>
         <div className="flex-1 min-w-[200px]">
           <Label className="text-xs">Número de lote</Label>
-          <Input
+          <LoteAutocomplete
             value={q}
-            onChange={(e) => {
-              setQ(e.target.value);
+            onChange={(v) => {
+              setQ(v);
               setPage(1);
             }}
+            onSelect={(lote) => navigate(`/lotes/${lote.id}`)}
             placeholder="Buscar..."
           />
         </div>

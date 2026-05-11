@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/useDebounce";
 import { api } from "@/lib/api";
@@ -31,6 +31,7 @@ export function LoteAutocomplete({
     const q = debouncedValue.trim();
     if (q.length < 1) {
       setItems([]);
+      setLoading(false);
       return;
     }
     let cancelled = false;
@@ -68,7 +69,7 @@ export function LoteAutocomplete({
     setOpen(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (!open || items.length === 0) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();

@@ -118,7 +118,7 @@ export function InspeccionesListado() {
             value={loteSearch}
             onChange={(v) => {
               setLoteSearch(v);
-              if (v === "") setLoteId(undefined);
+              setLoteId(undefined);
               setPage(1);
             }}
             onSelect={(lote) => {
